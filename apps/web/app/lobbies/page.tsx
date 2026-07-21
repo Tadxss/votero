@@ -11,7 +11,7 @@ export default function MyLobbiesPage() {
   const { data: lobbies, isLoading } = useMyLobbies(isSignedIn ? user?.id : undefined);
 
   return (
-    <main className="relative min-h-screen overflow-hidden px-4 py-10">
+    <main className="relative min-h-[calc(100vh-4rem)] overflow-hidden px-4 py-10">
       <div
         aria-hidden
         className="pointer-events-none absolute -top-32 -right-24 h-72 w-72 rounded-full bg-accent-400/30 blur-3xl dark:bg-accent-600/15"

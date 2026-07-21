@@ -24,7 +24,7 @@ export function Header() {
             >
               My Lobbies
             </Link>
-            <span className="hidden max-w-[140px] truncate text-[var(--foreground-muted)] sm:inline">
+            <span className="hidden max-w-[160px] truncate text-[var(--foreground-muted)] sm:inline md:max-w-[240px] lg:max-w-[360px]">
               {user?.email}
             </span>
             <button onClick={() => signOut.mutate()} className={navLinkClasses}>

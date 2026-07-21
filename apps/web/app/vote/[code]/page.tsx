@@ -20,7 +20,7 @@ import { useConfetti } from "../../_components/useConfetti";
 
 function EmptyState({ icon, message }: { icon: string; message: string }) {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-3 px-4 text-center">
+    <main className="flex h-[calc(100vh-4rem)] flex-col items-center justify-center gap-3 px-4 text-center">
       <span className="text-4xl">{icon}</span>
       <p className="text-sm text-[var(--foreground-muted)]">{message}</p>
     </main>
@@ -77,7 +77,7 @@ export default function VotePage() {
   const showResults = lobby.status === "closed" || hasVoted;
 
   return (
-    <main className="relative min-h-screen overflow-hidden px-4 py-10">
+    <main className="relative min-h-[calc(100vh-4rem)] overflow-hidden px-4 py-10">
       <div
         aria-hidden
         className="pointer-events-none absolute -top-32 -right-24 h-72 w-72 rounded-full bg-brand-300/30 blur-3xl dark:bg-brand-700/20"
