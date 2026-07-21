@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Votero — a QR-code-based group voting/polling app, shipping to iOS, Android, and Web from a single Turborepo monorepo with shared business logic. See [TECH_STACK.md](TECH_STACK.md) for the mandated stack and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the concrete product design (Postgres schema, RLS policy design, Edge Functions, Realtime channel design, build order, and what's deliberately deferred).
 
-**Status**: backend is built and verified end-to-end (schema, RLS, RPCs, all 4 Edge Functions), both against a local Supabase stack and the real hosted project. `packages/shared`/`packages/types` are wired into both apps. What's *not* built yet is the actual creator/voter UI (`apps/web`/`apps/mobile` still only have their bare framework scaffolds) — check the "Build Order" section of `docs/ARCHITECTURE.md` for the precise done/pending breakdown before assuming a piece exists.
+**Status**: backend is built and verified end-to-end (schema, RLS, RPCs, all 4 Edge Functions), both against a local Supabase stack and the real hosted project. The web creator/voter UI (`apps/web/app/{create,lobby/[code]/manage,vote/[code]}`) is built and verified via a scripted Playwright browser run — see `docs/TESTING.md` for the manual walkthrough version. `apps/mobile` still only has its bare framework scaffold — check the "Build Order" section of `docs/ARCHITECTURE.md` for the precise done/pending breakdown before assuming a piece exists.
 
 ## Commands
 

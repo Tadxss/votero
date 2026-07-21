@@ -2,7 +2,7 @@
 
 A QR-code-based group voting/polling app — create a lobby, share a QR code, people scan to vote. Ships to iOS, Android, and Web from a single Turborepo monorepo with shared business logic.
 
-See [TECH_STACK.md](TECH_STACK.md) for the stack and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the product design (schema, RLS, Edge Functions, Realtime, build order).
+See [TECH_STACK.md](TECH_STACK.md) for the stack, [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the product design (schema, RLS, Edge Functions, Realtime, build order), and [docs/TESTING.md](docs/TESTING.md) for a manual walkthrough of every creator/voter scenario.
 
 ## What's inside
 
@@ -16,7 +16,7 @@ See [TECH_STACK.md](TECH_STACK.md) for the stack and [docs/ARCHITECTURE.md](docs
 
 Package manager is **pnpm** — install from the repo root with `pnpm install`.
 
-**Status**: backend (schema/RLS/RPCs/Edge Functions) is built and verified, both locally (Docker) and against the real hosted Supabase project. Creator/voter UI screens are not built yet — see `docs/ARCHITECTURE.md`'s Build Order for the current state.
+**Status**: backend (schema/RLS/RPCs/Edge Functions) and the web creator/voter UI are built and verified end-to-end (locally, against the hosted Supabase project, and via a scripted browser run of the full create → open → join → vote → auto-close flow). Mobile UI is not built yet — see `docs/ARCHITECTURE.md`'s Build Order for the current state.
 
 ## Develop
 

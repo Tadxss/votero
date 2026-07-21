@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { CastVoteInput } from "@repo/types";
 import { useSupabaseClient } from "../supabase/context";
+import { extractFunctionErrorCode } from "../supabase/functionErrors";
 import { useBallotStore } from "../store/ballotStore";
 
 // Edge Function, not a direct table insert — one vote atomically touches four things (vote row,
@@ -16,7 +17,7 @@ export function useCastVote() {
       const { error } = await supabase.functions.invoke("cast-vote", {
         body: input,
       });
-      if (error) throw error;
+      if (error) throw new Error(await extractFunctionErrorCode(error));
     },
     onSuccess: (_data, input) => {
       resetBallot();

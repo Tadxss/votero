@@ -62,6 +62,7 @@ export interface JoinLobbyInput {
 
 export interface JoinLobbyResult {
   participantId: string;
+  hasVoted: boolean;
   lobby: Lobby;
   options: LobbyOption[];
 }
