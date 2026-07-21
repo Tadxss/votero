@@ -9,18 +9,17 @@ export function useCreateLobby() {
 
   return useMutation<CreateLobbyResult, Error, CreateLobbyInput>({
     mutationFn: async (input) => {
-      // `as any` args: the placeholder Database type (packages/types/src/database.ts) can't express
-      // per-function argument shapes yet — remove once `supabase gen types` replaces it.
       const { data, error } = await supabase.rpc("rpc_create_lobby", {
         p_title: input.title,
         p_options: input.options,
         p_voter_cap: input.voterCap,
         p_ballot_mode: input.ballotMode,
         p_tally_visibility: input.tallyVisibility,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- see comment above
-      } as any);
+      });
       if (error) throw error;
-      return data as CreateLobbyResult;
+      // rpc_create_lobby returns `jsonb` (typed as the generic `Json` union) — the RPC's own
+      // lobby_to_json/option_to_json (supabase/migrations) guarantee this shape at runtime.
+      return data as unknown as CreateLobbyResult;
     },
   });
 }

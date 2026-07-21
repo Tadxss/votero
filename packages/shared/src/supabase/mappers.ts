@@ -1,35 +1,13 @@
-import type { Lobby, LobbyOption } from "@repo/types";
+import type { Lobby, LobbyOption, Tables } from "@repo/types";
 
 // Direct PostgREST reads (`.from("lobbies").select("*")`) come back with raw Postgres column
-// names (snake_case), unlike the RPCs (rpc_create_lobby, rpc_join_lobby), which build their JSON
-// response through lobby_to_json/option_to_json (supabase/migrations) to match these camelCase
-// domain types already. This mapper is the client-side half of that same snake_case -> camelCase
-// boundary for the one place we read the table directly instead of going through an RPC.
-interface LobbyRow {
-  id: string;
-  code: string;
-  creator_id: string;
-  title: string;
-  status: Lobby["status"];
-  ballot_mode: Lobby["ballotMode"];
-  tally_visibility: Lobby["tallyVisibility"];
-  visibility: Lobby["visibility"];
-  voter_cap: number;
-  joined_count: number;
-  votes_count: number;
-  otp_required: boolean;
-  opened_at: string | null;
-  closed_at: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-interface OptionRow {
-  id: string;
-  lobby_id: string;
-  label: string;
-  position: number;
-}
+// names (snake_case, typed via the generated `Tables<...>` row types), unlike the RPCs
+// (rpc_create_lobby, rpc_join_lobby), which build their JSON response through
+// lobby_to_json/option_to_json (supabase/migrations) to match these camelCase domain types
+// already. This mapper is the client-side half of that same snake_case -> camelCase boundary for
+// the one place we read the table directly instead of going through an RPC.
+type LobbyRow = Tables<"lobbies">;
+type OptionRow = Tables<"options">;
 
 export function mapLobbyRow(row: LobbyRow): Lobby {
   return {

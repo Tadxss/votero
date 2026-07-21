@@ -95,16 +95,16 @@ language plpgsql
 as $$
 declare
   alphabet text := '23456789ABCDEFGHJKMNPQRSTVWXYZ';
-  code text;
+  v_code text;
 begin
   loop
-    code := '';
+    v_code := '';
     for i in 1..8 loop
-      code := code || substr(alphabet, floor(random() * length(alphabet) + 1)::int, 1);
+      v_code := v_code || substr(alphabet, floor(random() * length(alphabet) + 1)::int, 1);
     end loop;
-    exit when not exists (select 1 from public.lobbies where lobbies.code = code);
+    exit when not exists (select 1 from public.lobbies where lobbies.code = v_code);
   end loop;
-  return code;
+  return v_code;
 end;
 $$;
 
