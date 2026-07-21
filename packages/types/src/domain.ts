@@ -40,6 +40,20 @@ export interface Participant {
   joinedAt: string;
 }
 
+export interface Profile {
+  id: string;
+  username: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  createdAt: string;
+}
+
+export interface UpdateProfileInput {
+  username?: string;
+  firstName?: string;
+  lastName?: string;
+}
+
 // --- Edge Function request/response DTOs (see docs/ARCHITECTURE.md "Edge Functions") ---
 
 export interface CreateLobbyInput {
