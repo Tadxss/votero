@@ -11,7 +11,7 @@ export function Header() {
   const signOut = useSignOut();
 
   return (
-    <header className="relative z-10 flex items-center justify-between px-4 py-3 sm:px-6">
+    <header className="relative z-10 flex h-16 shrink-0 items-center justify-between px-4 sm:px-6">
       <Link href="/" className="font-display text-lg font-bold text-[var(--foreground)]">
         Votero
       </Link>
