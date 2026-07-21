@@ -17,9 +17,20 @@ const SERIES_VARS = [
   "--series-8",
 ] as const;
 
-export function TallyBars({ options, tally }: { options: LobbyOption[]; tally: TallyEntry[] }) {
+export function TallyBars({
+  options,
+  tally,
+  closed = false,
+}: {
+  options: LobbyOption[];
+  tally: TallyEntry[];
+  closed?: boolean;
+}) {
   const countByOption = new Map(tally.map((t) => [t.optionId, t.count]));
   const maxCount = Math.max(1, ...tally.map((t) => t.count));
+  const winners = tally.filter((t) => t.count > 0 && t.count === maxCount);
+  // Only crown a winner once voting has actually closed, and only when it's not a tie.
+  const winnerOptionId = closed && winners.length === 1 ? winners[0]?.optionId : null;
 
   return (
     <div className="viz-root flex flex-col gap-3">
@@ -44,8 +55,9 @@ export function TallyBars({ options, tally }: { options: LobbyOption[]; tally: T
         const widthPct = (count / maxCount) * 100;
         return (
           <div key={option.id} className="flex items-center gap-3 text-sm">
-            <span className="w-24 shrink-0 truncate text-neutral-900 dark:text-white">
+            <span className="flex w-24 shrink-0 items-center gap-1 truncate text-[var(--foreground)]">
               {option.label}
+              {option.id === winnerOptionId && <span aria-label="Winner">🏆</span>}
             </span>
             <div className="h-3 flex-1 overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800">
               <div
@@ -56,7 +68,9 @@ export function TallyBars({ options, tally }: { options: LobbyOption[]; tally: T
                 }}
               />
             </div>
-            <span className="w-6 shrink-0 text-right tabular-nums text-neutral-500">{count}</span>
+            <span className="w-6 shrink-0 text-right tabular-nums text-[var(--foreground-muted)]">
+              {count}
+            </span>
           </div>
         );
       })}

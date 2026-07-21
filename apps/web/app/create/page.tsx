@@ -7,6 +7,9 @@ import type { BallotMode, TallyVisibility } from "@repo/types";
 import { Button } from "../_components/Button";
 import { RadioCard } from "../_components/RadioCard";
 
+const inputClasses =
+  "rounded-2xl border-2 border-neutral-200 bg-[var(--surface)] px-4 py-2.5 text-base font-normal text-[var(--foreground)] outline-none transition-colors focus:border-brand-500 dark:border-neutral-700";
+
 export default function CreateLobbyPage() {
   const router = useRouter();
   const { ready } = useEnsureSession();
@@ -64,109 +67,124 @@ export default function CreateLobbyPage() {
   }
 
   return (
-    <main className="mx-auto flex max-w-md flex-col gap-6 px-4 py-10">
-      <h1 className="text-2xl font-bold">Create a lobby</h1>
+    <main className="relative min-h-screen overflow-hidden px-4 py-10">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-32 -right-24 h-72 w-72 rounded-full bg-accent-400/30 blur-3xl dark:bg-accent-600/15"
+      />
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-        <label className="flex flex-col gap-1 text-sm font-medium">
-          Title
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Best pizza topping?"
-            className="rounded-md border border-neutral-300 px-3 py-2 text-base font-normal"
-          />
-        </label>
+      <div className="relative mx-auto flex max-w-md flex-col gap-6">
+        <h1 className="font-display text-3xl font-bold text-[var(--foreground)]">
+          Create a lobby
+        </h1>
 
-        <div className="flex flex-col gap-2">
-          <span className="text-sm font-medium">Options</span>
-          {options.map((option, index) => (
-            <div key={index} className="flex gap-2">
-              <input
-                type="text"
-                value={option}
-                onChange={(e) => updateOption(index, e.target.value)}
-                placeholder={`Option ${index + 1}`}
-                className="flex-1 rounded-md border border-neutral-300 px-3 py-2 text-sm"
-              />
-              {options.length > 2 && (
-                <Button type="button" variant="secondary" onClick={() => removeOption(index)}>
-                  Remove
-                </Button>
-              )}
-            </div>
-          ))}
-          <Button
-            type="button"
-            variant="secondary"
-            className="self-start"
-            onClick={() => setOptions((prev) => [...prev, ""])}
-          >
-            Add option
+        <form
+          onSubmit={handleSubmit}
+          className="flex animate-pop-in flex-col gap-6 rounded-3xl border border-neutral-200 bg-[var(--surface)] p-6 shadow-sm dark:border-neutral-800"
+        >
+          <label className="flex flex-col gap-1.5 text-sm font-semibold text-[var(--foreground)]">
+            Title
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Best pizza topping?"
+              className={inputClasses}
+            />
+          </label>
+
+          <div className="flex flex-col gap-2">
+            <span className="text-sm font-semibold text-[var(--foreground)]">Options</span>
+            {options.map((option, index) => (
+              <div key={index} className="flex items-center gap-2">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-100 text-xs font-bold text-brand-600 dark:bg-brand-900/40 dark:text-brand-300">
+                  {index + 1}
+                </span>
+                <input
+                  type="text"
+                  value={option}
+                  onChange={(e) => updateOption(index, e.target.value)}
+                  placeholder={`Option ${index + 1}`}
+                  className={`flex-1 ${inputClasses} py-2 text-sm`}
+                />
+                {options.length > 2 && (
+                  <Button type="button" variant="secondary" onClick={() => removeOption(index)}>
+                    Remove
+                  </Button>
+                )}
+              </div>
+            ))}
+            <Button
+              type="button"
+              variant="secondary"
+              className="self-start"
+              onClick={() => setOptions((prev) => [...prev, ""])}
+            >
+              + Add option
+            </Button>
+          </div>
+
+          <label className="flex flex-col gap-1.5 text-sm font-semibold text-[var(--foreground)]">
+            Voter cap
+            <input
+              type="number"
+              min={1}
+              value={voterCap}
+              onChange={(e) => setVoterCap(Number(e.target.value))}
+              className={inputClasses}
+            />
+          </label>
+
+          <div className="flex flex-col gap-2">
+            <span className="text-sm font-semibold text-[var(--foreground)]">Ballot mode</span>
+            <RadioCard
+              name="ballotMode"
+              value="anonymous"
+              selected={ballotMode === "anonymous"}
+              label="Anonymous"
+              description="You'll only see aggregate results — not who voted for what."
+              onSelect={setBallotMode}
+            />
+            <RadioCard
+              name="ballotMode"
+              value="open"
+              selected={ballotMode === "open"}
+              label="Open"
+              description="You'll see each voter's choice."
+              onSelect={setBallotMode}
+            />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <span className="text-sm font-semibold text-[var(--foreground)]">Tally visibility</span>
+            <RadioCard
+              name="tallyVisibility"
+              value="hidden"
+              selected={tallyVisibility === "hidden"}
+              label="Hidden until closed"
+              description="Voters only see progress (X of Y voted) until you close the lobby."
+              onSelect={setTallyVisibility}
+            />
+            <RadioCard
+              name="tallyVisibility"
+              value="live"
+              selected={tallyVisibility === "live"}
+              label="Live"
+              description="Everyone sees vote counts update in real time."
+              onSelect={setTallyVisibility}
+            />
+          </div>
+
+          {formError && <p className="text-sm font-medium text-red-600">{formError}</p>}
+          {createLobby.isError && (
+            <p className="text-sm font-medium text-red-600">{createLobby.error.message}</p>
+          )}
+
+          <Button type="submit" disabled={!canSubmit || createLobby.isPending} className="w-full">
+            {createLobby.isPending ? "Creating…" : "Create lobby 🎉"}
           </Button>
-        </div>
-
-        <label className="flex flex-col gap-1 text-sm font-medium">
-          Voter cap
-          <input
-            type="number"
-            min={1}
-            value={voterCap}
-            onChange={(e) => setVoterCap(Number(e.target.value))}
-            className="rounded-md border border-neutral-300 px-3 py-2 text-base font-normal"
-          />
-        </label>
-
-        <div className="flex flex-col gap-2">
-          <span className="text-sm font-medium">Ballot mode</span>
-          <RadioCard
-            name="ballotMode"
-            value="anonymous"
-            selected={ballotMode === "anonymous"}
-            label="Anonymous"
-            description="You'll only see aggregate results — not who voted for what."
-            onSelect={setBallotMode}
-          />
-          <RadioCard
-            name="ballotMode"
-            value="open"
-            selected={ballotMode === "open"}
-            label="Open"
-            description="You'll see each voter's choice."
-            onSelect={setBallotMode}
-          />
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <span className="text-sm font-medium">Tally visibility</span>
-          <RadioCard
-            name="tallyVisibility"
-            value="hidden"
-            selected={tallyVisibility === "hidden"}
-            label="Hidden until closed"
-            description="Voters only see progress (X of Y voted) until you close the lobby."
-            onSelect={setTallyVisibility}
-          />
-          <RadioCard
-            name="tallyVisibility"
-            value="live"
-            selected={tallyVisibility === "live"}
-            label="Live"
-            description="Everyone sees vote counts update in real time."
-            onSelect={setTallyVisibility}
-          />
-        </div>
-
-        {formError && <p className="text-sm text-red-600">{formError}</p>}
-        {createLobby.isError && (
-          <p className="text-sm text-red-600">{createLobby.error.message}</p>
-        )}
-
-        <Button type="submit" disabled={!canSubmit || createLobby.isPending}>
-          {createLobby.isPending ? "Creating…" : "Create lobby"}
-        </Button>
-      </form>
+        </form>
+      </div>
     </main>
   );
 }
