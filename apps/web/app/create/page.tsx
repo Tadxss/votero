@@ -2,17 +2,17 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useCreateLobby, useEnsureSession } from "@repo/shared";
+import Link from "next/link";
+import { useCreateLobby, useEnsureSession, useAuthUser } from "@repo/shared";
 import type { BallotMode, TallyVisibility } from "@repo/types";
 import { Button } from "../_components/Button";
 import { RadioCard } from "../_components/RadioCard";
-
-const inputClasses =
-  "rounded-2xl border-2 border-neutral-200 bg-[var(--surface)] px-4 py-2.5 text-base font-normal text-[var(--foreground)] outline-none transition-colors focus:border-brand-500 dark:border-neutral-700";
+import { inputClasses } from "../_components/styles";
 
 export default function CreateLobbyPage() {
   const router = useRouter();
   const { ready } = useEnsureSession();
+  const { isSignedIn } = useAuthUser();
   const createLobby = useCreateLobby();
 
   const [title, setTitle] = useState("");
@@ -178,6 +178,15 @@ export default function CreateLobbyPage() {
           {formError && <p className="text-sm font-medium text-red-600">{formError}</p>}
           {createLobby.isError && (
             <p className="text-sm font-medium text-red-600">{createLobby.error.message}</p>
+          )}
+
+          {!isSignedIn && (
+            <p className="text-sm text-[var(--foreground-muted)]">
+              <Link href="/login" className="font-semibold text-brand-600 hover:underline">
+                Sign in
+              </Link>{" "}
+              to save this to your history — or just create it, no account needed.
+            </p>
           )}
 
           <Button type="submit" disabled={!canSubmit || createLobby.isPending} className="w-full">
