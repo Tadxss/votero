@@ -16,7 +16,7 @@ See [TECH_STACK.md](TECH_STACK.md) for the stack, [docs/ARCHITECTURE.md](docs/AR
 
 Package manager is **pnpm** — install from the repo root with `pnpm install`.
 
-**Status**: backend (schema/RLS/RPCs/Edge Functions) and the web creator/voter UI are built and verified end-to-end (locally, against the hosted Supabase project, and via a scripted browser run of the full create → open → join → vote → auto-close flow). Mobile UI is not built yet — see `docs/ARCHITECTURE.md`'s Build Order for the current state.
+**Status**: backend (schema/RLS/RPCs/Edge Functions), the web creator/voter UI, and optional creator accounts + lobby history (email-OTP sign-in) are built, verified end-to-end, and deployed live. Mobile UI is not built yet — see `docs/ARCHITECTURE.md`'s Build Order for the current state.
 
 ## Develop
 

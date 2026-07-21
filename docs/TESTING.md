@@ -4,7 +4,7 @@ This walks every scenario in the web app by hand. It assumes the local Supabase 
 
 Use **two separate browser profiles** (e.g. a normal window + an Incognito/private window, or two different browsers) for creator vs. voter — each gets its own anonymous Supabase session, exactly like two different phones scanning the same QR code. Reusing the same window for both roles will make you the creator *and* a participant, which won't exercise the real multi-person flow.
 
-This was already verified once end-to-end with a scripted browser (Playwright) covering scenarios 1–7 below — this guide is for you to repeat it by hand and to cover the scenarios a script doesn't (5, 9).
+This was already verified once end-to-end with a scripted browser (Playwright) covering scenarios 1–7 and 10 below — this guide is for you to repeat it by hand and to cover the scenarios a script doesn't (5, 9).
 
 ## Setup
 
@@ -41,7 +41,10 @@ With the manage page open in one window the whole time, watch it update **withou
 ### 9. Refresh mid-flow
 After voting in a lobby, refresh the voter page. It should show "You're in — thanks for voting!" again (not the ballot) — this is the `hasVoted` flag round-tripping through `rpc_join_lobby` correctly, so a page refresh never re-shows a ballot to someone who already voted.
 
-### 10. Resetting between test runs
+### 10. Sign in + lobby history
+Go to `/login`, enter an email, click **Send code**. Locally, the code doesn't arrive in a real inbox — open Mailpit at **http://127.0.0.1:54324** and find the email there (hosted uses a real Resend-sent email instead). Enter the 6-digit code and verify — you should land on `/lobbies`, and the header should now show "My Lobbies," your email, and a "Sign out" button instead of "Sign in." Create a lobby now — it should **not** show the "sign in to save this" nudge (you're already signed in), and it should show up on `/lobbies` afterward. Sign out (header button) — `/lobbies` should revert to a "sign in to see your lobbies" prompt, and a lobby created *now*, anonymously, should simply never appear in any history (creation itself must still work with zero friction, no sign-in wall).
+
+### 11. Resetting between test runs
 - **Local**: `npx supabase db reset` wipes all lobbies/votes/test users and reapplies migrations fresh.
 - **Hosted project**: delete test lobby rows via Supabase Studio, or delete the underlying test `auth.users` rows (Authentication → Users in the dashboard, or the admin API) — deleting a user cascades to their created lobbies and participant rows.
 

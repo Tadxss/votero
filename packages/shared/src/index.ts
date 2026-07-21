@@ -12,3 +12,8 @@ export * from "./hooks/useCastVote";
 export * from "./hooks/useLobbyResults";
 export * from "./hooks/useSetLobbyStatus";
 export * from "./hooks/useLobbyRealtime";
+export * from "./hooks/useAuthUser";
+export * from "./hooks/useSignInWithOtp";
+export * from "./hooks/useVerifyOtp";
+export * from "./hooks/useSignOut";
+export * from "./hooks/useMyLobbies";

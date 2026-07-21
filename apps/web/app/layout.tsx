@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import { Baloo_2 } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
+import { Header } from "./_components/Header";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -31,7 +32,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} ${baloo.variable} font-sans`}>
-        <Providers>{children}</Providers>
+        <Providers>
+          <Header />
+          {children}
+        </Providers>
       </body>
     </html>
   );

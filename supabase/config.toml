@@ -252,6 +252,13 @@ otp_expiry = 3600
 # subject = "You have been invited"
 # content_path = "./supabase/templates/invite.html"
 
+# Custom OTP-code template (Votero creator sign-in) — uses {{ .Token }} instead of the default
+# {{ .ConfirmationURL }} link, so verification always completes in the same browser tab/session
+# that requested it rather than potentially opening in a different browser via the email client.
+[auth.email.template.magic_link]
+subject = "Your Votero sign-in code"
+content_path = "./supabase/templates/magic_link.html"
+
 # Uncomment to customize notification email template
 # [auth.email.notification.password_changed]
 # enabled = true
