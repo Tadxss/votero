@@ -31,7 +31,7 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="relative min-h-screen overflow-hidden px-4 py-10">
+    <main className="relative min-h-[calc(100vh-4rem)] overflow-hidden px-4 py-10">
       <div
         aria-hidden
         className="pointer-events-none absolute -top-32 -left-24 h-72 w-72 rounded-full bg-brand-300/30 blur-3xl dark:bg-brand-700/20"

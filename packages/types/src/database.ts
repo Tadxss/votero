@@ -174,20 +174,29 @@ export type Database = {
         Row: {
           created_at: string
           display_name: string | null
+          first_name: string | null
           id: string
           is_anonymous: boolean
+          last_name: string | null
+          username: string | null
         }
         Insert: {
           created_at?: string
           display_name?: string | null
+          first_name?: string | null
           id: string
           is_anonymous?: boolean
+          last_name?: string | null
+          username?: string | null
         }
         Update: {
           created_at?: string
           display_name?: string | null
+          first_name?: string | null
           id?: string
           is_anonymous?: boolean
+          last_name?: string | null
+          username?: string | null
         }
         Relationships: []
       }
@@ -249,6 +258,10 @@ export type Database = {
       }
       option_to_json: {
         Args: { o: Database["public"]["Tables"]["options"]["Row"] }
+        Returns: Json
+      }
+      profile_to_json: {
+        Args: { p: Database["public"]["Tables"]["profiles"]["Row"] }
         Returns: Json
       }
       rpc_cast_vote: {
@@ -320,6 +333,10 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      rpc_update_profile: {
+        Args: { p_first_name: string; p_last_name: string; p_username: string }
+        Returns: Json
       }
     }
     Enums: {
@@ -464,3 +481,4 @@ export const Constants = {
     },
   },
 } as const
+

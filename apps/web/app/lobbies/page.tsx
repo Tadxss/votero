@@ -11,14 +11,21 @@ export default function MyLobbiesPage() {
   const { data: lobbies, isLoading } = useMyLobbies(isSignedIn ? user?.id : undefined);
 
   return (
-    <main className="relative min-h-screen overflow-hidden px-4 py-10">
+    <main className="relative min-h-[calc(100vh-4rem)] overflow-hidden px-4 py-10">
       <div
         aria-hidden
         className="pointer-events-none absolute -top-32 -right-24 h-72 w-72 rounded-full bg-accent-400/30 blur-3xl dark:bg-accent-600/15"
       />
 
       <div className="relative mx-auto flex max-w-md flex-col gap-6">
-        <h1 className="font-display text-3xl font-bold text-[var(--foreground)]">My Lobbies</h1>
+        <div className="flex items-center justify-between gap-3">
+          <h1 className="font-display text-3xl font-bold text-[var(--foreground)]">My Lobbies</h1>
+          {isSignedIn && lobbies && lobbies.length > 0 && (
+            <Link href="/create">
+              <Button className="whitespace-nowrap">+ New lobby</Button>
+            </Link>
+          )}
+        </div>
 
         {authLoading ? (
           <Spinner />

@@ -1,4 +1,4 @@
-import type { Lobby, LobbyOption, Tables } from "@repo/types";
+import type { Lobby, LobbyOption, Profile, Tables } from "@repo/types";
 
 // Direct PostgREST reads (`.from("lobbies").select("*")`) come back with raw Postgres column
 // names (snake_case, typed via the generated `Tables<...>` row types), unlike the RPCs
@@ -8,6 +8,7 @@ import type { Lobby, LobbyOption, Tables } from "@repo/types";
 // the one place we read the table directly instead of going through an RPC.
 type LobbyRow = Tables<"lobbies">;
 type OptionRow = Tables<"options">;
+type ProfileRow = Tables<"profiles">;
 
 export function mapLobbyRow(row: LobbyRow): Lobby {
   return {
@@ -36,5 +37,15 @@ export function mapOptionRow(row: OptionRow): LobbyOption {
     lobbyId: row.lobby_id,
     label: row.label,
     position: row.position,
+  };
+}
+
+export function mapProfileRow(row: ProfileRow): Profile {
+  return {
+    id: row.id,
+    username: row.username,
+    firstName: row.first_name,
+    lastName: row.last_name,
+    createdAt: row.created_at,
   };
 }
