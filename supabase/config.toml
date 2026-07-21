@@ -145,7 +145,10 @@ max_catalogs = 2
 
 # Store vector embeddings in S3 for large and durable datasets
 [storage.vector]
-enabled = true
+# Not used by this app (no Storage/file uploads in MVP) — left disabled since it's a paid-tier-only
+# feature on hosted projects and `supabase config push` fails (402) if enabled here but the linked
+# project isn't on a paid plan.
+enabled = false
 max_buckets = 10
 max_indexes = 5
 
