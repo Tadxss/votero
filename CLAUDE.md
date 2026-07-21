@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Votero — a QR-code-based group voting/polling app, shipping to iOS, Android, and Web from a single Turborepo monorepo with shared business logic. See [TECH_STACK.md](TECH_STACK.md) for the mandated stack and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the concrete product design (Postgres schema, RLS policy design, Edge Functions, Realtime channel design, build order, and what's deliberately deferred).
 
-**Status**: early scaffolding. `apps/web` and `apps/mobile` exist as bare framework scaffolds; Supabase (schema/RLS/Edge Functions), `packages/shared`, `packages/types`, and NativeWind are not wired up yet. Check the "Build Order" section of `docs/ARCHITECTURE.md` for what's done vs. pending before assuming a piece exists.
+**Status**: backend is built and verified end-to-end (schema, RLS, RPCs, all 4 Edge Functions), both against a local Supabase stack and the real hosted project. `packages/shared`/`packages/types` are wired into both apps. What's *not* built yet is the actual creator/voter UI (`apps/web`/`apps/mobile` still only have their bare framework scaffolds) — check the "Build Order" section of `docs/ARCHITECTURE.md` for the precise done/pending breakdown before assuming a piece exists.
 
 ## Commands
 
@@ -29,14 +29,30 @@ cd apps/mobile && pnpm start # Expo dev server (then press a/i/w, or: pnpm andro
 
 There is no test runner configured yet in either app.
 
+### Supabase
+
+Requires Docker Desktop running. From repo root:
+```sh
+npx supabase start        # boots the local stack (Postgres, Auth, Realtime, Storage, Studio, Edge Functions)
+npx supabase db reset     # reapplies all migrations from scratch (destructive to local data)
+npx supabase functions deploy   # deploy Edge Functions to the linked hosted project
+npx supabase db push             # push new migrations to the linked hosted project
+npx supabase config push         # sync config.toml (e.g. [auth] settings) to the linked hosted project — separate from db push
+```
+This repo is already linked (`supabase link`) to a hosted project. `apps/web/.env.local` and `apps/mobile/.env` (both gitignored — copy from their `.example` files) point at the **local** stack (`http://127.0.0.1:54321`) by default; swap in the hosted project's URL/anon key to test against it instead. See `packages/types/src/database.ts`'s header comment for how to regenerate types — the documented `supabase gen types typescript --local` fails on this machine (shells out to `podman` unconditionally) and needs a `docker run` workaround.
+
+`docs/ARCHITECTURE.md`'s Build Order section (step 2) documents three real bugs found during verification that are worth knowing about before touching the schema: table/function GRANTs are required in addition to RLS (this Supabase version doesn't auto-expose new tables), and a PL/pgSQL variable-name collision in `generate_lobby_code()`.
+
 ## Architecture
 
 **Monorepo layout** (pnpm workspaces: `apps/*`, `packages/*`, declared in `pnpm-workspace.yaml`):
-- `apps/web` — Next.js (App Router). Routes live in `apps/web/app/`. Uses `@repo/eslint-config` and `@repo/typescript-config` as devDependencies rather than local lint/tsconfig rules.
-- `apps/mobile` — Expo + Expo Router. Source lives under `apps/mobile/src/`, not the repo root of the app — routes are `apps/mobile/src/app/*`, with `@/*` aliased to `apps/mobile/src/*` (see `apps/mobile/tsconfig.json`). Platform-specific file variants follow Expo's `.web.tsx` suffix convention (e.g. `animated-icon.web.tsx` next to `animated-icon.tsx`) for web vs. native implementations of the same component.
+- `apps/web` — Next.js (App Router). Routes live in `apps/web/app/`. Tailwind v3 configured directly (no NativeWind — see below). Uses `@repo/eslint-config` and `@repo/typescript-config` as devDependencies rather than local lint/tsconfig rules.
+- `apps/mobile` — Expo + Expo Router + NativeWind. Source lives under `apps/mobile/src/`, not the repo root of the app — routes are `apps/mobile/src/app/*`, with `@/*` aliased to `apps/mobile/src/*` (see `apps/mobile/tsconfig.json`). Platform-specific file variants follow Expo's `.web.tsx` suffix convention (e.g. `animated-icon.web.tsx` next to `animated-icon.tsx`) for web vs. native implementations of the same component. `metro.config.js` has pnpm-workspace-specific symlink settings — needed for `@repo/shared`/`@repo/types` to resolve.
 - `packages/eslint-config` and `packages/typescript-config` — shared lint/tsconfig presets consumed via `workspace:*` by the apps.
-- `packages/shared` and `packages/types` — planned (per `TECH_STACK.md` and `docs/ARCHITECTURE.md`) to hold the Supabase client, TanStack Query hooks, Zustand stores, and generated DB types shared between both apps. Not created yet.
+- `packages/types` — hand-written domain types (`src/domain.ts`, camelCase, matching what the RPCs actually return) plus generated Supabase DB types (`src/database.ts`, snake_case, matching Postgres columns — see its header for regeneration).
+- `packages/shared` — the Supabase client factory + platform storage adapter interface (`src/supabase/`), a snake_case→camelCase row mapper for the one place a table is read directly instead of through an RPC (`src/supabase/mappers.ts`), a Zustand ballot-selection store, and one TanStack Query hook per operation (`src/hooks/`: `useLobby`, `useCreateLobby`, `useJoinLobby`, `useCastVote`, `useLobbyResults`, `useSetLobbyStatus`, `useLobbyRealtime`). Both apps wrap their root in a `Providers` component (`apps/web/app/providers.tsx`, `apps/mobile/src/providers.tsx`) that constructs the platform-specific Supabase client and TanStack Query client.
+- No `packages/ui` yet — deliberately deferred (share business logic first; apps/web has plain Tailwind, not NativeWind, until there are actual shared RN-Web components that need it).
 
-**Turborepo pipeline** (`turbo.json`): `build` depends on upstream packages' `build` (`^build`) and caches `.next/**`; `lint`/`check-types` similarly depend on `^lint`/`^check-types`; `dev` is uncached and persistent.
+**Turborepo pipeline** (`turbo.json`): `build` depends on upstream packages' `build` (`^build`) and caches `.next/**`; `lint`/`check-types` similarly depend on `^lint`/`^check-types`; `dev` is uncached and persistent. All four workspace packages (`@repo/types`, `@repo/shared`, `web`, `mobile`) have working `lint`/`check-types` scripts wired into this pipeline.
 
-**Product architecture** (schema, RLS, Edge Functions, Realtime design, QR/deep-link design): fully specified in `docs/ARCHITECTURE.md` — read that before implementing any Supabase-related work, since several of the design choices there (e.g. `votes` table has zero client-facing RLS policies by design, ballot anonymity is enforced by which server function you call rather than by row-level filtering) are load-bearing and easy to accidentally undo with a more "obvious" RLS policy.
+**Product architecture** (schema, RLS, Edge Functions, Realtime design, QR/deep-link design): fully specified in `docs/ARCHITECTURE.md` — read that before implementing any Supabase-related work, since several of the design choices there (e.g. `votes` table has zero client-facing RLS policies *and* zero table grants by design, ballot anonymity is enforced by which server function you call rather than by row-level filtering, `rpc_get_tally` is deliberately reachable only by `service_role`) are load-bearing and easy to accidentally undo with a more "obvious" RLS policy or a convenience grant.

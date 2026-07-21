@@ -6,13 +6,17 @@ See [TECH_STACK.md](TECH_STACK.md) for the stack and [docs/ARCHITECTURE.md](docs
 
 ## What's inside
 
-- `apps/web` — [Next.js](https://nextjs.org/) (App Router)
-- `apps/mobile` — [Expo](https://expo.dev/) (React Native) with Expo Router
+- `apps/web` — [Next.js](https://nextjs.org/) (App Router), Tailwind CSS
+- `apps/mobile` — [Expo](https://expo.dev/) (React Native) with Expo Router, NativeWind
 - `packages/eslint-config` — shared `eslint` configuration
 - `packages/typescript-config` — shared `tsconfig.json`s
-- `packages/shared`, `packages/types` — planned (business logic, Supabase client, generated DB types); not created yet
+- `packages/types` — domain types + generated Supabase DB types
+- `packages/shared` — Supabase client, TanStack Query hooks, Zustand store, shared by both apps
+- `supabase/` — Postgres schema, RLS policies, RPCs, and Edge Functions (see `docs/ARCHITECTURE.md`)
 
 Package manager is **pnpm** — install from the repo root with `pnpm install`.
+
+**Status**: backend (schema/RLS/RPCs/Edge Functions) is built and verified, both locally (Docker) and against the real hosted Supabase project. Creator/voter UI screens are not built yet — see `docs/ARCHITECTURE.md`'s Build Order for the current state.
 
 ## Develop
 
@@ -23,12 +27,24 @@ pnpm dev --filter=web
 pnpm dev --filter=mobile
 ```
 
+Copy `apps/web/.env.local.example` → `apps/web/.env.local` and `apps/mobile/.env.example` → `apps/mobile/.env`, filling in Supabase URL/anon key (local `supabase start` output, or your hosted project's).
+
 ## Build / Lint / Typecheck
 
 ```sh
 pnpm build
 pnpm lint
 pnpm check-types
+```
+
+## Supabase
+
+```sh
+npx supabase start   # local stack (requires Docker Desktop)
+npx supabase db reset
+npx supabase db push          # push migrations to the linked hosted project
+npx supabase functions deploy
+npx supabase config push      # sync config.toml auth/api/storage settings to the hosted project
 ```
 
 ## Remote Caching
