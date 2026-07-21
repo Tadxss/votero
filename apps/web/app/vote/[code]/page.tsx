@@ -13,6 +13,19 @@ import {
 } from "@repo/shared";
 import { Button } from "../../_components/Button";
 import { TallyBars } from "../../_components/TallyBars";
+import { RadioCard } from "../../_components/RadioCard";
+import { LiveDot } from "../../_components/LiveDot";
+import { Spinner } from "../../_components/Spinner";
+import { useConfetti } from "../../_components/useConfetti";
+
+function EmptyState({ icon, message }: { icon: string; message: string }) {
+  return (
+    <main className="flex min-h-screen flex-col items-center justify-center gap-3 px-4 text-center">
+      <span className="text-4xl">{icon}</span>
+      <p className="text-sm text-[var(--foreground-muted)]">{message}</p>
+    </main>
+  );
+}
 
 export default function VotePage() {
   const { code } = useParams<{ code: string }>();
@@ -26,6 +39,7 @@ export default function VotePage() {
   const results = useLobbyResults(lobby?.id);
   const selectedOptionId = useBallotStore((s) => s.selectedOptionId);
   const selectOption = useBallotStore((s) => s.select);
+  const { burst } = useConfetti();
 
   useLobbyRealtime({ lobbyId: lobby?.id, code, tallyVisibility: lobby?.tallyVisibility });
 
@@ -47,84 +61,96 @@ export default function VotePage() {
     );
   }, [ready, lobby?.status, code, joinLobby]);
 
-  if (!ready || isLoading) {
-    return <main className="p-10 text-sm text-neutral-500">Loading…</main>;
-  }
+  if (!ready || isLoading) return <Spinner />;
   if (error || !lobby) {
-    return <main className="p-10 text-sm text-red-600">Lobby not found.</main>;
+    return <EmptyState icon="🔍" message="Lobby not found." />;
   }
 
   if (lobby.status === "draft") {
-    return (
-      <main className="p-10 text-sm text-neutral-500">
-        This lobby hasn&apos;t opened yet — check back soon.
-      </main>
-    );
+    return <EmptyState icon="⏳" message="This lobby hasn't opened yet — check back soon." />;
   }
 
   if (joinLobby.error?.message === "LOBBY_FULL") {
-    return <main className="p-10 text-sm text-neutral-500">This lobby is full.</main>;
+    return <EmptyState icon="🙅" message="This lobby is full." />;
   }
 
   const showResults = lobby.status === "closed" || hasVoted;
 
   return (
-    <main className="mx-auto flex max-w-md flex-col gap-6 px-4 py-10">
-      <h1 className="text-2xl font-bold">{lobby.title}</h1>
+    <main className="relative min-h-screen overflow-hidden px-4 py-10">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-32 -right-24 h-72 w-72 rounded-full bg-brand-300/30 blur-3xl dark:bg-brand-700/20"
+      />
 
-      {showResults ? (
-        <div className="flex flex-col gap-4">
-          <p className="text-sm text-neutral-500">
-            {lobby.status === "closed" ? "Voting is closed." : "You're in — thanks for voting!"}
-          </p>
-          {results.data?.tally ? (
-            <TallyBars options={options} tally={results.data.tally} />
-          ) : (
-            results.data && (
-              <p className="text-sm text-neutral-500">
-                {results.data.progress.votesCast} of {results.data.progress.joined} have voted.
+      <div className="relative mx-auto flex max-w-md flex-col gap-6">
+        <h1 className="font-display text-2xl font-bold text-[var(--foreground)]">
+          {lobby.title}
+        </h1>
+
+        {showResults ? (
+          <div className="flex animate-pop-in flex-col gap-4 rounded-3xl border border-neutral-200 bg-[var(--surface)] p-5 dark:border-neutral-800">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium text-[var(--foreground-muted)]">
+                {lobby.status === "closed"
+                  ? "Voting is closed."
+                  : "You're in — thanks for voting! 🎉"}
               </p>
-            )
-          )}
-        </div>
-      ) : participantId ? (
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (!selectedOptionId) return;
-            castVote.mutate(
-              { lobbyId: lobby.id, optionId: selectedOptionId },
-              { onSuccess: () => setHasVoted(true) },
-            );
-          }}
-          className="flex flex-col gap-3"
-        >
-          {options.map((option) => (
-            <label
-              key={option.id}
-              className={`flex cursor-pointer items-center gap-2 rounded-md border p-3 text-sm ${
-                selectedOptionId === option.id
-                  ? "border-neutral-900 bg-neutral-50"
-                  : "border-neutral-200"
-              }`}
-            >
-              <input
-                type="radio"
-                name="option"
-                checked={selectedOptionId === option.id}
-                onChange={() => selectOption(option.id)}
+              {lobby.tallyVisibility === "live" && <LiveDot />}
+            </div>
+            {results.data?.tally ? (
+              <TallyBars
+                options={options}
+                tally={results.data.tally}
+                closed={lobby.status === "closed"}
               />
-              {option.label}
-            </label>
-          ))}
-          {castVote.isError && <p className="text-sm text-red-600">{castVote.error.message}</p>}
-          <Button type="submit" disabled={!selectedOptionId || castVote.isPending}>
-            {castVote.isPending ? "Voting…" : "Vote"}
-          </Button>
-        </form>
-      ) : (
-        <p className="text-sm text-neutral-500">Joining…</p>
-      )}
+            ) : (
+              results.data && (
+                <p className="text-sm text-[var(--foreground-muted)]">
+                  {results.data.progress.votesCast} of {results.data.progress.joined} have voted.
+                </p>
+              )
+            )}
+          </div>
+        ) : participantId ? (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (!selectedOptionId) return;
+              castVote.mutate(
+                { lobbyId: lobby.id, optionId: selectedOptionId },
+                {
+                  onSuccess: () => {
+                    setHasVoted(true);
+                    burst();
+                  },
+                },
+              );
+            }}
+            className="flex animate-pop-in flex-col gap-3"
+          >
+            {options.map((option) => (
+              <RadioCard
+                key={option.id}
+                name="option"
+                value={option.id}
+                selected={selectedOptionId === option.id}
+                label={option.label}
+                size="lg"
+                onSelect={selectOption}
+              />
+            ))}
+            {castVote.isError && (
+              <p className="text-sm font-medium text-red-600">{castVote.error.message}</p>
+            )}
+            <Button type="submit" disabled={!selectedOptionId || castVote.isPending} className="w-full">
+              {castVote.isPending ? "Voting…" : "Vote ✋"}
+            </Button>
+          </form>
+        ) : (
+          <Spinner label="Joining…" />
+        )}
+      </div>
     </main>
   );
 }

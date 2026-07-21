@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { QRCodeSVG } from "qrcode.react";
 import {
@@ -10,8 +10,13 @@ import {
   useSetLobbyStatus,
   useEnsureSession,
 } from "@repo/shared";
+import type { LobbyStatus } from "@repo/types";
 import { Button } from "../../../_components/Button";
 import { TallyBars } from "../../../_components/TallyBars";
+import { StatusPill } from "../../../_components/StatusPill";
+import { LiveDot } from "../../../_components/LiveDot";
+import { Spinner } from "../../../_components/Spinner";
+import { useConfetti } from "../../../_components/useConfetti";
 
 export default function ManageLobbyPage() {
   const { code } = useParams<{ code: string }>();
@@ -22,6 +27,7 @@ export default function ManageLobbyPage() {
 
   const results = useLobbyResults(lobby?.id);
   const setStatus = useSetLobbyStatus();
+  const { burst } = useConfetti();
 
   useLobbyRealtime({
     lobbyId: lobby?.id,
@@ -34,83 +40,128 @@ export default function ManageLobbyPage() {
     setVoteUrl(`${window.location.origin}/vote/${code}`);
   }, [code]);
 
-  if (!ready || isLoading) {
-    return <main className="p-10 text-sm text-neutral-500">Loading…</main>;
-  }
+  const prevStatus = useRef<LobbyStatus | undefined>(undefined);
+  useEffect(() => {
+    if (prevStatus.current === "open" && lobby?.status === "closed") {
+      burst();
+    }
+    prevStatus.current = lobby?.status;
+  }, [lobby?.status, burst]);
+
+  if (!ready || isLoading) return <Spinner />;
   if (error || !lobby) {
     return <main className="p-10 text-sm text-red-600">Lobby not found.</main>;
   }
 
+  const joinedPct = Math.min(100, (lobby.joinedCount / lobby.voterCap) * 100);
+
   return (
-    <main className="mx-auto flex max-w-md flex-col gap-6 px-4 py-10">
-      <h1 className="text-2xl font-bold">{lobby.title}</h1>
+    <main className="relative min-h-screen overflow-hidden px-4 py-10">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-32 -left-24 h-72 w-72 rounded-full bg-brand-300/30 blur-3xl dark:bg-brand-700/20"
+      />
 
-      {lobby.status !== "closed" && voteUrl && (
-        <div className="flex flex-col items-center gap-3 rounded-md border border-neutral-200 p-4">
-          <QRCodeSVG value={voteUrl} size={180} />
-          <p className="break-all text-center text-sm text-neutral-500">{voteUrl}</p>
-          <p className="text-lg font-mono font-bold tracking-widest">{lobby.code}</p>
+      <div className="relative mx-auto flex max-w-md flex-col gap-6">
+        <div className="flex items-center justify-between gap-3">
+          <h1 className="font-display text-2xl font-bold text-[var(--foreground)]">
+            {lobby.title}
+          </h1>
+          <StatusPill status={lobby.status} />
         </div>
-      )}
 
-      <div className="flex items-center justify-between text-sm text-neutral-500">
-        <span>
-          {lobby.joinedCount} / {lobby.voterCap} joined
-        </span>
-        <span className="capitalize">{lobby.status}</span>
-      </div>
-
-      {lobby.status === "draft" && (
-        <Button
-          onClick={() => setStatus.mutate({ lobbyId: lobby.id, action: "open" })}
-          disabled={setStatus.isPending}
-        >
-          Open voting
-        </Button>
-      )}
-
-      {lobby.status === "open" && (
-        <Button
-          variant="danger"
-          onClick={() => setStatus.mutate({ lobbyId: lobby.id, action: "close" })}
-          disabled={setStatus.isPending}
-        >
-          Close voting
-        </Button>
-      )}
-
-      {results.data && (
-        <div className="flex flex-col gap-4">
-          {results.data.tally ? (
-            <TallyBars options={options} tally={results.data.tally} />
-          ) : (
-            <p className="text-sm text-neutral-500">
-              {results.data.progress.votesCast} of {results.data.progress.joined} have voted —
-              tally hidden until the lobby closes.
-            </p>
-          )}
-
-          {results.data.ballotDetail && (
-            <div className="flex flex-col gap-2">
-              <h2 className="text-sm font-medium">Who voted for what</h2>
-              <table className="w-full text-left text-sm">
-                <tbody>
-                  {results.data.ballotDetail.map((entry) => (
-                    <tr key={entry.participantId} className="border-t border-neutral-100">
-                      <td className="py-1 text-neutral-500">{entry.displayName ?? "Voter"}</td>
-                      <td className="py-1 font-medium">
-                        {options.find((o) => o.id === entry.optionId)?.label}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+        {lobby.status !== "closed" && voteUrl && (
+          <div className="flex animate-pop-in flex-col items-center gap-3 rounded-3xl border-4 border-brand-500 bg-[var(--surface)] p-6 shadow-md">
+            <div className="rounded-2xl bg-white p-3">
+              <QRCodeSVG value={voteUrl} size={180} />
             </div>
-          )}
-        </div>
-      )}
+            <p className="break-all text-center text-sm text-[var(--foreground-muted)]">
+              {voteUrl}
+            </p>
+            <p className="rounded-full bg-brand-50 px-4 py-1 text-lg font-mono font-bold tracking-widest text-brand-700 dark:bg-brand-900/30 dark:text-brand-300">
+              {lobby.code}
+            </p>
+          </div>
+        )}
 
-      {setStatus.isError && <p className="text-sm text-red-600">{setStatus.error.message}</p>}
+        <div className="flex flex-col gap-1.5">
+          <div className="flex items-center justify-between text-sm font-medium text-[var(--foreground-muted)]">
+            <span>
+              {lobby.joinedCount} / {lobby.voterCap} joined
+            </span>
+            {lobby.tallyVisibility === "live" && <LiveDot />}
+          </div>
+          <div className="h-2 overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800">
+            <div
+              className="h-full rounded-full bg-accent-500 transition-all duration-500"
+              style={{ width: `${joinedPct}%` }}
+            />
+          </div>
+        </div>
+
+        {lobby.status === "draft" && (
+          <Button
+            onClick={() => setStatus.mutate({ lobbyId: lobby.id, action: "open" })}
+            disabled={setStatus.isPending}
+          >
+            Open voting 🚀
+          </Button>
+        )}
+
+        {lobby.status === "open" && (
+          <Button
+            variant="danger"
+            onClick={() => setStatus.mutate({ lobbyId: lobby.id, action: "close" })}
+            disabled={setStatus.isPending}
+          >
+            Close voting
+          </Button>
+        )}
+
+        {results.data && (
+          <div className="flex flex-col gap-4 rounded-3xl border border-neutral-200 bg-[var(--surface)] p-5 dark:border-neutral-800">
+            {results.data.tally ? (
+              <TallyBars
+                options={options}
+                tally={results.data.tally}
+                closed={lobby.status === "closed"}
+              />
+            ) : (
+              <p className="text-sm text-[var(--foreground-muted)]">
+                {results.data.progress.votesCast} of {results.data.progress.joined} have voted —
+                tally hidden until the lobby closes.
+              </p>
+            )}
+
+            {results.data.ballotDetail && results.data.ballotDetail.length > 0 && (
+              <div className="flex flex-col gap-2 border-t border-neutral-100 pt-4 dark:border-neutral-800">
+                <h2 className="text-sm font-semibold text-[var(--foreground)]">
+                  Who voted for what
+                </h2>
+                <ul className="flex flex-col gap-2">
+                  {results.data.ballotDetail.map((entry) => (
+                    <li key={entry.participantId} className="flex items-center gap-2.5 text-sm">
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-100 text-xs font-bold text-brand-600 dark:bg-brand-900/40 dark:text-brand-300">
+                        {(entry.displayName ?? "V")[0]?.toUpperCase()}
+                      </span>
+                      <span className="text-[var(--foreground-muted)]">
+                        {entry.displayName ?? "Voter"}
+                      </span>
+                      <span className="ml-auto font-semibold text-[var(--foreground)]">
+                        {options.find((o) => o.id === entry.optionId)?.label}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
+
+        {setStatus.isError && (
+          <p className="text-sm font-medium text-red-600">{setStatus.error.message}</p>
+        )}
+      </div>
     </main>
   );
 }
