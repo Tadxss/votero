@@ -18,7 +18,14 @@ export default function MyLobbiesPage() {
       />
 
       <div className="relative mx-auto flex max-w-md flex-col gap-6">
-        <h1 className="font-display text-3xl font-bold text-[var(--foreground)]">My Lobbies</h1>
+        <div className="flex items-center justify-between gap-3">
+          <h1 className="font-display text-3xl font-bold text-[var(--foreground)]">My Lobbies</h1>
+          {isSignedIn && lobbies && lobbies.length > 0 && (
+            <Link href="/create">
+              <Button className="whitespace-nowrap">+ New lobby</Button>
+            </Link>
+          )}
+        </div>
 
         {authLoading ? (
           <Spinner />
