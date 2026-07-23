@@ -55,8 +55,11 @@ export function TallyBars({
         const widthPct = (count / maxCount) * 100;
         return (
           <div key={option.id} className="flex items-center gap-3 text-sm">
-            <span className="flex w-24 shrink-0 items-center gap-1 truncate text-[var(--foreground)]">
-              {option.label}
+            <span
+              className="flex w-32 shrink-0 items-center gap-1 text-[var(--foreground)]"
+              title={option.label}
+            >
+              <span className="min-w-0 flex-1 truncate">{option.label}</span>
               {option.id === winnerOptionId && <span aria-label="Winner">🏆</span>}
             </span>
             <div className="h-3 flex-1 overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800">
