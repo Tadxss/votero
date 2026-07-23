@@ -1,18 +1,106 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useAuthUser, useMyLobbies } from "@repo/shared";
+import { useAuthUser, useMyLobbies, useDeleteLobby } from "@repo/shared";
+import type { Lobby } from "@repo/types";
 import { StatusPill } from "../_components/StatusPill";
 import { Spinner } from "../_components/Spinner";
 import { Button } from "../_components/Button";
+import { ConfirmDialog } from "../_components/ConfirmDialog";
 
 const LOBBY_CAP = 10;
+const VIEW_STORAGE_KEY = "votero:lobbies-view";
+type View = "table" | "grid";
+
+function TableIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+      <rect x="1.5" y="2.5" width="13" height="3" rx="1" stroke="currentColor" strokeWidth="1.3" />
+      <rect x="1.5" y="6.5" width="13" height="3" rx="1" stroke="currentColor" strokeWidth="1.3" />
+      <rect x="1.5" y="10.5" width="13" height="3" rx="1" stroke="currentColor" strokeWidth="1.3" />
+    </svg>
+  );
+}
+
+function GridIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+      <rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1" stroke="currentColor" strokeWidth="1.3" />
+      <rect x="9" y="1.5" width="5.5" height="5.5" rx="1" stroke="currentColor" strokeWidth="1.3" />
+      <rect x="1.5" y="9" width="5.5" height="5.5" rx="1" stroke="currentColor" strokeWidth="1.3" />
+      <rect x="9" y="9" width="5.5" height="5.5" rx="1" stroke="currentColor" strokeWidth="1.3" />
+    </svg>
+  );
+}
+
+function TrashIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+      <path
+        d="M2.5 4h11M6 4V2.5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1V4m-6.5 0 .6 9a1 1 0 0 0 1 .9h5.8a1 1 0 0 0 1-.9l.6-9"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+function LobbyCard({ lobby, onDelete }: { lobby: Lobby; onDelete: (lobby: Lobby) => void }) {
+  return (
+    <li className="rounded-2xl border border-neutral-200 bg-[var(--surface)] p-4 transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-neutral-800">
+      <div className="flex items-center justify-between gap-3">
+        <Link href={`/lobby/${lobby.code}/manage`} className="flex flex-1 flex-col gap-0.5">
+          <span className="font-semibold text-[var(--foreground)]">{lobby.title}</span>
+          <span className="text-xs text-[var(--foreground-muted)]">
+            {new Date(lobby.createdAt).toLocaleString(undefined, {
+              dateStyle: "medium",
+              timeStyle: "short",
+            })}
+          </span>
+        </Link>
+        <div className="flex shrink-0 items-center gap-2">
+          <StatusPill status={lobby.status} />
+          <button
+            type="button"
+            onClick={() => onDelete(lobby)}
+            aria-label={`Delete ${lobby.title}`}
+            className="rounded-full p-1.5 text-[var(--foreground-muted)] transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950"
+          >
+            <TrashIcon />
+          </button>
+        </div>
+      </div>
+    </li>
+  );
+}
 
 export default function MyLobbiesPage() {
   const { user, isSignedIn, loading: authLoading } = useAuthUser();
   const { data: lobbies, isLoading } = useMyLobbies(isSignedIn ? user?.id : undefined);
+  const deleteLobby = useDeleteLobby(user?.id);
   const lobbyCount = lobbies?.length ?? 0;
   const atCap = isSignedIn && lobbyCount >= LOBBY_CAP;
+
+  const [view, setView] = useState<View>("table");
+  const [pendingDelete, setPendingDelete] = useState<Lobby | null>(null);
+
+  useEffect(() => {
+    const stored = window.localStorage.getItem(VIEW_STORAGE_KEY);
+    if (stored === "table" || stored === "grid") setView(stored);
+  }, []);
+
+  function selectView(next: View) {
+    setView(next);
+    window.localStorage.setItem(VIEW_STORAGE_KEY, next);
+  }
+
+  function confirmDelete() {
+    if (!pendingDelete) return;
+    deleteLobby.mutate(pendingDelete.id, { onSuccess: () => setPendingDelete(null) });
+  }
 
   return (
     <main className="relative min-h-[calc(100vh-4rem)] overflow-hidden px-4 py-10">
@@ -33,22 +121,56 @@ export default function MyLobbiesPage() {
               </p>
             )}
           </div>
-          {isSignedIn && lobbies && lobbies.length > 0 && (
-            <div className="flex flex-col items-end gap-1">
-              {atCap ? (
-                <Button className="whitespace-nowrap" disabled>
-                  + New lobby
-                </Button>
-              ) : (
-                <Link href="/create">
-                  <Button className="whitespace-nowrap">+ New lobby</Button>
-                </Link>
-              )}
-              {atCap && (
-                <span className="text-xs text-red-600">Limit reached — delete one to add another</span>
-              )}
-            </div>
-          )}
+          <div className="flex items-center gap-3">
+            {isSignedIn && lobbies && lobbies.length > 0 && (
+              <div className="hidden items-center gap-1 rounded-full border border-neutral-200 p-1 lg:flex dark:border-neutral-700">
+                <button
+                  type="button"
+                  onClick={() => selectView("table")}
+                  aria-label="Table view"
+                  aria-pressed={view === "table"}
+                  className={`rounded-full p-1.5 transition-colors ${
+                    view === "table"
+                      ? "bg-brand-500 text-white"
+                      : "text-[var(--foreground-muted)] hover:text-brand-600"
+                  }`}
+                >
+                  <TableIcon />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => selectView("grid")}
+                  aria-label="Grid view"
+                  aria-pressed={view === "grid"}
+                  className={`rounded-full p-1.5 transition-colors ${
+                    view === "grid"
+                      ? "bg-brand-500 text-white"
+                      : "text-[var(--foreground-muted)] hover:text-brand-600"
+                  }`}
+                >
+                  <GridIcon />
+                </button>
+              </div>
+            )}
+            {isSignedIn && lobbies && lobbies.length > 0 && (
+              <div className="flex flex-col items-end gap-1">
+                {atCap ? (
+                  <Button className="whitespace-nowrap" disabled>
+                    + New lobby
+                  </Button>
+                ) : (
+                  <Link href="/create">
+                    <Button className="whitespace-nowrap">+ New lobby</Button>
+                  </Link>
+                )}
+                {atCap && (
+                  <span className="text-xs text-red-600">
+                    Limit reached — delete one to add another
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         {authLoading ? (
@@ -66,73 +188,78 @@ export default function MyLobbiesPage() {
           <Spinner />
         ) : lobbies && lobbies.length > 0 ? (
           <>
-            <div className="hidden animate-pop-in overflow-hidden rounded-3xl border border-neutral-200 bg-[var(--surface)] lg:block dark:border-neutral-800">
-              <table className="w-full border-collapse text-left text-sm">
-                <thead className="bg-neutral-50 dark:bg-neutral-900/40">
-                  <tr>
-                    <th className="px-5 py-3 font-semibold text-[var(--foreground-muted)]">
-                      Title
-                    </th>
-                    <th className="px-5 py-3 font-semibold text-[var(--foreground-muted)]">
-                      Status
-                    </th>
-                    <th className="px-5 py-3 font-semibold text-[var(--foreground-muted)]">
-                      Created
-                    </th>
-                    <th className="px-5 py-3" />
-                  </tr>
-                </thead>
-                <tbody>
-                  {lobbies.map((lobby) => (
-                    <tr
-                      key={lobby.id}
-                      className="border-t border-neutral-100 transition-colors hover:bg-neutral-50 dark:border-neutral-800 dark:hover:bg-neutral-900/40"
-                    >
-                      <td className="px-5 py-3.5 font-semibold text-[var(--foreground)]">
-                        {lobby.title}
-                      </td>
-                      <td className="px-5 py-3.5">
-                        <StatusPill status={lobby.status} />
-                      </td>
-                      <td className="px-5 py-3.5 text-[var(--foreground-muted)]">
-                        {new Date(lobby.createdAt).toLocaleString(undefined, {
-                          dateStyle: "medium",
-                          timeStyle: "short",
-                        })}
-                      </td>
-                      <td className="px-5 py-3.5 text-right">
-                        <Link
-                          href={`/lobby/${lobby.code}/manage`}
-                          className="font-semibold text-brand-600 hover:underline"
-                        >
-                          Manage →
-                        </Link>
-                      </td>
+            {view === "table" && (
+              <div className="hidden animate-pop-in overflow-hidden rounded-3xl border border-neutral-200 bg-[var(--surface)] lg:block dark:border-neutral-800">
+                <table className="w-full border-collapse text-left text-sm">
+                  <thead className="bg-neutral-50 dark:bg-neutral-900/40">
+                    <tr>
+                      <th className="px-5 py-3 font-semibold text-[var(--foreground-muted)]">
+                        Title
+                      </th>
+                      <th className="px-5 py-3 font-semibold text-[var(--foreground-muted)]">
+                        Status
+                      </th>
+                      <th className="px-5 py-3 font-semibold text-[var(--foreground-muted)]">
+                        Created
+                      </th>
+                      <th className="px-5 py-3" />
+                      <th className="px-5 py-3" />
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {lobbies.map((lobby) => (
+                      <tr
+                        key={lobby.id}
+                        className="border-t border-neutral-100 transition-colors hover:bg-neutral-50 dark:border-neutral-800 dark:hover:bg-neutral-900/40"
+                      >
+                        <td className="px-5 py-3.5 font-semibold text-[var(--foreground)]">
+                          {lobby.title}
+                        </td>
+                        <td className="px-5 py-3.5">
+                          <StatusPill status={lobby.status} />
+                        </td>
+                        <td className="px-5 py-3.5 text-[var(--foreground-muted)]">
+                          {new Date(lobby.createdAt).toLocaleString(undefined, {
+                            dateStyle: "medium",
+                            timeStyle: "short",
+                          })}
+                        </td>
+                        <td className="px-5 py-3.5 text-right">
+                          <Link
+                            href={`/lobby/${lobby.code}/manage`}
+                            className="font-semibold text-brand-600 hover:underline"
+                          >
+                            Manage →
+                          </Link>
+                        </td>
+                        <td className="px-5 py-3.5 text-right">
+                          <button
+                            type="button"
+                            onClick={() => setPendingDelete(lobby)}
+                            aria-label={`Delete ${lobby.title}`}
+                            className="rounded-full p-1.5 text-[var(--foreground-muted)] transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950"
+                          >
+                            <TrashIcon />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {view === "grid" && (
+              <ul className="hidden animate-pop-in grid-cols-2 gap-4 lg:grid xl:grid-cols-3">
+                {lobbies.map((lobby) => (
+                  <LobbyCard key={lobby.id} lobby={lobby} onDelete={setPendingDelete} />
+                ))}
+              </ul>
+            )}
 
             <ul className="flex animate-pop-in flex-col gap-3 lg:hidden">
               {lobbies.map((lobby) => (
-                <li key={lobby.id}>
-                  <Link
-                    href={`/lobby/${lobby.code}/manage`}
-                    className="flex items-center justify-between gap-3 rounded-2xl border border-neutral-200 bg-[var(--surface)] p-4 transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-neutral-800"
-                  >
-                    <div className="flex flex-col gap-0.5">
-                      <span className="font-semibold text-[var(--foreground)]">{lobby.title}</span>
-                      <span className="text-xs text-[var(--foreground-muted)]">
-                        {new Date(lobby.createdAt).toLocaleString(undefined, {
-                          dateStyle: "medium",
-                          timeStyle: "short",
-                        })}
-                      </span>
-                    </div>
-                    <StatusPill status={lobby.status} />
-                  </Link>
-                </li>
+                <LobbyCard key={lobby.id} lobby={lobby} onDelete={setPendingDelete} />
               ))}
             </ul>
           </>
@@ -147,6 +274,15 @@ export default function MyLobbiesPage() {
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        open={pendingDelete !== null}
+        title={`Delete "${pendingDelete?.title ?? ""}"?`}
+        message="This can't be undone — all votes and data for this lobby will be permanently deleted."
+        isPending={deleteLobby.isPending}
+        onConfirm={confirmDelete}
+        onCancel={() => setPendingDelete(null)}
+      />
     </main>
   );
 }

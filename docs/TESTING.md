@@ -53,7 +53,10 @@ As a signed-in creator, create lobbies until `/lobbies` shows "10/10 lobbies" �
 ### 13. Anonymous lobby auto-delete (7 days)
 This one isn't practical to wait out manually — instead, confirm the mechanics directly: after `npx supabase db reset`, run `select jobid, jobname, schedule, active from cron.job;` (via `docker exec <db container> psql ...` or Studio's SQL editor) and confirm `delete-stale-anonymous-lobbies` is listed and `active`. To exercise the actual deletion without waiting a week, backdate a test lobby (`update lobbies set created_at = now() - interval '8 days' where code = '...'`) for an anonymous-created lobby, then run the job's `DELETE` body directly (see `supabase/migrations/20260723054859_anonymous_lobby_cleanup.sql`) — the lobby (and its options/participants/votes) should disappear. Do the same for a signed-in creator's lobby backdated the same way — it should survive untouched.
 
-### 14. Resetting between test runs
+### 14. Manual lobby delete + table/grid view
+On `/lobbies` with a couple of lobbies, click the trash icon on a row/card — a confirm dialog should appear ("This can't be undone…"); click **Cancel** and confirm nothing was deleted, then repeat and click **Delete** — that lobby should disappear immediately, the others untouched. Open one of the remaining lobbies' manage page and click **Delete lobby** at the bottom — same confirm dialog, and confirming should redirect you to `/lobbies` with that lobby gone. Separately, on `/lobbies` (desktop width), use the table/grid toggle next to "+ New lobby" — switching to grid should show the same lobbies as a card grid instead of rows; reload the page and confirm your last-picked view (table or grid) is remembered.
+
+### 15. Resetting between test runs
 - **Local**: `npx supabase db reset` wipes all lobbies/votes/test users and reapplies migrations fresh.
 - **Hosted project**: delete test lobby rows via Supabase Studio, or delete the underlying test `auth.users` rows (Authentication → Users in the dashboard, or the admin API) — deleting a user cascades to their created lobbies and participant rows.
 

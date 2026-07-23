@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { QRCodeSVG } from "qrcode.react";
 import {
   useLobby,
@@ -9,6 +9,8 @@ import {
   useLobbyRealtime,
   useSetLobbyStatus,
   useEnsureSession,
+  useAuthUser,
+  useDeleteLobby,
 } from "@repo/shared";
 import type { LobbyStatus } from "@repo/types";
 import { Button } from "../../../_components/Button";
@@ -17,16 +19,21 @@ import { StatusPill } from "../../../_components/StatusPill";
 import { LiveDot } from "../../../_components/LiveDot";
 import { Spinner } from "../../../_components/Spinner";
 import { useConfetti } from "../../../_components/useConfetti";
+import { ConfirmDialog } from "../../../_components/ConfirmDialog";
 
 export default function ManageLobbyPage() {
   const { code } = useParams<{ code: string }>();
+  const router = useRouter();
   const { ready } = useEnsureSession();
+  const { user } = useAuthUser();
   const { data, isLoading, error } = useLobby(code, { enabled: ready });
   const lobby = data?.lobby;
   const options = data?.options ?? [];
 
   const results = useLobbyResults(lobby?.id);
   const setStatus = useSetLobbyStatus();
+  const deleteLobby = useDeleteLobby(user?.id);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const { burst } = useConfetti();
 
   useLobbyRealtime({
@@ -123,6 +130,17 @@ export default function ManageLobbyPage() {
             {setStatus.isError && (
               <p className="text-sm font-medium text-red-600">{setStatus.error.message}</p>
             )}
+
+            <button
+              type="button"
+              onClick={() => setShowDeleteConfirm(true)}
+              className="self-start text-sm font-medium text-red-600 hover:underline"
+            >
+              Delete lobby
+            </button>
+            {deleteLobby.isError && (
+              <p className="text-sm font-medium text-red-600">{deleteLobby.error.message}</p>
+            )}
           </div>
 
           {results.data && (
@@ -166,6 +184,17 @@ export default function ManageLobbyPage() {
           )}
         </div>
       </div>
+
+      <ConfirmDialog
+        open={showDeleteConfirm}
+        title={`Delete "${lobby.title}"?`}
+        message="This can't be undone — all votes and data for this lobby will be permanently deleted."
+        isPending={deleteLobby.isPending}
+        onConfirm={() =>
+          deleteLobby.mutate(lobby.id, { onSuccess: () => router.push("/lobbies") })
+        }
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
     </main>
   );
 }

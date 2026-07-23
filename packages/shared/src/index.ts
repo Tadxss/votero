@@ -17,5 +17,6 @@ export * from "./hooks/useSignInWithOtp";
 export * from "./hooks/useVerifyOtp";
 export * from "./hooks/useSignOut";
 export * from "./hooks/useMyLobbies";
+export * from "./hooks/useDeleteLobby";
 export * from "./hooks/useProfile";
 export * from "./hooks/useUpdateProfile";
