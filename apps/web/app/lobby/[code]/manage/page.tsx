@@ -82,6 +82,9 @@ export default function ManageLobbyPage() {
   }
 
   const joinedPct = Math.min(100, (lobby.joinedCount / lobby.voterCap) * 100);
+  const deleteByLabel = new Date(
+    new Date(lobby.createdAt).getTime() + 7 * 24 * 60 * 60 * 1000,
+  ).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
 
   return (
     <main className="relative min-h-[calc(100vh-4rem)] overflow-hidden px-4 py-10">
@@ -104,6 +107,21 @@ export default function ManageLobbyPage() {
           </h1>
           <StatusPill status={lobby.status} />
         </div>
+
+        {!isSignedIn && (
+          <div className="flex items-start gap-2 rounded-2xl border border-neutral-200 bg-[var(--surface)] px-4 py-3 text-sm text-[var(--foreground-muted)] dark:border-neutral-800">
+            <span aria-hidden>⏳</span>
+            <p>
+              This lobby isn&apos;t tied to an account, so it&apos;ll be automatically deleted on{" "}
+              <strong className="text-[var(--foreground)]">{deleteByLabel}</strong> (7 days after
+              creation, regardless of whether voting is open or closed).{" "}
+              <Link href="/login" className="font-semibold text-brand-600 hover:underline">
+                Sign in
+              </Link>{" "}
+              to keep it permanently.
+            </p>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start lg:gap-8">
           <div className="flex flex-col gap-6">
