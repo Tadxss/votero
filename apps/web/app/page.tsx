@@ -2,21 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Button } from "./_components/Button";
-import { inputClasses } from "./_components/styles";
+import { JoinLobbyModal } from "./_components/JoinLobbyModal";
 
 export default function Home() {
-  const router = useRouter();
-  const [showJoin, setShowJoin] = useState(false);
-  const [joinCode, setJoinCode] = useState("");
-
-  function handleJoinSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    const code = joinCode.trim();
-    if (!code) return;
-    router.push(`/vote/${code}`);
-  }
+  const [joinModalOpen, setJoinModalOpen] = useState(false);
 
   return (
     <main className="relative flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center gap-5 overflow-hidden px-4 py-8">
@@ -42,15 +32,21 @@ export default function Home() {
         </p>
       </div>
 
-      <Link
-        href="/create"
-        className="group flex items-center gap-2 rounded-full bg-brand-500 px-6 py-3 text-sm font-semibold text-white shadow-md shadow-brand-500/25 transition-all hover:bg-brand-600 hover:shadow-lg hover:shadow-brand-500/30 active:scale-95"
-      >
-        Create a lobby
-        <span aria-hidden className="transition-transform group-hover:translate-x-0.5">
-          →
-        </span>
-      </Link>
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <Link
+          href="/create"
+          className="group flex items-center justify-center gap-2 rounded-full bg-brand-500 px-6 py-3 text-sm font-semibold text-white shadow-md shadow-brand-500/25 transition-all hover:bg-brand-600 hover:shadow-lg hover:shadow-brand-500/30 active:scale-95"
+        >
+          Create a lobby
+          <span aria-hidden className="transition-transform group-hover:translate-x-0.5">
+            →
+          </span>
+        </Link>
+
+        <Button variant="secondary" className="px-6 py-3" onClick={() => setJoinModalOpen(true)}>
+          Join a lobby
+        </Button>
+      </div>
 
       <p className="text-xs text-[var(--foreground-muted)]">
         Free · No sign-up required
@@ -68,33 +64,7 @@ export default function Home() {
         </span>
       </div>
 
-      <div className="mt-1 flex flex-col items-center gap-3">
-        {!showJoin ? (
-          <button
-            type="button"
-            onClick={() => setShowJoin(true)}
-            className="text-sm font-semibold text-brand-600 hover:underline"
-          >
-            Have a code? Join a lobby
-          </button>
-        ) : (
-          <form
-            onSubmit={handleJoinSubmit}
-            className="flex animate-pop-in items-center gap-2"
-          >
-            <input
-              value={joinCode}
-              onChange={(e) => setJoinCode(e.target.value.toUpperCase().slice(0, 8))}
-              placeholder="8-CHAR CODE"
-              autoFocus
-              className={`${inputClasses} w-40 text-center font-mono text-sm tracking-widest`}
-            />
-            <Button type="submit" disabled={joinCode.trim().length === 0}>
-              Join →
-            </Button>
-          </form>
-        )}
-      </div>
+      <JoinLobbyModal open={joinModalOpen} onClose={() => setJoinModalOpen(false)} />
     </main>
   );
 }
