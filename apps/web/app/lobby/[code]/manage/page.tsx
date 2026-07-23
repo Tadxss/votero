@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
 import {
   useLobby,
@@ -25,7 +26,7 @@ export default function ManageLobbyPage() {
   const { code } = useParams<{ code: string }>();
   const router = useRouter();
   const { ready } = useEnsureSession();
-  const { user } = useAuthUser();
+  const { user, isSignedIn } = useAuthUser();
   const { data, isLoading, error } = useLobby(code, { enabled: ready });
   const lobby = data?.lobby;
   const options = data?.options ?? [];
@@ -70,6 +71,13 @@ export default function ManageLobbyPage() {
       />
 
       <div className="relative mx-auto flex max-w-5xl flex-col gap-6 px-4 sm:px-8">
+        <Link
+          href={isSignedIn ? "/lobbies" : "/"}
+          className="inline-flex w-fit items-center gap-1 text-sm font-medium text-[var(--foreground-muted)] transition-colors hover:text-brand-600"
+        >
+          ← {isSignedIn ? "My Lobbies" : "Home"}
+        </Link>
+
         <div className="flex items-center justify-between gap-3">
           <h1 className="font-display text-2xl font-bold text-[var(--foreground)]">
             {lobby.title}
