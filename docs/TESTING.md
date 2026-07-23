@@ -62,7 +62,10 @@ On a lobby's manage page, click **Copy link** — it should briefly change to "C
 ### 16. Join a lobby (scan or type)
 On the home page (`/`), you should see two buttons: **"Create a lobby"** and **"Join a lobby."** Click **Join a lobby** — a modal should offer **"Scan QR code"** and **"Enter code instead."** Try **Enter code instead**: type a real lobby's code and click **Join →** — you should land on that lobby's `/vote/[code]`. Now try **Scan QR code** (needs a real device with a camera — this can't be faked in a normal browser tab): grant camera access, point it at another lobby's QR (shown on a second phone/monitor), and confirm it navigates you to that lobby automatically once it locks onto the code. Deny camera access (or test on a browser without camera support) — it should show a friendly message and let you switch to code entry instead, never getting stuck. While scanning, click **"Use code instead"** — it should cleanly switch to the code input (and the camera light/indicator should turn off, confirming the stream actually stopped).
 
-### 17. Resetting between test runs
+### 17. 7-day-deletion notice
+Create a lobby **without** signing in first — its manage page should show a small notice near the top: "This lobby isn't tied to an account, so it'll be automatically deleted on `<date>`..." with the date being exactly 7 days from today, and a "Sign in" link. Sign in, create a *second* lobby while signed in — its manage page should show **no such notice** at all.
+
+### 18. Resetting between test runs
 - **Local**: `npx supabase db reset` wipes all lobbies/votes/test users and reapplies migrations fresh.
 - **Hosted project**: delete test lobby rows via Supabase Studio, or delete the underlying test `auth.users` rows (Authentication → Users in the dashboard, or the admin API) — deleting a user cascades to their created lobbies and participant rows.
 
