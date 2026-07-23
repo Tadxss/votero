@@ -20,3 +20,4 @@ export * from "./hooks/useMyLobbies";
 export * from "./hooks/useDeleteLobby";
 export * from "./hooks/useProfile";
 export * from "./hooks/useUpdateProfile";
+export * from "./hooks/useUploadAvatar";

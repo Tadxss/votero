@@ -27,7 +27,7 @@ Back in the creator window, click **Open voting**. In the voter window, reload (
 Create one lobby with **Tally visibility: Live** and vote in it as a voter — you should see vote counts (a small bar per option) immediately after voting, before the creator closes it. Create a second lobby with **Hidden until closed** and vote — you should only see "X of Y have voted" text, no bars, until the creator closes the lobby.
 
 ### 5. Anonymous vs. open ballot
-Create one lobby with **Ballot mode: Anonymous**, one with **Open**. Have at least one voter vote in each, then close both from the manage page. On the **Open**-mode manage page, a "Who voted for what" table should appear below the tally. On the **Anonymous**-mode manage page, that table should be absent — only the aggregate tally shows.
+Create one lobby with **Ballot mode: Anonymous**, one with **Open**. For the anonymous one, vote as usual with an anonymous voter session — no sign-in needed, unchanged. For the **Open** one, an anonymous voter session should see a "sign in to vote" gate instead of a ballot (scenario 18 covers this in depth) — sign in as a voter, then vote. Close both from the manage page. On the **Open**-mode manage page, a "Who voted for what" list should appear below the tally, showing that voter's real name/username/email (not a generic "Voter"). On the **Anonymous**-mode manage page, that list should be absent — only the aggregate tally shows.
 
 ### 6. Cap enforcement + auto-close
 Create a lobby with **Voter cap: 2**. Open it, then join+vote with two separate voter sessions (two incognito windows, or two different browsers). The moment the second vote is cast, the lobby should flip to **Closed** automatically (watch the creator's manage page — no manual close needed) and results should appear immediately. Open a *third* voter session and visit the link — it should say the lobby is full (if it's still technically open) or show results directly (if the auto-close already landed — likely, since auto-close is near-instant).
@@ -65,7 +65,10 @@ On the home page (`/`), you should see two buttons: **"Create a lobby"** and **"
 ### 17. 7-day-deletion notice
 Create a lobby **without** signing in first — its manage page should show a small notice near the top: "This lobby isn't tied to an account, so it'll be automatically deleted on `<date>`..." with the date being exactly 7 days from today, and a "Sign in" link. Sign in, create a *second* lobby while signed in — its manage page should show **no such notice** at all.
 
-### 18. Resetting between test runs
+### 18. Verified identity for open-ballot voting + profile pictures
+Create an **Open**-mode lobby, open it. In a fresh anonymous/incognito voter window, visit its `/vote/[code]` link — you should see "This lobby shows who voted for what — sign in to vote," not a ballot. Click **Sign in to vote**, complete the OTP sign-in as a *different* test account than the creator — you should land back on the same `/vote/[code]` (not `/lobbies`) and be able to vote normally. Back on the creator's manage page, the "Who voted for what" list should show that voter's real identity: if they haven't set a name/username, their email; if they have, their name with `@username` underneath. As that voter, open **Edit profile**, click **Change photo**, and upload an image under 2MB — the preview should update immediately, and after **Save** the header should show the photo instead of the colored-initial circle; reload and confirm it's still there. Back on the creator's manage page, that voter's ballot-list entry should now show their photo too. Finally, confirm an **Anonymous**-mode lobby is completely unaffected — an anonymous voter session should auto-join and vote with no sign-in gate at all, exactly as before.
+
+### 19. Resetting between test runs
 - **Local**: `npx supabase db reset` wipes all lobbies/votes/test users and reapplies migrations fresh.
 - **Hosted project**: delete test lobby rows via Supabase Studio, or delete the underlying test `auth.users` rows (Authentication → Users in the dashboard, or the admin API) — deleting a user cascades to their created lobbies and participant rows.
 

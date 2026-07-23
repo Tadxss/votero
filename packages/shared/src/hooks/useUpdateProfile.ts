@@ -15,6 +15,7 @@ export function useUpdateProfile(userId: string | undefined) {
         p_username: input.username ?? "",
         p_first_name: input.firstName ?? "",
         p_last_name: input.lastName ?? "",
+        p_avatar_url: input.avatarUrl ?? "",
       });
       if (error) throw error;
       // rpc_update_profile returns `jsonb` (typed as the generic `Json` union) — the RPC's own

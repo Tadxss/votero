@@ -45,6 +45,7 @@ export interface Profile {
   username: string | null;
   firstName: string | null;
   lastName: string | null;
+  avatarUrl: string | null;
   createdAt: string;
 }
 
@@ -52,6 +53,7 @@ export interface UpdateProfileInput {
   username?: string;
   firstName?: string;
   lastName?: string;
+  avatarUrl?: string;
 }
 
 // --- Edge Function request/response DTOs (see docs/ARCHITECTURE.md "Edge Functions") ---
@@ -93,8 +95,12 @@ export interface TallyEntry {
 
 export interface BallotDetailEntry {
   participantId: string;
-  displayName: string | null;
   optionId: string;
+  firstName: string | null;
+  lastName: string | null;
+  username: string | null;
+  email: string | null;
+  avatarUrl: string | null;
 }
 
 export interface LobbyProgress {

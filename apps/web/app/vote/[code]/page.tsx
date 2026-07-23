@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
+import Link from "next/link";
 import {
   useLobby,
   useLobbyResults,
@@ -9,6 +10,7 @@ import {
   useJoinLobby,
   useCastVote,
   useEnsureSession,
+  useAuthUser,
   useBallotStore,
 } from "@repo/shared";
 import { Button } from "../../_components/Button";
@@ -30,6 +32,7 @@ function EmptyState({ icon, message }: { icon: string; message: string }) {
 export default function VotePage() {
   const { code } = useParams<{ code: string }>();
   const { ready } = useEnsureSession();
+  const { isSignedIn } = useAuthUser();
   const { data, isLoading, error } = useLobby(code, { enabled: ready });
   const lobby = data?.lobby;
   const options = data?.options ?? [];
@@ -49,6 +52,7 @@ export default function VotePage() {
 
   useEffect(() => {
     if (!ready || lobby?.status !== "open" || joinAttempted.current) return;
+    if (lobby.ballotMode === "open" && !isSignedIn) return; // gated below until they sign in
     joinAttempted.current = true;
     joinLobby.mutate(
       { code },
@@ -59,7 +63,7 @@ export default function VotePage() {
         },
       },
     );
-  }, [ready, lobby?.status, code, joinLobby]);
+  }, [ready, lobby?.status, lobby?.ballotMode, isSignedIn, code, joinLobby]);
 
   if (!ready || isLoading) return <Spinner />;
   if (error || !lobby) {
@@ -68,6 +72,20 @@ export default function VotePage() {
 
   if (lobby.status === "draft") {
     return <EmptyState icon="⏳" message="This lobby hasn't opened yet — check back soon." />;
+  }
+
+  if (lobby.status === "open" && lobby.ballotMode === "open" && !isSignedIn) {
+    return (
+      <main className="flex h-[calc(100vh-4rem)] flex-col items-center justify-center gap-4 px-4 text-center">
+        <span className="text-4xl">🔏</span>
+        <p className="max-w-xs text-sm text-[var(--foreground-muted)]">
+          This lobby shows who voted for what — sign in to vote.
+        </p>
+        <Link href={`/login?redirect=/vote/${code}`}>
+          <Button>Sign in to vote</Button>
+        </Link>
+      </main>
+    );
   }
 
   if (joinLobby.error?.message === "LOBBY_FULL") {

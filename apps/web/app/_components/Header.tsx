@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useAuthUser, useProfile, useSignOut } from "@repo/shared";
+import { Avatar } from "./Avatar";
 import { ProfileModal } from "./ProfileModal";
 
 const navLinkClasses =
@@ -28,8 +29,11 @@ export function Header() {
             >
               My Lobbies
             </Link>
-            <span className="hidden max-w-[160px] truncate text-[var(--foreground-muted)] sm:inline md:max-w-[240px] lg:max-w-[360px]">
-              {profile?.username ? `@${profile.username}` : user?.email}
+            <span className="hidden items-center gap-1.5 sm:flex">
+              <Avatar url={profile?.avatarUrl} label={profile?.username || user?.email || "?"} size="sm" />
+              <span className="max-w-[160px] truncate text-[var(--foreground-muted)] md:max-w-[240px] lg:max-w-[360px]">
+                {profile?.username ? `@${profile.username}` : user?.email}
+              </span>
             </span>
             <button
               onClick={() => setProfileModalOpen(true)}

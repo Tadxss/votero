@@ -1,13 +1,23 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useSignInWithOtp, useVerifyOtp } from "@repo/shared";
 import { Button } from "../_components/Button";
 import { inputClasses } from "../_components/styles";
 
 export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect") || "/lobbies";
   const sendCode = useSignInWithOtp();
   const verifyCode = useVerifyOtp();
 
@@ -26,7 +36,7 @@ export default function LoginPage() {
     if (!code.trim()) return;
     verifyCode.mutate(
       { email: email.trim(), token: code.trim() },
-      { onSuccess: () => router.push("/lobbies") },
+      { onSuccess: () => router.push(redirectTo) },
     );
   }
 
