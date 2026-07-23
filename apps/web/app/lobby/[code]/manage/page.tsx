@@ -21,6 +21,7 @@ import { LiveDot } from "../../../_components/LiveDot";
 import { Spinner } from "../../../_components/Spinner";
 import { useConfetti } from "../../../_components/useConfetti";
 import { ConfirmDialog } from "../../../_components/ConfirmDialog";
+import { TrashIcon } from "../../../_components/icons";
 
 export default function ManageLobbyPage() {
   const { code } = useParams<{ code: string }>();
@@ -35,7 +36,26 @@ export default function ManageLobbyPage() {
   const setStatus = useSetLobbyStatus();
   const deleteLobby = useDeleteLobby(user?.id);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [copied, setCopied] = useState<"link" | "code" | null>(null);
   const { burst } = useConfetti();
+
+  async function copyToClipboard(text: string, what: "link" | "code") {
+    await navigator.clipboard.writeText(text);
+    setCopied(what);
+    setTimeout(() => setCopied(null), 2000);
+  }
+
+  async function shareLobby(title: string, url: string) {
+    if (navigator.share) {
+      try {
+        await navigator.share({ title, text: `Vote in "${title}" on Votero`, url });
+      } catch {
+        // user dismissed the share sheet — nothing to do
+      }
+    } else {
+      copyToClipboard(url, "link");
+    }
+  }
 
   useLobbyRealtime({
     lobbyId: lobby?.id,
@@ -98,6 +118,32 @@ export default function ManageLobbyPage() {
                 <p className="rounded-full bg-brand-50 px-4 py-1 text-lg font-mono font-bold tracking-widest text-brand-700 dark:bg-brand-900/30 dark:text-brand-300">
                   {lobby.code}
                 </p>
+
+                <div className="flex flex-wrap items-center justify-center gap-2">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    className="text-xs"
+                    onClick={() => copyToClipboard(voteUrl, "link")}
+                  >
+                    {copied === "link" ? "Copied! ✓" : "Copy link"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    className="text-xs"
+                    onClick={() => copyToClipboard(lobby.code, "code")}
+                  >
+                    {copied === "code" ? "Copied! ✓" : "Copy code"}
+                  </Button>
+                  <Button
+                    type="button"
+                    className="text-xs"
+                    onClick={() => shareLobby(lobby.title, voteUrl)}
+                  >
+                    Share
+                  </Button>
+                </div>
               </div>
             )}
 
@@ -139,16 +185,20 @@ export default function ManageLobbyPage() {
               <p className="text-sm font-medium text-red-600">{setStatus.error.message}</p>
             )}
 
-            <button
-              type="button"
-              onClick={() => setShowDeleteConfirm(true)}
-              className="self-start text-sm font-medium text-red-600 hover:underline"
-            >
-              Delete lobby
-            </button>
-            {deleteLobby.isError && (
-              <p className="text-sm font-medium text-red-600">{deleteLobby.error.message}</p>
-            )}
+            <div className="mt-2 flex flex-col items-start gap-2 border-t border-neutral-100 pt-4 dark:border-neutral-800">
+              <Button
+                type="button"
+                variant="danger"
+                className="inline-flex items-center gap-1.5"
+                onClick={() => setShowDeleteConfirm(true)}
+              >
+                <TrashIcon />
+                Delete lobby
+              </Button>
+              {deleteLobby.isError && (
+                <p className="text-sm font-medium text-red-600">{deleteLobby.error.message}</p>
+              )}
+            </div>
           </div>
 
           {results.data && (

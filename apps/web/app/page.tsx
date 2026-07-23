@@ -1,8 +1,25 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Button } from "./_components/Button";
+import { inputClasses } from "./_components/styles";
 
 export default function Home() {
+  const router = useRouter();
+  const [showJoin, setShowJoin] = useState(false);
+  const [joinCode, setJoinCode] = useState("");
+
+  function handleJoinSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const code = joinCode.trim();
+    if (!code) return;
+    router.push(`/vote/${code}`);
+  }
+
   return (
-    <main className="relative flex h-[calc(100vh-4rem)] flex-col items-center justify-center gap-5 overflow-hidden px-4">
+    <main className="relative flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center gap-5 overflow-hidden px-4 py-8">
       <div
         aria-hidden
         className="pointer-events-none absolute -top-24 -left-24 h-72 w-72 rounded-full bg-brand-300/40 blur-3xl dark:bg-brand-700/30"
@@ -49,6 +66,34 @@ export default function Home() {
         <span className="rounded-full border border-neutral-200 px-3 py-1 dark:border-neutral-700">
           📱 Scan & vote
         </span>
+      </div>
+
+      <div className="mt-1 flex flex-col items-center gap-3">
+        {!showJoin ? (
+          <button
+            type="button"
+            onClick={() => setShowJoin(true)}
+            className="text-sm font-semibold text-brand-600 hover:underline"
+          >
+            Have a code? Join a lobby
+          </button>
+        ) : (
+          <form
+            onSubmit={handleJoinSubmit}
+            className="flex animate-pop-in items-center gap-2"
+          >
+            <input
+              value={joinCode}
+              onChange={(e) => setJoinCode(e.target.value.toUpperCase().slice(0, 8))}
+              placeholder="8-CHAR CODE"
+              autoFocus
+              className={`${inputClasses} w-40 text-center font-mono text-sm tracking-widest`}
+            />
+            <Button type="submit" disabled={joinCode.trim().length === 0}>
+              Join →
+            </Button>
+          </form>
+        )}
       </div>
     </main>
   );
