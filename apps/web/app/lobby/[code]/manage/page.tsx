@@ -113,12 +113,14 @@ export default function ManageLobbyPage() {
             <span aria-hidden>⏳</span>
             <p>
               This lobby isn&apos;t tied to an account, so it&apos;ll be automatically deleted on{" "}
-              <strong className="text-[var(--foreground)]">{deleteByLabel}</strong> (7 days after
-              creation, regardless of whether voting is open or closed).{" "}
+              <strong className="text-[var(--foreground)]">{deleteByLabel}</strong>{" "}
+              (7 days after creation, regardless of whether voting is open or closed) — signing in
+              now won&apos;t save this one, since it can&apos;t be transferred to an account after
+              the fact.{" "}
               <Link href="/login" className="font-semibold text-brand-600 hover:underline">
                 Sign in
               </Link>{" "}
-              to keep it permanently.
+              before creating your next lobby to keep that one permanently.
             </p>
           </div>
         )}
