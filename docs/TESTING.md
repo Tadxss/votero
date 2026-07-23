@@ -56,7 +56,10 @@ This one isn't practical to wait out manually — instead, confirm the mechanics
 ### 14. Manual lobby delete + table/grid view
 On `/lobbies` with a couple of lobbies, click the trash icon on a row/card — a confirm dialog should appear ("This can't be undone…"); click **Cancel** and confirm nothing was deleted, then repeat and click **Delete** — that lobby should disappear immediately, the others untouched. Open one of the remaining lobbies' manage page and click **Delete lobby** at the bottom — same confirm dialog, and confirming should redirect you to `/lobbies` with that lobby gone. Separately, on `/lobbies` (desktop width), use the table/grid toggle next to "+ New lobby" — switching to grid should show the same lobbies as a card grid instead of rows; reload the page and confirm your last-picked view (table or grid) is remembered.
 
-### 15. Resetting between test runs
+### 15. Sharing the QR/link/code + join by code
+On a lobby's manage page, click **Copy link** — it should briefly change to "Copied! ✓," and pasting somewhere should give you the exact `/vote/<code>` URL. Same for **Copy code** (just the 8-character code). Click **Share** — on a phone/mobile browser this should open the native share sheet (Messages, WhatsApp, etc. depending on OS); on a desktop browser without Web Share API support, it should silently fall back to copying the link (same "Copied! ✓" feedback). Separately, on the home page (`/`), click **"Have a code? Join a lobby,"** type in a lobby's code, and click **Join →** — you should land directly on that lobby's `/vote/[code]` page, same as if you'd scanned the QR.
+
+### 16. Resetting between test runs
 - **Local**: `npx supabase db reset` wipes all lobbies/votes/test users and reapplies migrations fresh.
 - **Hosted project**: delete test lobby rows via Supabase Studio, or delete the underlying test `auth.users` rows (Authentication → Users in the dashboard, or the admin API) — deleting a user cascades to their created lobbies and participant rows.
 

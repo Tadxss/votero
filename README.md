@@ -16,7 +16,7 @@ See [TECH_STACK.md](TECH_STACK.md) for the stack, [docs/ARCHITECTURE.md](docs/AR
 
 Package manager is **pnpm** — install from the repo root with `pnpm install`.
 
-**Status**: backend (schema/RLS/RPCs/Edge Functions), the web creator/voter UI (responsive wide-dashboard layout for creator pages, centered cards for the public voter flow), optional creator accounts + lobby history (email-OTP sign-in), profile editing (username + first/last name), a 10-lobby cap for signed-in accounts, 7-day auto-cleanup of anonymous lobbies, manual lobby delete, and a table/grid view toggle are built, verified end-to-end, and deployed live. Mobile UI is not built yet — see `docs/ARCHITECTURE.md`'s Build Order for the current state.
+**Status**: backend (schema/RLS/RPCs/Edge Functions), the web creator/voter UI (responsive wide-dashboard layout for creator pages, centered cards for the public voter flow), optional creator accounts + lobby history (email-OTP sign-in), profile editing (username + first/last name), a 10-lobby cap for signed-in accounts, 7-day auto-cleanup of anonymous lobbies, manual lobby delete, a table/grid view toggle, QR/link/code sharing (copy + native share), and a join-by-code fallback are built, verified end-to-end, and deployed live. Mobile UI is not built yet — see `docs/ARCHITECTURE.md`'s Build Order for the current state.
 
 ## Develop
 

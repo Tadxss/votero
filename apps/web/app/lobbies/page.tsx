@@ -8,6 +8,7 @@ import { StatusPill } from "../_components/StatusPill";
 import { Spinner } from "../_components/Spinner";
 import { Button } from "../_components/Button";
 import { ConfirmDialog } from "../_components/ConfirmDialog";
+import { TrashIcon } from "../_components/icons";
 
 const LOBBY_CAP = 10;
 const VIEW_STORAGE_KEY = "votero:lobbies-view";
@@ -30,20 +31,6 @@ function GridIcon() {
       <rect x="9" y="1.5" width="5.5" height="5.5" rx="1" stroke="currentColor" strokeWidth="1.3" />
       <rect x="1.5" y="9" width="5.5" height="5.5" rx="1" stroke="currentColor" strokeWidth="1.3" />
       <rect x="9" y="9" width="5.5" height="5.5" rx="1" stroke="currentColor" strokeWidth="1.3" />
-    </svg>
-  );
-}
-
-function TrashIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-      <path
-        d="M2.5 4h11M6 4V2.5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1V4m-6.5 0 .6 9a1 1 0 0 0 1 .9h5.8a1 1 0 0 0 1-.9l.6-9"
-        stroke="currentColor"
-        strokeWidth="1.3"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
     </svg>
   );
 }
