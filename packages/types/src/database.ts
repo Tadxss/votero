@@ -172,6 +172,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar_url: string | null
           created_at: string
           display_name: string | null
           first_name: string | null
@@ -181,6 +182,7 @@ export type Database = {
           username: string | null
         }
         Insert: {
+          avatar_url?: string | null
           created_at?: string
           display_name?: string | null
           first_name?: string | null
@@ -190,6 +192,7 @@ export type Database = {
           username?: string | null
         }
         Update: {
+          avatar_url?: string | null
           created_at?: string
           display_name?: string | null
           first_name?: string | null
@@ -335,7 +338,12 @@ export type Database = {
         }
       }
       rpc_update_profile: {
-        Args: { p_first_name: string; p_last_name: string; p_username: string }
+        Args: {
+          p_avatar_url?: string
+          p_first_name: string
+          p_last_name: string
+          p_username: string
+        }
         Returns: Json
       }
     }

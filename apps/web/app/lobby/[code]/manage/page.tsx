@@ -13,7 +13,7 @@ import {
   useAuthUser,
   useDeleteLobby,
 } from "@repo/shared";
-import type { LobbyStatus } from "@repo/types";
+import type { BallotDetailEntry, LobbyStatus } from "@repo/types";
 import { Button } from "../../../_components/Button";
 import { TallyBars } from "../../../_components/TallyBars";
 import { StatusPill } from "../../../_components/StatusPill";
@@ -22,6 +22,18 @@ import { Spinner } from "../../../_components/Spinner";
 import { useConfetti } from "../../../_components/useConfetti";
 import { ConfirmDialog } from "../../../_components/ConfirmDialog";
 import { TrashIcon } from "../../../_components/icons";
+import { Avatar } from "../../../_components/Avatar";
+
+function resolveVoterLabel(entry: BallotDetailEntry): { primary: string; secondary: string | null } {
+  const fullName = [entry.firstName, entry.lastName].filter(Boolean).join(" ").trim();
+  if (fullName) {
+    return { primary: fullName, secondary: entry.username ? `@${entry.username}` : null };
+  }
+  if (entry.username) {
+    return { primary: `@${entry.username}`, secondary: null };
+  }
+  return { primary: entry.email ?? "Voter", secondary: null };
+}
 
 export default function ManageLobbyPage() {
   const { code } = useParams<{ code: string }>();
@@ -242,19 +254,28 @@ export default function ManageLobbyPage() {
                     Who voted for what
                   </h2>
                   <ul className="flex flex-col gap-2">
-                    {results.data.ballotDetail.map((entry) => (
-                      <li key={entry.participantId} className="flex items-center gap-2.5 text-sm">
-                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-100 text-xs font-bold text-brand-600 dark:bg-brand-900/40 dark:text-brand-300">
-                          {(entry.displayName ?? "V")[0]?.toUpperCase()}
-                        </span>
-                        <span className="text-[var(--foreground-muted)]">
-                          {entry.displayName ?? "Voter"}
-                        </span>
-                        <span className="ml-auto font-semibold text-[var(--foreground)]">
-                          {options.find((o) => o.id === entry.optionId)?.label}
-                        </span>
-                      </li>
-                    ))}
+                    {results.data.ballotDetail.map((entry) => {
+                      const { primary, secondary } = resolveVoterLabel(entry);
+                      return (
+                        <li
+                          key={entry.participantId}
+                          className="flex items-center gap-2.5 text-sm"
+                        >
+                          <Avatar url={entry.avatarUrl} label={primary} size="sm" />
+                          <div className="flex flex-col leading-tight">
+                            <span className="font-medium text-[var(--foreground)]">{primary}</span>
+                            {secondary && (
+                              <span className="text-xs text-[var(--foreground-muted)]">
+                                {secondary}
+                              </span>
+                            )}
+                          </div>
+                          <span className="ml-auto font-semibold text-[var(--foreground)]">
+                            {options.find((o) => o.id === entry.optionId)?.label}
+                          </span>
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
               )}

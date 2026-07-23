@@ -46,6 +46,7 @@ export function mapProfileRow(row: ProfileRow): Profile {
     username: row.username,
     firstName: row.first_name,
     lastName: row.last_name,
+    avatarUrl: row.avatar_url,
     createdAt: row.created_at,
   };
 }
