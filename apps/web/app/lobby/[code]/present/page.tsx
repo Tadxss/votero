@@ -14,7 +14,7 @@ export default function PresentLobbyPage() {
   const { ready } = useEnsureSession();
   const { data, isLoading, error } = useLobby(code, { enabled: ready });
   const lobby = data?.lobby;
-  const options = data?.options ?? [];
+  const questions = data?.questions ?? [];
   const results = useLobbyResults(lobby?.id);
 
   useLobbyRealtime({ lobbyId: lobby?.id, code, tallyVisibility: lobby?.tallyVisibility });
@@ -74,18 +74,32 @@ export default function PresentLobbyPage() {
           </div>
         </div>
 
-        <div className="flex flex-col items-center gap-4">
+        <div className="flex w-full flex-col items-center gap-6">
           {lobby.status === "draft" ? (
             <p className="text-center text-2xl text-[var(--foreground-muted)]">
               Scan to get ready — voting opens soon 🚀
             </p>
           ) : results.data?.tally ? (
-            <TallyBars
-              options={options}
-              tally={results.data.tally}
-              closed={lobby.status === "closed"}
-              size="lg"
-            />
+            <div className="flex w-full flex-col gap-8">
+              {results.data.tally.map((q) => {
+                const question = questions.find((qq) => qq.id === q.questionId);
+                return (
+                  <div key={q.questionId} className="flex flex-col gap-3">
+                    {questions.length > 1 && (
+                      <h2 className="text-center text-lg font-semibold text-[var(--foreground-muted)]">
+                        {q.questionTitle}
+                      </h2>
+                    )}
+                    <TallyBars
+                      options={question?.options ?? []}
+                      tally={q.tally}
+                      closed={lobby.status === "closed"}
+                      size="lg"
+                    />
+                  </div>
+                );
+              })}
+            </div>
           ) : (
             results.data && (
               <p className="text-center text-2xl text-[var(--foreground-muted)]">

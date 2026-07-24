@@ -16,7 +16,22 @@ function friendlyCreateError(message: string): string {
   if (message.includes("CLOSES_AT_MUST_BE_FUTURE")) {
     return "Auto-close time must be in the future.";
   }
+  if (message.includes("AT_LEAST_ONE_QUESTION_REQUIRED")) {
+    return "Add at least one question.";
+  }
+  if (message.includes("AT_LEAST_TWO_OPTIONS_REQUIRED")) {
+    return "Every question needs at least 2 options.";
+  }
   return message;
+}
+
+interface QuestionDraft {
+  title: string;
+  options: string[];
+}
+
+function makeQuestionDraft(): QuestionDraft {
+  return { title: "", options: ["", ""] };
 }
 
 export default function CreateLobbyPage() {
@@ -26,22 +41,56 @@ export default function CreateLobbyPage() {
   const createLobby = useCreateLobby();
 
   const [title, setTitle] = useState("");
-  const [options, setOptions] = useState(["", ""]);
+  const [questions, setQuestions] = useState<QuestionDraft[]>([makeQuestionDraft()]);
   const [voterCap, setVoterCap] = useState(10);
   const [ballotMode, setBallotMode] = useState<BallotMode>("anonymous");
   const [tallyVisibility, setTallyVisibility] = useState<TallyVisibility>("hidden");
   const [closesAt, setClosesAt] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
 
-  const nonEmptyOptions = options.map((o) => o.trim()).filter(Boolean);
-  const canSubmit = ready && title.trim().length > 0 && nonEmptyOptions.length >= 2 && voterCap > 0;
+  const preparedQuestions = questions.map((q) => ({
+    title: q.title.trim(),
+    options: q.options.map((o) => o.trim()).filter(Boolean),
+  }));
+  const canSubmit =
+    ready &&
+    title.trim().length > 0 &&
+    preparedQuestions.length > 0 &&
+    preparedQuestions.every((q) => q.title.length > 0 && q.options.length >= 2) &&
+    voterCap > 0;
 
-  function updateOption(index: number, value: string) {
-    setOptions((prev) => prev.map((o, i) => (i === index ? value : o)));
+  function updateQuestionTitle(qIndex: number, value: string) {
+    setQuestions((prev) => prev.map((q, i) => (i === qIndex ? { ...q, title: value } : q)));
   }
 
-  function removeOption(index: number) {
-    setOptions((prev) => prev.filter((_, i) => i !== index));
+  function updateOption(qIndex: number, oIndex: number, value: string) {
+    setQuestions((prev) =>
+      prev.map((q, i) =>
+        i === qIndex ? { ...q, options: q.options.map((o, j) => (j === oIndex ? value : o)) } : q,
+      ),
+    );
+  }
+
+  function addOption(qIndex: number) {
+    setQuestions((prev) =>
+      prev.map((q, i) => (i === qIndex ? { ...q, options: [...q.options, ""] } : q)),
+    );
+  }
+
+  function removeOption(qIndex: number, oIndex: number) {
+    setQuestions((prev) =>
+      prev.map((q, i) =>
+        i === qIndex ? { ...q, options: q.options.filter((_, j) => j !== oIndex) } : q,
+      ),
+    );
+  }
+
+  function addQuestion() {
+    setQuestions((prev) => [...prev, makeQuestionDraft()]);
+  }
+
+  function removeQuestion(qIndex: number) {
+    setQuestions((prev) => prev.filter((_, i) => i !== qIndex));
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -52,9 +101,19 @@ export default function CreateLobbyPage() {
       setFormError("Give the lobby a title.");
       return;
     }
-    if (nonEmptyOptions.length < 2) {
-      setFormError("Add at least 2 options.");
+    if (preparedQuestions.length === 0) {
+      setFormError("Add at least one question.");
       return;
+    }
+    for (const q of preparedQuestions) {
+      if (q.title.length === 0) {
+        setFormError("Every question needs a title.");
+        return;
+      }
+      if (q.options.length < 2) {
+        setFormError("Every question needs at least 2 options.");
+        return;
+      }
     }
     if (voterCap <= 0) {
       setFormError("Voter cap must be at least 1.");
@@ -68,7 +127,7 @@ export default function CreateLobbyPage() {
     createLobby.mutate(
       {
         title: title.trim(),
-        options: nonEmptyOptions,
+        questions: preparedQuestions,
         voterCap,
         ballotMode,
         tallyVisibility,
@@ -105,39 +164,73 @@ export default function CreateLobbyPage() {
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="Best pizza topping?"
+                placeholder="Team survey"
                 className={inputClasses}
               />
             </label>
 
-            <div className="flex flex-col gap-2">
-              <span className="text-sm font-semibold text-[var(--foreground)]">Options</span>
-              {options.map((option, index) => (
-                <div key={index} className="flex items-center gap-2">
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-100 text-xs font-bold text-brand-600 dark:bg-brand-900/40 dark:text-brand-300">
-                    {index + 1}
-                  </span>
-                  <input
-                    type="text"
-                    value={option}
-                    onChange={(e) => updateOption(index, e.target.value)}
-                    placeholder={`Option ${index + 1}`}
-                    className={`flex-1 ${inputClasses} py-2 text-sm`}
-                  />
-                  {options.length > 2 && (
-                    <Button type="button" variant="secondary" onClick={() => removeOption(index)}>
-                      Remove
+            <div className="flex flex-col gap-4">
+              {questions.map((question, qIndex) => (
+                <div
+                  key={qIndex}
+                  className="flex flex-col gap-3 rounded-2xl border border-neutral-200 p-4 dark:border-neutral-800"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-100 text-xs font-bold text-brand-600 dark:bg-brand-900/40 dark:text-brand-300">
+                      Q{qIndex + 1}
+                    </span>
+                    <input
+                      type="text"
+                      value={question.title}
+                      onChange={(e) => updateQuestionTitle(qIndex, e.target.value)}
+                      placeholder="Best pizza topping?"
+                      className={`flex-1 ${inputClasses}`}
+                    />
+                    {questions.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => removeQuestion(qIndex)}
+                      >
+                        Remove
+                      </Button>
+                    )}
+                  </div>
+
+                  <div className="flex flex-col gap-2 pl-9">
+                    {question.options.map((option, oIndex) => (
+                      <div key={oIndex} className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          value={option}
+                          onChange={(e) => updateOption(qIndex, oIndex, e.target.value)}
+                          placeholder={`Option ${oIndex + 1}`}
+                          className={`flex-1 ${inputClasses} py-2 text-sm`}
+                        />
+                        {question.options.length > 2 && (
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            onClick={() => removeOption(qIndex, oIndex)}
+                          >
+                            Remove
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      className="self-start"
+                      onClick={() => addOption(qIndex)}
+                    >
+                      + Add option
                     </Button>
-                  )}
+                  </div>
                 </div>
               ))}
-              <Button
-                type="button"
-                variant="secondary"
-                className="self-start"
-                onClick={() => setOptions((prev) => [...prev, ""])}
-              >
-                + Add option
+              <Button type="button" variant="secondary" className="self-start" onClick={addQuestion}>
+                + Add question
               </Button>
             </div>
           </div>

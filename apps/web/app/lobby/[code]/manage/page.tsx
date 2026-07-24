@@ -42,7 +42,7 @@ export default function ManageLobbyPage() {
   const { user, isSignedIn } = useAuthUser();
   const { data, isLoading, error } = useLobby(code, { enabled: ready });
   const lobby = data?.lobby;
-  const options = data?.options ?? [];
+  const questions = data?.questions ?? [];
 
   const results = useLobbyResults(lobby?.id);
   const setStatus = useSetLobbyStatus();
@@ -255,50 +255,70 @@ export default function ManageLobbyPage() {
           </div>
 
           {results.data && (
-            <div className="flex flex-col gap-4 rounded-3xl border border-neutral-200 bg-[var(--surface)] p-5 dark:border-neutral-800">
+            <div className="flex flex-col gap-6 rounded-3xl border border-neutral-200 bg-[var(--surface)] p-5 dark:border-neutral-800">
               {results.data.tally ? (
-                <TallyBars
-                  options={options}
-                  tally={results.data.tally}
-                  closed={lobby.status === "closed"}
-                />
+                results.data.tally.map((q) => {
+                  const question = questions.find((qq) => qq.id === q.questionId);
+                  const ballotDetail = results.data?.ballotDetail?.find(
+                    (b) => b.questionId === q.questionId,
+                  );
+                  return (
+                    <div
+                      key={q.questionId}
+                      className="flex flex-col gap-4 border-b border-neutral-100 pb-6 last:border-b-0 last:pb-0 dark:border-neutral-800"
+                    >
+                      {questions.length > 1 && (
+                        <h2 className="text-sm font-semibold text-[var(--foreground)]">
+                          {q.questionTitle}
+                        </h2>
+                      )}
+                      <TallyBars
+                        options={question?.options ?? []}
+                        tally={q.tally}
+                        closed={lobby.status === "closed"}
+                      />
+
+                      {ballotDetail && ballotDetail.entries.length > 0 && (
+                        <div className="flex flex-col gap-2 border-t border-neutral-100 pt-4 dark:border-neutral-800">
+                          <h3 className="text-sm font-semibold text-[var(--foreground)]">
+                            Who voted for what
+                          </h3>
+                          <ul className="flex flex-col gap-2">
+                            {ballotDetail.entries.map((entry) => {
+                              const { primary, secondary } = resolveVoterLabel(entry);
+                              return (
+                                <li
+                                  key={entry.participantId}
+                                  className="flex items-center gap-2.5 text-sm"
+                                >
+                                  <Avatar url={entry.avatarUrl} label={primary} size="sm" />
+                                  <div className="flex flex-col leading-tight">
+                                    <span className="font-medium text-[var(--foreground)]">
+                                      {primary}
+                                    </span>
+                                    {secondary && (
+                                      <span className="text-xs text-[var(--foreground-muted)]">
+                                        {secondary}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <span className="ml-auto font-semibold text-[var(--foreground)]">
+                                    {question?.options.find((o) => o.id === entry.optionId)?.label}
+                                  </span>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
               ) : (
                 <p className="text-sm text-[var(--foreground-muted)]">
                   {results.data.progress.votesCast} of {results.data.progress.joined} have voted —
                   tally hidden until the lobby closes.
                 </p>
-              )}
-
-              {results.data.ballotDetail && results.data.ballotDetail.length > 0 && (
-                <div className="flex flex-col gap-2 border-t border-neutral-100 pt-4 dark:border-neutral-800">
-                  <h2 className="text-sm font-semibold text-[var(--foreground)]">
-                    Who voted for what
-                  </h2>
-                  <ul className="flex flex-col gap-2">
-                    {results.data.ballotDetail.map((entry) => {
-                      const { primary, secondary } = resolveVoterLabel(entry);
-                      return (
-                        <li
-                          key={entry.participantId}
-                          className="flex items-center gap-2.5 text-sm"
-                        >
-                          <Avatar url={entry.avatarUrl} label={primary} size="sm" />
-                          <div className="flex flex-col leading-tight">
-                            <span className="font-medium text-[var(--foreground)]">{primary}</span>
-                            {secondary && (
-                              <span className="text-xs text-[var(--foreground-muted)]">
-                                {secondary}
-                              </span>
-                            )}
-                          </div>
-                          <span className="ml-auto font-semibold text-[var(--foreground)]">
-                            {options.find((o) => o.id === entry.optionId)?.label}
-                          </span>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
               )}
             </div>
           )}

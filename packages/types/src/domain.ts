@@ -18,6 +18,7 @@ export interface Lobby {
   joinedCount: number;
   votesCount: number;
   otpRequired: boolean;
+  questionCount: number;
   closesAt: string | null;
   openedAt: string | null;
   closedAt: string | null;
@@ -28,8 +29,17 @@ export interface Lobby {
 export interface LobbyOption {
   id: string;
   lobbyId: string;
+  questionId: string;
   label: string;
   position: number;
+}
+
+export interface SurveyQuestion {
+  id: string;
+  lobbyId: string;
+  title: string;
+  position: number;
+  options: LobbyOption[];
 }
 
 export interface Participant {
@@ -38,6 +48,7 @@ export interface Participant {
   userId: string;
   displayName: string | null;
   hasVoted: boolean;
+  answeredCount: number;
   joinedAt: string;
 }
 
@@ -59,9 +70,14 @@ export interface UpdateProfileInput {
 
 // --- Edge Function request/response DTOs (see docs/ARCHITECTURE.md "Edge Functions") ---
 
-export interface CreateLobbyInput {
+export interface CreateLobbyQuestionInput {
   title: string;
   options: string[]; // min 2 labels
+}
+
+export interface CreateLobbyInput {
+  title: string;
+  questions: CreateLobbyQuestionInput[]; // min 1 question
   voterCap: number;
   ballotMode: BallotMode;
   tallyVisibility: TallyVisibility;
@@ -70,7 +86,7 @@ export interface CreateLobbyInput {
 
 export interface CreateLobbyResult {
   lobby: Lobby;
-  options: LobbyOption[];
+  questions: SurveyQuestion[];
 }
 
 export interface JoinLobbyInput {
@@ -82,7 +98,7 @@ export interface JoinLobbyResult {
   participantId: string;
   hasVoted: boolean;
   lobby: Lobby;
-  options: LobbyOption[];
+  questions: SurveyQuestion[];
 }
 
 export interface CastVoteInput {
@@ -95,6 +111,12 @@ export interface TallyEntry {
   count: number;
 }
 
+export interface QuestionTally {
+  questionId: string;
+  questionTitle: string;
+  tally: TallyEntry[];
+}
+
 export interface BallotDetailEntry {
   participantId: string;
   optionId: string;
@@ -105,6 +127,12 @@ export interface BallotDetailEntry {
   avatarUrl: string | null;
 }
 
+export interface QuestionBallotDetail {
+  questionId: string;
+  questionTitle: string;
+  entries: BallotDetailEntry[];
+}
+
 export interface LobbyProgress {
   joined: number;
   cap: number;
@@ -113,8 +141,8 @@ export interface LobbyProgress {
 
 export interface LobbyResults {
   progress: LobbyProgress;
-  tally: TallyEntry[] | null; // null when tally_visibility='hidden', lobby still open, and caller isn't the creator
-  ballotDetail: BallotDetailEntry[] | null; // only present for ballotMode='open' creators
+  tally: QuestionTally[] | null; // null when tally_visibility='hidden', lobby still open, and caller isn't the creator
+  ballotDetail: QuestionBallotDetail[] | null; // only present for ballotMode='open' creators
 }
 
 export type SetLobbyStatusInput =

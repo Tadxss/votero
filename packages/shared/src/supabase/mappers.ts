@@ -1,13 +1,14 @@
-import type { Lobby, LobbyOption, Profile, Tables } from "@repo/types";
+import type { Lobby, LobbyOption, Profile, SurveyQuestion, Tables } from "@repo/types";
 
 // Direct PostgREST reads (`.from("lobbies").select("*")`) come back with raw Postgres column
 // names (snake_case, typed via the generated `Tables<...>` row types), unlike the RPCs
 // (rpc_create_lobby, rpc_join_lobby), which build their JSON response through
-// lobby_to_json/option_to_json (supabase/migrations) to match these camelCase domain types
-// already. This mapper is the client-side half of that same snake_case -> camelCase boundary for
-// the one place we read the table directly instead of going through an RPC.
+// lobby_to_json/option_to_json/question_to_json (supabase/migrations) to match these camelCase
+// domain types already. This mapper is the client-side half of that same snake_case ->
+// camelCase boundary for the one place we read tables directly instead of going through an RPC.
 type LobbyRow = Tables<"lobbies">;
 type OptionRow = Tables<"options">;
+type QuestionRow = Tables<"questions">;
 type ProfileRow = Tables<"profiles">;
 
 export function mapLobbyRow(row: LobbyRow): Lobby {
@@ -24,6 +25,7 @@ export function mapLobbyRow(row: LobbyRow): Lobby {
     joinedCount: row.joined_count,
     votesCount: row.votes_count,
     otpRequired: row.otp_required,
+    questionCount: row.question_count,
     closesAt: row.closes_at,
     openedAt: row.opened_at,
     closedAt: row.closed_at,
@@ -36,8 +38,21 @@ export function mapOptionRow(row: OptionRow): LobbyOption {
   return {
     id: row.id,
     lobbyId: row.lobby_id,
+    questionId: row.question_id,
     label: row.label,
     position: row.position,
+  };
+}
+
+// Takes the question's own already-mapped, already-sorted options (grouped by the caller) rather
+// than re-querying — mirrors how question_to_json nests options server-side.
+export function mapQuestionRow(row: QuestionRow, options: LobbyOption[]): SurveyQuestion {
+  return {
+    id: row.id,
+    lobbyId: row.lobby_id,
+    title: row.title,
+    position: row.position,
+    options,
   };
 }
 
