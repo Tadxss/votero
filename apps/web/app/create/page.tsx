@@ -13,6 +13,9 @@ function friendlyCreateError(message: string): string {
   if (message.includes("LOBBY_LIMIT_REACHED")) {
     return "You've reached the 10-lobby limit for your account — delete an old one to create a new one.";
   }
+  if (message.includes("CLOSES_AT_MUST_BE_FUTURE")) {
+    return "Auto-close time must be in the future.";
+  }
   return message;
 }
 
@@ -27,6 +30,7 @@ export default function CreateLobbyPage() {
   const [voterCap, setVoterCap] = useState(10);
   const [ballotMode, setBallotMode] = useState<BallotMode>("anonymous");
   const [tallyVisibility, setTallyVisibility] = useState<TallyVisibility>("hidden");
+  const [closesAt, setClosesAt] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
 
   const nonEmptyOptions = options.map((o) => o.trim()).filter(Boolean);
@@ -56,6 +60,10 @@ export default function CreateLobbyPage() {
       setFormError("Voter cap must be at least 1.");
       return;
     }
+    if (closesAt && new Date(closesAt) <= new Date()) {
+      setFormError("Auto-close time must be in the future.");
+      return;
+    }
 
     createLobby.mutate(
       {
@@ -64,6 +72,7 @@ export default function CreateLobbyPage() {
         voterCap,
         ballotMode,
         tallyVisibility,
+        closesAt: closesAt ? new Date(closesAt).toISOString() : undefined,
       },
       {
         onSuccess: (result) => {
@@ -141,6 +150,17 @@ export default function CreateLobbyPage() {
                 min={1}
                 value={voterCap}
                 onChange={(e) => setVoterCap(Number(e.target.value))}
+                className={inputClasses}
+              />
+            </label>
+
+            <label className="flex flex-col gap-1.5 text-sm font-semibold text-[var(--foreground)]">
+              Auto-close at{" "}
+              <span className="font-normal text-[var(--foreground-muted)]">(optional)</span>
+              <input
+                type="datetime-local"
+                value={closesAt}
+                onChange={(e) => setClosesAt(e.target.value)}
                 className={inputClasses}
               />
             </label>

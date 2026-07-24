@@ -194,6 +194,16 @@ export default function ManageLobbyPage() {
               </div>
             </div>
 
+            {lobby.closesAt && lobby.status !== "closed" && (
+              <p className="text-xs text-[var(--foreground-muted)]">
+                ⏰ Auto-closes{" "}
+                {new Date(lobby.closesAt).toLocaleString(undefined, {
+                  dateStyle: "medium",
+                  timeStyle: "short",
+                })}
+              </p>
+            )}
+
             {lobby.status === "draft" && (
               <Button
                 onClick={() => setStatus.mutate({ lobbyId: lobby.id, action: "open" })}
