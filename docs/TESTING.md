@@ -18,7 +18,7 @@ This was already verified once end-to-end with a scripted browser (Playwright) c
 On `/create`, try submitting with an empty title, with fewer than 2 non-empty options, and with a voter cap of 0. Each should show an inline error and *not* submit. Fill it in properly (title, 2+ options, cap ≥ 1) and submit — you should land on `/lobby/<CODE>/manage`.
 
 ### 2. Draft state
-Right after creating, the manage page shows the QR code, the raw link, and the code, with an **Open voting** button and "Draft" status. Copy the voter link and open it in your voter window — it should say *"This lobby hasn't opened yet — check back soon."* and show no ballot.
+Right after creating, the manage page shows the QR code, the raw link, and the code, with an **Open voting** button and "Draft" status. Copy the voter link and open it in your voter window (a genuinely separate anonymous session — this now correctly works for a real stranger, not just the creator's own session, after a Build Order step 23 RLS fix) — it should say *"This lobby hasn't opened yet — check back soon."* and show no ballot.
 
 ### 3. Open → join → vote
 Back in the creator window, click **Open voting**. In the voter window, reload (or it should update live) — you should now see the ballot. Select an option and click **Vote**. The ballot should disappear, replaced by *"You're in — thanks for voting!"*.
@@ -71,7 +71,10 @@ Create an **Open**-mode lobby, open it. In a fresh anonymous/incognito voter win
 ### 19. Scheduled (time-based) auto-close
 On `/create`, try picking an "Auto-close at" time in the past — you should get an inline "Auto-close time must be in the future" error and the form shouldn't submit. Set one a few minutes in the future instead, create and open the lobby — its manage page should show "⏰ Auto-closes `<date>, <time>`" below the join progress bar. Open the voter link (`/vote/[code]`) in a separate window — it should show the same time as "⏰ Voting closes `<date>, <time>`" right above the ballot, so voters aren't caught off guard. Confirm the cron job exists (`select jobid, jobname, schedule, active from cron.job;` via Studio or `docker exec <db container> psql ...`) — `auto-close-scheduled-lobbies` should be listed, `active`, running every minute. To exercise it without waiting: backdate the lobby (`update lobbies set closes_at = now() - interval '1 minute' where code = '...'`), then run the job's exact `UPDATE` body directly (see `supabase/migrations/20260724143737_scheduled_auto_close.sql`) — the lobby should flip to `closed`, and reloading its manage page should show "Closed" with the auto-close line gone (it only shows while not yet closed). A lobby created with no auto-close time set should be completely unaffected by any of this.
 
-### 20. Resetting between test runs
+### 20. Present Mode
+On a lobby's manage page, click **🖥️ Present Mode** — it should open `/lobby/[code]/present` in a new tab with **no site header/nav at all**. While the lobby is still `Draft`, this page should show the QR code plus "Scan to get ready — voting opens soon" — try loading it in a completely separate/incognito window (not the creator's own session) to confirm a stranger can see this too, not just the creator. Open voting — the present page should switch to showing the live tally (bigger bars/text than the manage page) if tally visibility is **Live**, or just "X of Y have voted" progress if **Hidden**. Confirm it never shows a "who voted for what" list even for an **Open**-ballot-mode lobby — that view is meant to be projected/public, so individual voter identity must never appear there regardless of ballot mode. Close the lobby — the present page should show final results with the winner crowned, same as the manage page.
+
+### 21. Resetting between test runs
 - **Local**: `npx supabase db reset` wipes all lobbies/votes/test users and reapplies migrations fresh.
 - **Hosted project**: delete test lobby rows via Supabase Studio, or delete the underlying test `auth.users` rows (Authentication → Users in the dashboard, or the admin API) — deleting a user cascades to their created lobbies and participant rows.
 

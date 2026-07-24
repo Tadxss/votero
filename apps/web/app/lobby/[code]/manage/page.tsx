@@ -179,6 +179,17 @@ export default function ManageLobbyPage() {
               </div>
             )}
 
+            <Link
+              href={`/lobby/${code}/present`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="self-start"
+            >
+              <Button type="button" variant="secondary" className="inline-flex items-center gap-1.5">
+                🖥️ Present Mode
+              </Button>
+            </Link>
+
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between text-sm font-medium text-[var(--foreground-muted)]">
                 <span>

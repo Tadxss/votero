@@ -21,19 +21,22 @@ export function TallyBars({
   options,
   tally,
   closed = false,
+  size = "md",
 }: {
   options: LobbyOption[];
   tally: TallyEntry[];
   closed?: boolean;
+  size?: "md" | "lg";
 }) {
   const countByOption = new Map(tally.map((t) => [t.optionId, t.count]));
   const maxCount = Math.max(1, ...tally.map((t) => t.count));
   const winners = tally.filter((t) => t.count > 0 && t.count === maxCount);
   // Only crown a winner once voting has actually closed, and only when it's not a tie.
   const winnerOptionId = closed && winners.length === 1 ? winners[0]?.optionId : null;
+  const large = size === "lg";
 
   return (
-    <div className="viz-root flex flex-col gap-3">
+    <div className={`viz-root flex flex-col ${large ? "gap-5" : "gap-3"}`}>
       <style>{`
         .viz-root {
           --series-1: #2a78d6; --series-2: #eb6834; --series-3: #1baf7a; --series-4: #eda100;
@@ -54,15 +57,20 @@ export function TallyBars({
         const count = countByOption.get(option.id) ?? 0;
         const widthPct = (count / maxCount) * 100;
         return (
-          <div key={option.id} className="flex items-center gap-3 text-sm">
+          <div
+            key={option.id}
+            className={`flex items-center text-[var(--foreground)] ${large ? "gap-4 text-xl" : "gap-3 text-sm"}`}
+          >
             <span
-              className="flex w-32 shrink-0 items-center gap-1 text-[var(--foreground)]"
+              className={`flex shrink-0 items-center gap-1.5 ${large ? "w-48" : "w-32"}`}
               title={option.label}
             >
               <span className="min-w-0 flex-1 truncate">{option.label}</span>
               {option.id === winnerOptionId && <span aria-label="Winner">🏆</span>}
             </span>
-            <div className="h-3 flex-1 overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800">
+            <div
+              className={`flex-1 overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800 ${large ? "h-6" : "h-3"}`}
+            >
               <div
                 className="h-full rounded-full transition-all"
                 style={{
@@ -71,7 +79,9 @@ export function TallyBars({
                 }}
               />
             </div>
-            <span className="w-6 shrink-0 text-right tabular-nums text-[var(--foreground-muted)]">
+            <span
+              className={`shrink-0 text-right tabular-nums text-[var(--foreground-muted)] ${large ? "w-12" : "w-6"}`}
+            >
               {count}
             </span>
           </div>
