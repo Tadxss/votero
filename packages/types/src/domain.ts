@@ -18,6 +18,7 @@ export interface Lobby {
   joinedCount: number;
   votesCount: number;
   otpRequired: boolean;
+  closesAt: string | null;
   openedAt: string | null;
   closedAt: string | null;
   createdAt: string;
@@ -64,6 +65,7 @@ export interface CreateLobbyInput {
   voterCap: number;
   ballotMode: BallotMode;
   tallyVisibility: TallyVisibility;
+  closesAt?: string; // ISO timestamp; must be in the future. Omit for no scheduled auto-close.
 }
 
 export interface CreateLobbyResult {

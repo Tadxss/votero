@@ -53,6 +53,7 @@ export type Database = {
         Row: {
           ballot_mode: Database["public"]["Enums"]["ballot_mode"]
           closed_at: string | null
+          closes_at: string | null
           code: string
           created_at: string
           creator_id: string
@@ -71,6 +72,7 @@ export type Database = {
         Insert: {
           ballot_mode?: Database["public"]["Enums"]["ballot_mode"]
           closed_at?: string | null
+          closes_at?: string | null
           code: string
           created_at?: string
           creator_id: string
@@ -89,6 +91,7 @@ export type Database = {
         Update: {
           ballot_mode?: Database["public"]["Enums"]["ballot_mode"]
           closed_at?: string | null
+          closes_at?: string | null
           code?: string
           created_at?: string
           creator_id?: string
@@ -272,6 +275,7 @@ export type Database = {
         Returns: {
           ballot_mode: Database["public"]["Enums"]["ballot_mode"]
           closed_at: string | null
+          closes_at: string | null
           code: string
           created_at: string
           creator_id: string
@@ -297,6 +301,7 @@ export type Database = {
       rpc_create_lobby: {
         Args: {
           p_ballot_mode: Database["public"]["Enums"]["ballot_mode"]
+          p_closes_at?: string
           p_options: string[]
           p_tally_visibility: Database["public"]["Enums"]["tally_visibility"]
           p_title: string
@@ -315,6 +320,7 @@ export type Database = {
         Returns: {
           ballot_mode: Database["public"]["Enums"]["ballot_mode"]
           closed_at: string | null
+          closes_at: string | null
           code: string
           created_at: string
           creator_id: string

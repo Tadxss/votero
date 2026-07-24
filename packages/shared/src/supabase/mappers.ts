@@ -24,6 +24,7 @@ export function mapLobbyRow(row: LobbyRow): Lobby {
     joinedCount: row.joined_count,
     votesCount: row.votes_count,
     otpRequired: row.otp_required,
+    closesAt: row.closes_at,
     openedAt: row.opened_at,
     closedAt: row.closed_at,
     createdAt: row.created_at,

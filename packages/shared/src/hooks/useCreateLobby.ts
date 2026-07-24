@@ -15,6 +15,7 @@ export function useCreateLobby() {
         p_voter_cap: input.voterCap,
         p_ballot_mode: input.ballotMode,
         p_tally_visibility: input.tallyVisibility,
+        ...(input.closesAt ? { p_closes_at: input.closesAt } : {}),
       });
       if (error) throw error;
       // rpc_create_lobby returns `jsonb` (typed as the generic `Json` union) — the RPC's own
