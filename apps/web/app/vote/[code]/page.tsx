@@ -106,6 +106,16 @@ export default function VotePage() {
           {lobby.title}
         </h1>
 
+        {lobby.closesAt && lobby.status === "open" && (
+          <p className="-mt-4 text-xs text-[var(--foreground-muted)]">
+            ⏰ Voting closes{" "}
+            {new Date(lobby.closesAt).toLocaleString(undefined, {
+              dateStyle: "medium",
+              timeStyle: "short",
+            })}
+          </p>
+        )}
+
         {showResults ? (
           <div className="flex animate-pop-in flex-col gap-4 rounded-3xl border border-neutral-200 bg-[var(--surface)] p-5 dark:border-neutral-800">
             <div className="flex items-center justify-between">
