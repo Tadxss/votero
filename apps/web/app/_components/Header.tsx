@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useAuthUser, useProfile, useSignOut } from "@repo/shared";
 import { Avatar } from "./Avatar";
 import { ProfileModal } from "./ProfileModal";
@@ -10,10 +11,15 @@ const navLinkClasses =
   "rounded-full border border-neutral-200 px-3 py-1 font-medium text-[var(--foreground-muted)] transition-colors hover:border-brand-300 hover:text-brand-600 dark:border-neutral-700";
 
 export function Header() {
+  const pathname = usePathname();
   const { user, isSignedIn, loading } = useAuthUser();
   const { data: profile } = useProfile(isSignedIn ? user?.id : undefined);
   const signOut = useSignOut();
   const [isProfileModalOpen, setProfileModalOpen] = useState(false);
+
+  // Present Mode is meant to be projected on a screen at an event — the site nav would just be
+  // distracting clutter there, so it renders with none at all.
+  if (pathname?.endsWith("/present")) return null;
 
   return (
     <header className="relative z-10 flex h-16 shrink-0 items-center justify-between px-4 sm:px-6">

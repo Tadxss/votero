@@ -8,6 +8,9 @@ import { withSupabase } from "@supabase/server";
 // - `ctx.supabaseAdmin` (service role) is the ONLY way to call rpc_get_tally, which has no
 //   internal auth check of its own — this function decides whether the caller is allowed to see
 //   the tally (live / closed / is-creator) *before* reaching for the admin client, not after.
+// Since multi-question surveys: both RPCs return an array grouped per question
+// (`[{ questionId, questionTitle, tally|entries: [...] }, ...]`) instead of one flat array — this
+// function just forwards whatever shape the RPC returns, so no change needed here beyond this note.
 export default {
   fetch: withSupabase({ auth: "user" }, async (req, ctx) => {
     const { lobbyId } = await req.json();

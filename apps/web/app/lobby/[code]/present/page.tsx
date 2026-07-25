@@ -1,0 +1,114 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { QRCodeSVG } from "qrcode.react";
+import { useLobby, useLobbyResults, useLobbyRealtime, useEnsureSession } from "@repo/shared";
+import { TallyBars } from "../../../_components/TallyBars";
+import { StatusPill } from "../../../_components/StatusPill";
+import { LiveDot } from "../../../_components/LiveDot";
+import { Spinner } from "../../../_components/Spinner";
+
+export default function PresentLobbyPage() {
+  const { code } = useParams<{ code: string }>();
+  const { ready } = useEnsureSession();
+  const { data, isLoading, error } = useLobby(code, { enabled: ready });
+  const lobby = data?.lobby;
+  const questions = data?.questions ?? [];
+  const results = useLobbyResults(lobby?.id);
+
+  useLobbyRealtime({ lobbyId: lobby?.id, code, tallyVisibility: lobby?.tallyVisibility });
+
+  const [voteUrl, setVoteUrl] = useState("");
+  useEffect(() => {
+    setVoteUrl(`${window.location.origin}/vote/${code}`);
+  }, [code]);
+
+  if (!ready || isLoading) return <Spinner />;
+  if (error || !lobby) {
+    return (
+      <main className="flex min-h-screen flex-col items-center justify-center gap-3 px-4 text-center">
+        <span className="text-4xl">🔍</span>
+        <p className="text-[var(--foreground-muted)]">Lobby not found.</p>
+      </main>
+    );
+  }
+
+  const joinedPct = Math.min(100, (lobby.joinedCount / lobby.voterCap) * 100);
+
+  return (
+    <main className="relative flex min-h-screen flex-col items-center justify-center gap-8 overflow-hidden px-6 py-10">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-32 -left-24 h-96 w-96 rounded-full bg-brand-300/30 blur-3xl dark:bg-brand-700/20"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -bottom-32 -right-24 h-96 w-96 rounded-full bg-accent-400/30 blur-3xl dark:bg-accent-600/15"
+      />
+
+      <div className="flex animate-pop-in items-center gap-3">
+        <h1 className="font-display text-4xl font-bold text-[var(--foreground)] sm:text-5xl">
+          {lobby.title}
+        </h1>
+        <StatusPill status={lobby.status} />
+      </div>
+
+      <div className="grid w-full max-w-6xl grid-cols-1 items-center gap-10 lg:grid-cols-2">
+        <div className="flex flex-col items-center gap-4">
+          <div className="rounded-3xl bg-white p-6 shadow-2xl">
+            <QRCodeSVG value={voteUrl} size={280} />
+          </div>
+          <p className="rounded-full bg-brand-50 px-5 py-1.5 font-mono text-2xl font-bold tracking-widest text-brand-700 dark:bg-brand-900/30 dark:text-brand-300">
+            {lobby.code}
+          </p>
+          <p className="flex items-center gap-2 text-lg text-[var(--foreground-muted)]">
+            {lobby.joinedCount} / {lobby.voterCap} joined
+            {lobby.tallyVisibility === "live" && <LiveDot />}
+          </p>
+          <div className="h-3 w-full max-w-xs overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800">
+            <div
+              className="h-full rounded-full bg-accent-500 transition-all duration-500"
+              style={{ width: `${joinedPct}%` }}
+            />
+          </div>
+        </div>
+
+        <div className="flex w-full flex-col items-center gap-6">
+          {lobby.status === "draft" ? (
+            <p className="text-center text-2xl text-[var(--foreground-muted)]">
+              Scan to get ready — voting opens soon 🚀
+            </p>
+          ) : results.data?.tally ? (
+            <div className="flex w-full flex-col gap-8">
+              {results.data.tally.map((q) => {
+                const question = questions.find((qq) => qq.id === q.questionId);
+                return (
+                  <div key={q.questionId} className="flex flex-col gap-3">
+                    {questions.length > 1 && (
+                      <h2 className="text-center text-lg font-semibold text-[var(--foreground-muted)]">
+                        {q.questionTitle}
+                      </h2>
+                    )}
+                    <TallyBars
+                      options={question?.options ?? []}
+                      tally={q.tally}
+                      closed={lobby.status === "closed"}
+                      size="lg"
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            results.data && (
+              <p className="text-center text-2xl text-[var(--foreground-muted)]">
+                {results.data.progress.votesCast} of {results.data.progress.joined} have voted
+              </p>
+            )
+          )}
+        </div>
+      </div>
+    </main>
+  );
+}

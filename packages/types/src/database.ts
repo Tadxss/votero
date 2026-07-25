@@ -61,6 +61,7 @@ export type Database = {
           joined_count: number
           opened_at: string | null
           otp_required: boolean
+          question_count: number
           status: Database["public"]["Enums"]["lobby_status"]
           tally_visibility: Database["public"]["Enums"]["tally_visibility"]
           title: string
@@ -80,6 +81,7 @@ export type Database = {
           joined_count?: number
           opened_at?: string | null
           otp_required?: boolean
+          question_count?: number
           status?: Database["public"]["Enums"]["lobby_status"]
           tally_visibility?: Database["public"]["Enums"]["tally_visibility"]
           title: string
@@ -99,6 +101,7 @@ export type Database = {
           joined_count?: number
           opened_at?: string | null
           otp_required?: boolean
+          question_count?: number
           status?: Database["public"]["Enums"]["lobby_status"]
           tally_visibility?: Database["public"]["Enums"]["tally_visibility"]
           title?: string
@@ -115,18 +118,21 @@ export type Database = {
           label: string
           lobby_id: string
           position: number
+          question_id: string
         }
         Insert: {
           id?: string
           label: string
           lobby_id: string
           position: number
+          question_id: string
         }
         Update: {
           id?: string
           label?: string
           lobby_id?: string
           position?: number
+          question_id?: string
         }
         Relationships: [
           {
@@ -136,10 +142,18 @@ export type Database = {
             referencedRelation: "lobbies"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "options_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
+            referencedColumns: ["id"]
+          },
         ]
       }
       participants: {
         Row: {
+          answered_count: number
           display_name: string | null
           has_voted: boolean
           id: string
@@ -148,6 +162,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          answered_count?: number
           display_name?: string | null
           has_voted?: boolean
           id?: string
@@ -156,6 +171,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          answered_count?: number
           display_name?: string | null
           has_voted?: boolean
           id?: string
@@ -206,6 +222,35 @@ export type Database = {
         }
         Relationships: []
       }
+      questions: {
+        Row: {
+          id: string
+          lobby_id: string
+          position: number
+          title: string
+        }
+        Insert: {
+          id?: string
+          lobby_id: string
+          position: number
+          title: string
+        }
+        Update: {
+          id?: string
+          lobby_id?: string
+          position?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "questions_lobby_id_fkey"
+            columns: ["lobby_id"]
+            isOneToOne: false
+            referencedRelation: "lobbies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       votes: {
         Row: {
           created_at: string
@@ -213,6 +258,7 @@ export type Database = {
           lobby_id: string
           option_id: string
           participant_id: string
+          question_id: string
         }
         Insert: {
           created_at?: string
@@ -220,6 +266,7 @@ export type Database = {
           lobby_id: string
           option_id: string
           participant_id: string
+          question_id: string
         }
         Update: {
           created_at?: string
@@ -227,6 +274,7 @@ export type Database = {
           lobby_id?: string
           option_id?: string
           participant_id?: string
+          question_id?: string
         }
         Relationships: [
           {
@@ -239,7 +287,7 @@ export type Database = {
           {
             foreignKeyName: "votes_lobby_id_participant_id_fkey"
             columns: ["lobby_id", "participant_id"]
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: "participants"
             referencedColumns: ["lobby_id", "id"]
           },
@@ -248,6 +296,13 @@ export type Database = {
             columns: ["option_id"]
             isOneToOne: false
             referencedRelation: "options"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "votes_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "questions"
             referencedColumns: ["id"]
           },
         ]
@@ -270,6 +325,10 @@ export type Database = {
         Args: { p: Database["public"]["Tables"]["profiles"]["Row"] }
         Returns: Json
       }
+      question_to_json: {
+        Args: { q: Database["public"]["Tables"]["questions"]["Row"] }
+        Returns: Json
+      }
       rpc_cast_vote: {
         Args: { p_lobby_id: string; p_option_id: string }
         Returns: {
@@ -283,6 +342,7 @@ export type Database = {
           joined_count: number
           opened_at: string | null
           otp_required: boolean
+          question_count: number
           status: Database["public"]["Enums"]["lobby_status"]
           tally_visibility: Database["public"]["Enums"]["tally_visibility"]
           title: string
@@ -302,7 +362,7 @@ export type Database = {
         Args: {
           p_ballot_mode: Database["public"]["Enums"]["ballot_mode"]
           p_closes_at?: string
-          p_options: string[]
+          p_questions: Json
           p_tally_visibility: Database["public"]["Enums"]["tally_visibility"]
           p_title: string
           p_voter_cap: number
@@ -328,6 +388,7 @@ export type Database = {
           joined_count: number
           opened_at: string | null
           otp_required: boolean
+          question_count: number
           status: Database["public"]["Enums"]["lobby_status"]
           tally_visibility: Database["public"]["Enums"]["tally_visibility"]
           title: string
