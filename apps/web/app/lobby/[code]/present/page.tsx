@@ -54,9 +54,9 @@ export default function PresentLobbyPage() {
         <StatusPill status={lobby.status} />
       </div>
 
-      <div className="grid w-full max-w-6xl grid-cols-1 items-center gap-10 lg:grid-cols-2">
+      <div className="grid w-full max-w-6xl grid-cols-1 items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
         <div className="flex flex-col items-center gap-4">
-          <div className="rounded-3xl bg-white p-6 shadow-2xl">
+          <div className="w-full max-w-[280px] rounded-3xl bg-white p-6 shadow-2xl [&>svg]:h-auto [&>svg]:w-full">
             <QRCodeSVG value={voteUrl} size={280} />
           </div>
           <p className="rounded-full bg-brand-50 px-5 py-1.5 font-mono text-2xl font-bold tracking-widest text-brand-700 dark:bg-brand-900/30 dark:text-brand-300">
@@ -74,19 +74,22 @@ export default function PresentLobbyPage() {
           </div>
         </div>
 
-        <div className="flex w-full flex-col items-center gap-6">
+        <div className="flex w-full min-w-0 flex-col items-center gap-6">
           {lobby.status === "draft" ? (
             <p className="text-center text-2xl text-[var(--foreground-muted)]">
               Scan to get ready — voting opens soon 🚀
             </p>
           ) : results.data?.tally ? (
-            <div className="flex w-full flex-col gap-8">
+            <div className="flex w-full min-w-0 flex-col gap-6">
               {results.data.tally.map((q) => {
                 const question = questions.find((qq) => qq.id === q.questionId);
                 return (
-                  <div key={q.questionId} className="flex flex-col gap-3">
+                  <div
+                    key={q.questionId}
+                    className="flex flex-col gap-3 border-b border-neutral-200/60 pb-6 last:border-b-0 last:pb-0 dark:border-neutral-800"
+                  >
                     {questions.length > 1 && (
-                      <h2 className="text-center text-lg font-semibold text-[var(--foreground-muted)]">
+                      <h2 className="truncate text-lg font-semibold text-[var(--foreground-muted)]">
                         {q.questionTitle}
                       </h2>
                     )}
