@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useCreateLobby, useEnsureSession, useAuthUser } from "@repo/shared";
-import type { BallotMode, TallyVisibility } from "@repo/types";
+import type { BallotMode, QuestionType, TallyVisibility } from "@repo/types";
 import { Button } from "../_components/Button";
 import { RadioCard } from "../_components/RadioCard";
 import { inputClasses } from "../_components/styles";
@@ -27,11 +27,12 @@ function friendlyCreateError(message: string): string {
 
 interface QuestionDraft {
   title: string;
+  type: QuestionType;
   options: string[];
 }
 
 function makeQuestionDraft(): QuestionDraft {
-  return { title: "", options: ["", ""] };
+  return { title: "", type: "choice", options: ["", ""] };
 }
 
 export default function CreateLobbyPage() {
@@ -50,17 +51,22 @@ export default function CreateLobbyPage() {
 
   const preparedQuestions = questions.map((q) => ({
     title: q.title.trim(),
-    options: q.options.map((o) => o.trim()).filter(Boolean),
+    type: q.type,
+    options: q.type === "choice" ? q.options.map((o) => o.trim()).filter(Boolean) : [],
   }));
   const canSubmit =
     ready &&
     title.trim().length > 0 &&
     preparedQuestions.length > 0 &&
-    preparedQuestions.every((q) => q.title.length > 0 && q.options.length >= 2) &&
+    preparedQuestions.every((q) => q.title.length > 0 && (q.type === "text" || q.options.length >= 2)) &&
     voterCap > 0;
 
   function updateQuestionTitle(qIndex: number, value: string) {
     setQuestions((prev) => prev.map((q, i) => (i === qIndex ? { ...q, title: value } : q)));
+  }
+
+  function updateQuestionType(qIndex: number, type: QuestionType) {
+    setQuestions((prev) => prev.map((q, i) => (i === qIndex ? { ...q, type } : q)));
   }
 
   function updateOption(qIndex: number, oIndex: number, value: string) {
@@ -110,8 +116,8 @@ export default function CreateLobbyPage() {
         setFormError("Every question needs a title.");
         return;
       }
-      if (q.options.length < 2) {
-        setFormError("Every question needs at least 2 options.");
+      if (q.type === "choice" && q.options.length < 2) {
+        setFormError("Every choice question needs at least 2 options.");
         return;
       }
     }
@@ -197,36 +203,63 @@ export default function CreateLobbyPage() {
                     )}
                   </div>
 
-                  <div className="flex flex-col gap-2 pl-9">
-                    {question.options.map((option, oIndex) => (
-                      <div key={oIndex} className="flex items-center gap-2">
-                        <input
-                          type="text"
-                          value={option}
-                          onChange={(e) => updateOption(qIndex, oIndex, e.target.value)}
-                          placeholder={`Option ${oIndex + 1}`}
-                          className={`flex-1 ${inputClasses} py-2 text-sm`}
-                        />
-                        {question.options.length > 2 && (
-                          <Button
-                            type="button"
-                            variant="secondary"
-                            onClick={() => removeOption(qIndex, oIndex)}
-                          >
-                            Remove
-                          </Button>
-                        )}
-                      </div>
-                    ))}
-                    <Button
+                  <div className="flex gap-2 pl-9">
+                    <button
                       type="button"
-                      variant="secondary"
-                      className="self-start"
-                      onClick={() => addOption(qIndex)}
+                      onClick={() => updateQuestionType(qIndex, "choice")}
+                      className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+                        question.type === "choice"
+                          ? "bg-brand-500 text-white"
+                          : "bg-neutral-100 text-[var(--foreground-muted)] dark:bg-neutral-800"
+                      }`}
                     >
-                      + Add option
-                    </Button>
+                      📊 Choice
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => updateQuestionType(qIndex, "text")}
+                      className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+                        question.type === "text"
+                          ? "bg-brand-500 text-white"
+                          : "bg-neutral-100 text-[var(--foreground-muted)] dark:bg-neutral-800"
+                      }`}
+                    >
+                      ✍️ Free text
+                    </button>
                   </div>
+
+                  {question.type === "choice" && (
+                    <div className="flex flex-col gap-2 pl-9">
+                      {question.options.map((option, oIndex) => (
+                        <div key={oIndex} className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={option}
+                            onChange={(e) => updateOption(qIndex, oIndex, e.target.value)}
+                            placeholder={`Option ${oIndex + 1}`}
+                            className={`flex-1 ${inputClasses} py-2 text-sm`}
+                          />
+                          {question.options.length > 2 && (
+                            <Button
+                              type="button"
+                              variant="secondary"
+                              onClick={() => removeOption(qIndex, oIndex)}
+                            >
+                              Remove
+                            </Button>
+                          )}
+                        </div>
+                      ))}
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        className="self-start"
+                        onClick={() => addOption(qIndex)}
+                      >
+                        + Add option
+                      </Button>
+                    </div>
+                  )}
                 </div>
               ))}
               <Button type="button" variant="secondary" className="self-start" onClick={addQuestion}>
