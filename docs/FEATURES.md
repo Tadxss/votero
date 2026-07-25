@@ -54,6 +54,8 @@ optionally sign in to keep a history of past lobbies; voters never need to.
 - Live progress and results update instantly on screen without refreshing, powered by realtime
   updates.
 - Refreshing mid-vote never re-shows a ballot you already completed.
+- On a multi-question survey, a **← Back** button lets you revisit an earlier question and change
+  your answer before you finish — once you've finished, though, that's final.
 
 ### Results & closing
 - Manual close (creator clicks "Close voting") or automatic close (the voter cap is filled, or a

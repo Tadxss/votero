@@ -5,9 +5,9 @@ import { extractFunctionErrorCode } from "../supabase/functionErrors";
 
 // Mirrors useCastVote.ts — an Edge Function, not a direct table insert, since one response
 // atomically touches the same four things (vote row, participants.answered_count/has_voted,
-// lobbies.votes_count, possible auto-close). Unlike useCastVote, this doesn't touch
-// `useBallotStore` (that's choice-question selection state, not free-text input) — the text
-// input is local component state on /vote/[code], cleared by the caller after a successful submit.
+// lobbies.votes_count, possible auto-close). Also doubles as an edit, same as useCastVote: the
+// text input is local per-question component state on /vote/[code], so revisiting an
+// already-answered question and resubmitting just updates it in place server-side.
 export function useSubmitTextResponse() {
   const supabase = useSupabaseClient();
   const queryClient = useQueryClient();

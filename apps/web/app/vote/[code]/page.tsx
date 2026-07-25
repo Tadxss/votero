@@ -12,7 +12,6 @@ import {
   useSubmitTextResponse,
   useEnsureSession,
   useAuthUser,
-  useBallotStore,
 } from "@repo/shared";
 import { Button } from "../../_components/Button";
 import { TallyBars } from "../../_components/TallyBars";
@@ -43,8 +42,6 @@ export default function VotePage() {
   const castVote = useCastVote();
   const submitTextResponse = useSubmitTextResponse();
   const results = useLobbyResults(lobby?.id);
-  const selectedOptionId = useBallotStore((s) => s.selectedOptionId);
-  const selectOption = useBallotStore((s) => s.select);
   const { burst } = useConfetti();
 
   useLobbyRealtime({ lobbyId: lobby?.id, code, tallyVisibility: lobby?.tallyVisibility });
@@ -52,7 +49,10 @@ export default function VotePage() {
   const [participantId, setParticipantId] = useState<string | null>(null);
   const [hasVoted, setHasVoted] = useState(false);
   const [questionIndex, setQuestionIndex] = useState(0);
-  const [textResponse, setTextResponse] = useState("");
+  // Keyed by question ID (not a single "current selection") so going back to an earlier question
+  // shows what was previously picked/typed there, rather than a blank slate.
+  const [choiceAnswers, setChoiceAnswers] = useState<Record<string, string>>({});
+  const [textAnswers, setTextAnswers] = useState<Record<string, string>>({});
   const joinAttempted = useRef(false);
 
   useEffect(() => {
@@ -100,6 +100,8 @@ export default function VotePage() {
   const showResults = lobby.status === "closed" || hasVoted;
   const currentQuestion = questions[questionIndex];
   const isLastQuestion = questionIndex === questions.length - 1;
+  const selectedOptionId = currentQuestion ? (choiceAnswers[currentQuestion.id] ?? null) : null;
+  const textResponse = currentQuestion ? (textAnswers[currentQuestion.id] ?? "") : "";
 
   return (
     <main className="relative min-h-[calc(100vh-4rem)] overflow-hidden px-4 py-10">
@@ -170,8 +172,7 @@ export default function VotePage() {
             onSubmit={(e) => {
               e.preventDefault();
 
-              function advanceAfterSuccess() {
-                setTextResponse("");
+              function advance() {
                 if (isLastQuestion) {
                   setHasVoted(true);
                   burst();
@@ -180,40 +181,15 @@ export default function VotePage() {
                 }
               }
 
-              // Only reachable after a refresh mid-survey (rejoin resets the stepper to question
-              // 1) — silently skip past a question already answered pre-refresh rather than
-              // showing an error for something the voter already did.
-              function advanceAfterAlreadyAnswered() {
-                setTextResponse("");
-                if (isLastQuestion) {
-                  setHasVoted(true);
-                } else {
-                  setQuestionIndex((i) => i + 1);
-                }
-              }
-
               if (currentQuestion.type === "choice") {
                 if (!selectedOptionId) return;
-                castVote.mutate(
-                  { lobbyId: lobby.id, optionId: selectedOptionId },
-                  {
-                    onSuccess: advanceAfterSuccess,
-                    onError: (err) => {
-                      if (err.message === "ALREADY_ANSWERED_QUESTION") advanceAfterAlreadyAnswered();
-                    },
-                  },
-                );
+                castVote.mutate({ lobbyId: lobby.id, optionId: selectedOptionId }, { onSuccess: advance });
               } else {
                 const trimmed = textResponse.trim();
                 if (!trimmed) return;
                 submitTextResponse.mutate(
                   { lobbyId: lobby.id, questionId: currentQuestion.id, responseText: trimmed },
-                  {
-                    onSuccess: advanceAfterSuccess,
-                    onError: (err) => {
-                      if (err.message === "ALREADY_ANSWERED_QUESTION") advanceAfterAlreadyAnswered();
-                    },
-                  },
+                  { onSuccess: advance },
                 );
               }
             }}
@@ -238,14 +214,18 @@ export default function VotePage() {
                   selected={selectedOptionId === option.id}
                   label={option.label}
                   size="lg"
-                  onSelect={selectOption}
+                  onSelect={(optionId) =>
+                    setChoiceAnswers((prev) => ({ ...prev, [currentQuestion.id]: optionId }))
+                  }
                 />
               ))
             ) : (
               <div className="flex flex-col gap-1">
                 <textarea
                   value={textResponse}
-                  onChange={(e) => setTextResponse(e.target.value)}
+                  onChange={(e) =>
+                    setTextAnswers((prev) => ({ ...prev, [currentQuestion.id]: e.target.value }))
+                  }
                   maxLength={300}
                   rows={3}
                   placeholder="Type your answer…"
@@ -257,35 +237,43 @@ export default function VotePage() {
               </div>
             )}
             {currentQuestion.type === "choice"
-              ? castVote.isError &&
-                castVote.error.message !== "ALREADY_ANSWERED_QUESTION" && (
-                  <p className="text-sm font-medium text-red-600">{castVote.error.message}</p>
-                )
-              : submitTextResponse.isError &&
-                submitTextResponse.error.message !== "ALREADY_ANSWERED_QUESTION" && (
+              ? castVote.isError && <p className="text-sm font-medium text-red-600">{castVote.error.message}</p>
+              : submitTextResponse.isError && (
                   <p className="text-sm font-medium text-red-600">
                     {submitTextResponse.error.message}
                   </p>
                 )}
-            <Button
-              type="submit"
-              disabled={
-                currentQuestion.type === "choice"
-                  ? !selectedOptionId || castVote.isPending
-                  : textResponse.trim().length === 0 || submitTextResponse.isPending
-              }
-              className="w-full"
-            >
-              {castVote.isPending || submitTextResponse.isPending
-                ? currentQuestion.type === "choice"
-                  ? "Voting…"
-                  : "Submitting…"
-                : !isLastQuestion
-                  ? "Next →"
-                  : questions.length > 1
-                    ? "Submit ✋"
-                    : "Vote ✋"}
-            </Button>
+            <div className="flex gap-2">
+              {questionIndex > 0 && (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  disabled={castVote.isPending || submitTextResponse.isPending}
+                  onClick={() => setQuestionIndex((i) => i - 1)}
+                >
+                  ← Back
+                </Button>
+              )}
+              <Button
+                type="submit"
+                disabled={
+                  currentQuestion.type === "choice"
+                    ? !selectedOptionId || castVote.isPending
+                    : textResponse.trim().length === 0 || submitTextResponse.isPending
+                }
+                className="flex-1"
+              >
+                {castVote.isPending || submitTextResponse.isPending
+                  ? currentQuestion.type === "choice"
+                    ? "Voting…"
+                    : "Submitting…"
+                  : !isLastQuestion
+                    ? "Next →"
+                    : questions.length > 1
+                      ? "Submit ✋"
+                      : "Vote ✋"}
+              </Button>
+            </div>
           </form>
         ) : (
           <Spinner label="Joining…" />

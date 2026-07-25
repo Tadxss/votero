@@ -3,7 +3,6 @@ export * from "./supabase/storage";
 export * from "./supabase/context";
 export * from "./supabase/mappers";
 export * from "./supabase/functionErrors";
-export * from "./store/ballotStore";
 export * from "./hooks/useEnsureSession";
 export * from "./hooks/useLobby";
 export * from "./hooks/useCreateLobby";
