@@ -26,6 +26,13 @@ import { TrashIcon } from "../../../_components/icons";
 import { Avatar } from "../../../_components/Avatar";
 import { downloadResultsCsv, downloadResultsImage } from "../../../_components/downloadResults";
 
+function friendlyManageError(message: string): string {
+  if (message === "FORBIDDEN") {
+    return "Only this lobby's creator can do that.";
+  }
+  return message;
+}
+
 function resolveVoterLabel(entry: BallotDetailEntry): { primary: string; secondary: string | null } {
   const fullName = [entry.firstName, entry.lastName].filter(Boolean).join(" ").trim();
   if (fullName) {
@@ -41,7 +48,7 @@ export default function ManageLobbyPage() {
   const { code } = useParams<{ code: string }>();
   const router = useRouter();
   const { ready } = useEnsureSession();
-  const { user, isSignedIn } = useAuthUser();
+  const { user, isSignedIn, loading: authLoading } = useAuthUser();
   const { data, isLoading, error } = useLobby(code, { enabled: ready });
   const lobby = data?.lobby;
   const questions = data?.questions ?? [];
@@ -95,6 +102,11 @@ export default function ManageLobbyPage() {
     return <main className="p-10 text-sm text-red-600">Lobby not found.</main>;
   }
 
+  // Anyone with the link can view this dashboard (QR/share/tally are already read-only and safe
+  // to share with co-organizers), but only the actual creator can mutate the lobby — rpc_set_
+  // lobby_status/rpc_delete_lobby already enforce this server-side (auth.uid() === creator_id),
+  // this just keeps the client UI honest about it instead of showing buttons that always 403.
+  const isCreator = !authLoading && user?.id === lobby.creatorId;
   const joinedPct = Math.min(100, (lobby.joinedCount / lobby.voterCap) * 100);
   const deleteByLabel = new Date(
     new Date(lobby.createdAt).getTime() + 7 * 24 * 60 * 60 * 1000,
@@ -122,7 +134,7 @@ export default function ManageLobbyPage() {
           <StatusPill status={lobby.status} />
         </div>
 
-        {!isSignedIn && (
+        {isCreator && !isSignedIn && (
           <div className="flex items-start gap-2 rounded-2xl border border-neutral-200 bg-[var(--surface)] px-4 py-3 text-sm text-[var(--foreground-muted)] dark:border-neutral-800">
             <span aria-hidden>⏳</span>
             <p>
@@ -135,6 +147,17 @@ export default function ManageLobbyPage() {
                 Sign in
               </Link>{" "}
               before creating your next lobby to keep that one permanently.
+            </p>
+          </div>
+        )}
+
+        {!authLoading && !isCreator && (
+          <div className="flex items-start gap-2 rounded-2xl border border-neutral-200 bg-[var(--surface)] px-4 py-3 text-sm text-[var(--foreground-muted)] dark:border-neutral-800">
+            <span aria-hidden>🔒</span>
+            <p>
+              You&apos;re viewing this lobby&apos;s dashboard, but only its creator can open/close
+              voting or delete it — the account or browser session that created it doesn&apos;t
+              match this one.
             </p>
           </div>
         )}
@@ -217,7 +240,7 @@ export default function ManageLobbyPage() {
               </p>
             )}
 
-            {lobby.status === "draft" && (
+            {isCreator && lobby.status === "draft" && (
               <Button
                 onClick={() => setStatus.mutate({ lobbyId: lobby.id, action: "open" })}
                 disabled={setStatus.isPending}
@@ -226,7 +249,7 @@ export default function ManageLobbyPage() {
               </Button>
             )}
 
-            {lobby.status === "open" && (
+            {isCreator && lobby.status === "open" && (
               <Button
                 variant="danger"
                 onClick={() => setStatus.mutate({ lobbyId: lobby.id, action: "close" })}
@@ -237,23 +260,29 @@ export default function ManageLobbyPage() {
             )}
 
             {setStatus.isError && (
-              <p className="text-sm font-medium text-red-600">{setStatus.error.message}</p>
+              <p className="text-sm font-medium text-red-600">
+                {friendlyManageError(setStatus.error.message)}
+              </p>
             )}
 
-            <div className="mt-2 flex flex-col items-start gap-2 border-t border-neutral-100 pt-4 dark:border-neutral-800">
-              <Button
-                type="button"
-                variant="danger"
-                className="inline-flex items-center gap-1.5"
-                onClick={() => setShowDeleteConfirm(true)}
-              >
-                <TrashIcon />
-                Delete lobby
-              </Button>
-              {deleteLobby.isError && (
-                <p className="text-sm font-medium text-red-600">{deleteLobby.error.message}</p>
-              )}
-            </div>
+            {isCreator && (
+              <div className="mt-2 flex flex-col items-start gap-2 border-t border-neutral-100 pt-4 dark:border-neutral-800">
+                <Button
+                  type="button"
+                  variant="danger"
+                  className="inline-flex items-center gap-1.5"
+                  onClick={() => setShowDeleteConfirm(true)}
+                >
+                  <TrashIcon />
+                  Delete lobby
+                </Button>
+                {deleteLobby.isError && (
+                  <p className="text-sm font-medium text-red-600">
+                    {friendlyManageError(deleteLobby.error.message)}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
 
           {results.data && (
