@@ -364,6 +364,10 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      rpc_count_completed_participants: {
+        Args: { p_lobby_id: string }
+        Returns: number
+      }
       rpc_create_lobby: {
         Args: {
           p_ballot_mode: Database["public"]["Enums"]["ballot_mode"]

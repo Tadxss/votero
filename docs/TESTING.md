@@ -81,6 +81,8 @@ Refresh mid-survey: after answering question 1 of 2 but before submitting questi
 
 Regression-check a classic single-question lobby (don't click "+ Add question" at all): confirm `/vote/[code]` shows **no** "Question 1 of 1" stepper indicator, the button still reads **Vote ✋** (not "Submit ✋"), and the manage page/Present Mode omit the now-redundant single-question sub-heading — a single-question lobby should look and behave exactly as it did before this feature.
 
+With **Hidden** tally visibility and 2+ questions, view Present Mode (or the manage page) as a genuinely separate, non-creator session while voting is still open — the "X of Y have voted" progress text should show a sane ratio (X never exceeds Y) regardless of how many questions the survey has (Build Order step 28 — this used to show an impossible count like "4 of 2" once a question was added).
+
 ### 22. Downloadable results
 On a lobby's manage page, once any tally is visible (live or closed), a "Results" header with "⬇️ CSV" and "🖼️ Image" buttons should appear above the tally. Click **CSV** — it should download a `.csv` file with the lobby title/code/status/counts, then one row per question/option/vote-count. Click **Image** — it should download a `.png` matching the on-screen tally (same colors, same per-question sub-headings for a multi-question survey, no sub-heading for a single-question one), with a 🏆 next to the winning option once the lobby is **closed** (no crown while still open, matching the on-screen behavior).
 
