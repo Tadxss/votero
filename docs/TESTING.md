@@ -81,7 +81,13 @@ Refresh mid-survey: after answering question 1 of 2 but before submitting questi
 
 Regression-check a classic single-question lobby (don't click "+ Add question" at all): confirm `/vote/[code]` shows **no** "Question 1 of 1" stepper indicator, the button still reads **Vote ✋** (not "Submit ✋"), and the manage page/Present Mode omit the now-redundant single-question sub-heading — a single-question lobby should look and behave exactly as it did before this feature.
 
-### 22. Resetting between test runs
+### 22. Downloadable results
+On a lobby's manage page, once any tally is visible (live or closed), a "Results" header with "⬇️ CSV" and "🖼️ Image" buttons should appear above the tally. Click **CSV** — it should download a `.csv` file with the lobby title/code/status/counts, then one row per question/option/vote-count. Click **Image** — it should download a `.png` matching the on-screen tally (same colors, same per-question sub-headings for a multi-question survey, no sub-heading for a single-question one), with a 🏆 next to the winning option once the lobby is **closed** (no crown while still open, matching the on-screen behavior).
+
+### 23. Free-text questions
+On `/create`, add a second question and click its **✍️ Free text** toggle — its options list should disappear entirely (only a title is required). Submit a survey mixing one choice question and one free-text question. Open voting, then vote in a second (voter) window: the choice question should look exactly as before; the free-text question should show a `<textarea>` (300-char limit) instead of options, with Next/Submit disabled until you type something. Vote again as a third session, submitting a differently-cased/whitespaced version of the same text answer (e.g. "pizza" then "Pizza "). Confirm the manage page, Present Mode, and your own post-vote results screen all show the free-text question as a set of chips sized by how common each answer is, with the two matching answers grouped into one entry showing "×2". Confirm the choice question still renders as normal bars alongside it. On the manage page (open-mode lobby), confirm "Who said what" shows the raw individual text response next to each voter, not grouped.
+
+### 24. Resetting between test runs
 - **Local**: `npx supabase db reset` wipes all lobbies/votes/test users and reapplies migrations fresh.
 - **Hosted project**: delete test lobby rows via Supabase Studio, or delete the underlying test `auth.users` rows (Authentication → Users in the dashboard, or the admin API) — deleting a user cascades to their created lobbies and participant rows.
 

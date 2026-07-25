@@ -467,3 +467,9 @@ entrypoint = "./functions/lobby-results/index.ts"
 # Specifies static files to be bundled with the function. Supports glob patterns.
 # For example, if you want to serve static HTML pages in your function:
 # static_files = [ "./functions/lobby-results/*.html" ]
+
+[functions.submit-text-response]
+enabled = true
+verify_jwt = true
+import_map = "./functions/submit-text-response/deno.json"
+entrypoint = "./functions/submit-text-response/index.ts"

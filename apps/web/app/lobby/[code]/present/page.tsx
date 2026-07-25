@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { QRCodeSVG } from "qrcode.react";
 import { useLobby, useLobbyResults, useLobbyRealtime, useEnsureSession } from "@repo/shared";
 import { TallyBars } from "../../../_components/TallyBars";
+import { TextResponseCloud } from "../../../_components/TextResponseCloud";
 import { StatusPill } from "../../../_components/StatusPill";
 import { LiveDot } from "../../../_components/LiveDot";
 import { Spinner } from "../../../_components/Spinner";
@@ -93,12 +94,16 @@ export default function PresentLobbyPage() {
                         {q.questionTitle}
                       </h2>
                     )}
-                    <TallyBars
-                      options={question?.options ?? []}
-                      tally={q.tally}
-                      closed={lobby.status === "closed"}
-                      size="lg"
-                    />
+                    {q.type === "choice" ? (
+                      <TallyBars
+                        options={question?.options ?? []}
+                        tally={q.tally}
+                        closed={lobby.status === "closed"}
+                        size="lg"
+                      />
+                    ) : (
+                      <TextResponseCloud responses={q.responses} size="lg" />
+                    )}
                   </div>
                 );
               })}

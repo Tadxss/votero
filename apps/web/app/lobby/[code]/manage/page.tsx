@@ -16,6 +16,7 @@ import {
 import type { BallotDetailEntry, LobbyStatus } from "@repo/types";
 import { Button } from "../../../_components/Button";
 import { TallyBars } from "../../../_components/TallyBars";
+import { TextResponseCloud } from "../../../_components/TextResponseCloud";
 import { StatusPill } from "../../../_components/StatusPill";
 import { LiveDot } from "../../../_components/LiveDot";
 import { Spinner } from "../../../_components/Spinner";
@@ -23,6 +24,7 @@ import { useConfetti } from "../../../_components/useConfetti";
 import { ConfirmDialog } from "../../../_components/ConfirmDialog";
 import { TrashIcon } from "../../../_components/icons";
 import { Avatar } from "../../../_components/Avatar";
+import { downloadResultsCsv, downloadResultsImage } from "../../../_components/downloadResults";
 
 function resolveVoterLabel(entry: BallotDetailEntry): { primary: string; secondary: string | null } {
   const fullName = [entry.firstName, entry.lastName].filter(Boolean).join(" ").trim();
@@ -256,6 +258,35 @@ export default function ManageLobbyPage() {
 
           {results.data && (
             <div className="flex flex-col gap-6 rounded-3xl border border-neutral-200 bg-[var(--surface)] p-5 dark:border-neutral-800">
+              {results.data.tally && (
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <h2 className="text-sm font-semibold text-[var(--foreground)]">Results</h2>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      className="text-xs"
+                      onClick={() =>
+                        results.data?.tally &&
+                        downloadResultsCsv(lobby, questions, results.data.tally)
+                      }
+                    >
+                      ⬇️ CSV
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      className="text-xs"
+                      onClick={() =>
+                        results.data?.tally &&
+                        downloadResultsImage(lobby, questions, results.data.tally)
+                      }
+                    >
+                      🖼️ Image
+                    </Button>
+                  </div>
+                </div>
+              )}
               {results.data.tally ? (
                 results.data.tally.map((q) => {
                   const question = questions.find((qq) => qq.id === q.questionId);
@@ -272,16 +303,20 @@ export default function ManageLobbyPage() {
                           {q.questionTitle}
                         </h2>
                       )}
-                      <TallyBars
-                        options={question?.options ?? []}
-                        tally={q.tally}
-                        closed={lobby.status === "closed"}
-                      />
+                      {q.type === "choice" ? (
+                        <TallyBars
+                          options={question?.options ?? []}
+                          tally={q.tally}
+                          closed={lobby.status === "closed"}
+                        />
+                      ) : (
+                        <TextResponseCloud responses={q.responses} />
+                      )}
 
                       {ballotDetail && ballotDetail.entries.length > 0 && (
                         <div className="flex flex-col gap-2 border-t border-neutral-100 pt-4 dark:border-neutral-800">
                           <h3 className="text-sm font-semibold text-[var(--foreground)]">
-                            Who voted for what
+                            {q.type === "choice" ? "Who voted for what" : "Who said what"}
                           </h3>
                           <ul className="flex flex-col gap-2">
                             {ballotDetail.entries.map((entry) => {
@@ -303,7 +338,9 @@ export default function ManageLobbyPage() {
                                     )}
                                   </div>
                                   <span className="ml-auto font-semibold text-[var(--foreground)]">
-                                    {question?.options.find((o) => o.id === entry.optionId)?.label}
+                                    {"optionId" in entry
+                                      ? question?.options.find((o) => o.id === entry.optionId)?.label
+                                      : entry.responseText}
                                   </span>
                                 </li>
                               );

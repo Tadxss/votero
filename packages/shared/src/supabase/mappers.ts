@@ -51,6 +51,7 @@ export function mapQuestionRow(row: QuestionRow, options: LobbyOption[]): Survey
     id: row.id,
     lobbyId: row.lobby_id,
     title: row.title,
+    type: row.type,
     position: row.position,
     options,
   };

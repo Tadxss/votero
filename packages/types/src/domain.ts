@@ -4,6 +4,7 @@ export type LobbyStatus = "draft" | "open" | "closed";
 export type BallotMode = "anonymous" | "open";
 export type TallyVisibility = "live" | "hidden";
 export type LobbyVisibility = "public" | "private";
+export type QuestionType = "choice" | "text";
 
 export interface Lobby {
   id: string;
@@ -38,8 +39,9 @@ export interface SurveyQuestion {
   id: string;
   lobbyId: string;
   title: string;
+  type: QuestionType;
   position: number;
-  options: LobbyOption[];
+  options: LobbyOption[]; // empty for type: "text"
 }
 
 export interface Participant {
@@ -72,7 +74,8 @@ export interface UpdateProfileInput {
 
 export interface CreateLobbyQuestionInput {
   title: string;
-  options: string[]; // min 2 labels
+  type: QuestionType;
+  options?: string[]; // required (min 2 labels) when type: "choice"; unused for type: "text"
 }
 
 export interface CreateLobbyInput {
@@ -106,20 +109,30 @@ export interface CastVoteInput {
   optionId: string;
 }
 
+export interface CastTextResponseInput {
+  lobbyId: string;
+  questionId: string;
+  responseText: string;
+}
+
 export interface TallyEntry {
   optionId: string;
   count: number;
 }
 
-export interface QuestionTally {
-  questionId: string;
-  questionTitle: string;
-  tally: TallyEntry[];
+// Grouped by frequency (lower(trim(...)) match), ordered by count desc — a lightweight
+// word-cloud effect (font-size scaled by count) rather than a true word-cloud layout.
+export interface TextResponseGroup {
+  text: string;
+  count: number;
 }
 
-export interface BallotDetailEntry {
+export type QuestionTally =
+  | { questionId: string; questionTitle: string; type: "choice"; tally: TallyEntry[] }
+  | { questionId: string; questionTitle: string; type: "text"; responses: TextResponseGroup[] };
+
+interface BallotDetailIdentity {
   participantId: string;
-  optionId: string;
   firstName: string | null;
   lastName: string | null;
   username: string | null;
@@ -127,11 +140,13 @@ export interface BallotDetailEntry {
   avatarUrl: string | null;
 }
 
-export interface QuestionBallotDetail {
-  questionId: string;
-  questionTitle: string;
-  entries: BallotDetailEntry[];
-}
+export type BallotDetailEntry =
+  | (BallotDetailIdentity & { optionId: string })
+  | (BallotDetailIdentity & { responseText: string });
+
+export type QuestionBallotDetail =
+  | { questionId: string; questionTitle: string; type: "choice"; entries: BallotDetailEntry[] }
+  | { questionId: string; questionTitle: string; type: "text"; entries: BallotDetailEntry[] };
 
 export interface LobbyProgress {
   joined: number;

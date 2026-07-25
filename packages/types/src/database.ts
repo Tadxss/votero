@@ -228,18 +228,21 @@ export type Database = {
           lobby_id: string
           position: number
           title: string
+          type: Database["public"]["Enums"]["question_type"]
         }
         Insert: {
           id?: string
           lobby_id: string
           position: number
           title: string
+          type?: Database["public"]["Enums"]["question_type"]
         }
         Update: {
           id?: string
           lobby_id?: string
           position?: number
           title?: string
+          type?: Database["public"]["Enums"]["question_type"]
         }
         Relationships: [
           {
@@ -256,25 +259,28 @@ export type Database = {
           created_at: string
           id: string
           lobby_id: string
-          option_id: string
+          option_id: string | null
           participant_id: string
           question_id: string
+          response_text: string | null
         }
         Insert: {
           created_at?: string
           id?: string
           lobby_id: string
-          option_id: string
+          option_id?: string | null
           participant_id: string
           question_id: string
+          response_text?: string | null
         }
         Update: {
           created_at?: string
           id?: string
           lobby_id?: string
-          option_id?: string
+          option_id?: string | null
           participant_id?: string
           question_id?: string
+          response_text?: string | null
         }
         Relationships: [
           {
@@ -404,6 +410,39 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      rpc_submit_text_response: {
+        Args: {
+          p_lobby_id: string
+          p_question_id: string
+          p_response_text: string
+        }
+        Returns: {
+          ballot_mode: Database["public"]["Enums"]["ballot_mode"]
+          closed_at: string | null
+          closes_at: string | null
+          code: string
+          created_at: string
+          creator_id: string
+          id: string
+          joined_count: number
+          opened_at: string | null
+          otp_required: boolean
+          question_count: number
+          status: Database["public"]["Enums"]["lobby_status"]
+          tally_visibility: Database["public"]["Enums"]["tally_visibility"]
+          title: string
+          updated_at: string
+          visibility: Database["public"]["Enums"]["lobby_visibility"]
+          voter_cap: number
+          votes_count: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "lobbies"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       rpc_update_profile: {
         Args: {
           p_avatar_url?: string
@@ -418,6 +457,7 @@ export type Database = {
       ballot_mode: "anonymous" | "open"
       lobby_status: "draft" | "open" | "closed"
       lobby_visibility: "public" | "private"
+      question_type: "choice" | "text"
       tally_visibility: "live" | "hidden"
     }
     CompositeTypes: {
@@ -552,6 +592,7 @@ export const Constants = {
       ballot_mode: ["anonymous", "open"],
       lobby_status: ["draft", "open", "closed"],
       lobby_visibility: ["public", "private"],
+      question_type: ["choice", "text"],
       tally_visibility: ["live", "hidden"],
     },
   },
