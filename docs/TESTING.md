@@ -92,7 +92,10 @@ On `/create`, add a second question and click its **✍️ Free text** toggle �
 ### 24. Going back to change an answer
 Vote in a multi-question survey (mixing a choice and a free-text question is a good test of both). On question 1, no **← Back** button should appear (there's nothing before it). Pick an answer and click **Next →** to reach question 2 — a **← Back** button should now appear next to Next/Submit. Type something into question 2's textarea (don't submit it), then click **← Back**. Confirm question 1 shows your original pick still selected (not blank). Change it to a different option, click **Next →** again, and confirm question 2 still shows the text you typed before going back (nothing was lost). Finish the survey, then check the manage page's results reflect the *changed* question-1 answer, not the original one. Confirm **← Back** disappears entirely once the survey is finished (no way to revise after completing — this is intentional, not built).
 
-### 25. Resetting between test runs
+### 25. Non-creator visitors can't manage a lobby
+Create a lobby, then open its manage link in a genuinely separate session (a different browser, an incognito window, or just a second browser profile — not the same tab/session that created it). Confirm you see a "You're viewing this lobby's dashboard, but only its creator can..." notice instead of the Open voting/Close voting/Delete lobby buttons, while the QR code, share buttons, Present Mode link, join progress, and tally all still display normally. Back in the original (creator) session, confirm those controls still work exactly as before.
+
+### 26. Resetting between test runs
 - **Local**: `npx supabase db reset` wipes all lobbies/votes/test users and reapplies migrations fresh.
 - **Hosted project**: delete test lobby rows via Supabase Studio, or delete the underlying test `auth.users` rows (Authentication → Users in the dashboard, or the admin API) — deleting a user cascades to their created lobbies and participant rows.
 
