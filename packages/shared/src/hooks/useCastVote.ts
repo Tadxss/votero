@@ -2,15 +2,15 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { CastVoteInput } from "@repo/types";
 import { useSupabaseClient } from "../supabase/context";
 import { extractFunctionErrorCode } from "../supabase/functionErrors";
-import { useBallotStore } from "../store/ballotStore";
 
 // Edge Function, not a direct table insert — one vote atomically touches four things (vote row,
 // participants.has_voted, lobbies.votes_count, possible auto-close) which must happen inside a
-// single transaction (docs/ARCHITECTURE.md "cast-vote").
+// single transaction (docs/ARCHITECTURE.md "cast-vote"). Also doubles as an edit: rpc_cast_vote
+// updates the caller's existing vote for that question in place if one already exists (the voter
+// went back and changed their mind), rather than erroring.
 export function useCastVote() {
   const supabase = useSupabaseClient();
   const queryClient = useQueryClient();
-  const resetBallot = useBallotStore((state) => state.reset);
 
   return useMutation<void, Error, CastVoteInput>({
     mutationFn: async (input) => {
@@ -20,7 +20,6 @@ export function useCastVote() {
       if (error) throw new Error(await extractFunctionErrorCode(error));
     },
     onSuccess: (_data, input) => {
-      resetBallot();
       queryClient.invalidateQueries({ queryKey: ["lobby-results", input.lobbyId] });
     },
   });
