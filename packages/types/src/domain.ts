@@ -151,7 +151,10 @@ export type QuestionBallotDetail =
 export interface LobbyProgress {
   joined: number;
   cap: number;
-  votesCast: number;
+  // Count of participants who have finished the whole survey (participants.has_voted), NOT a raw
+  // vote-row count — a multi-question survey produces one vote row per question per participant,
+  // so a raw total can legitimately exceed `joined` once there's more than one question.
+  completedCount: number;
 }
 
 export interface LobbyResults {

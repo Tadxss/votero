@@ -30,10 +30,25 @@ export default {
 
     const isCreator = lobby.creator_id === ctx.userClaims!.id;
 
+    // Count of participants who've finished the WHOLE survey, not lobby.votes_count — that's a
+    // raw vote-row total (one per question per participant), which overcounts as soon as a survey
+    // has more than one question (see LobbyProgress.completedCount's comment in packages/types).
+    // Goes through a SECURITY DEFINER RPC rather than a direct admin-client table read, since
+    // `participants` deliberately has no service_role grant (see grants.sql) — same reasoning as
+    // rpc_get_tally below.
+    const { data: completedCount, error: completedError } = await ctx.supabaseAdmin.rpc(
+      "rpc_count_completed_participants",
+      { p_lobby_id: lobbyId },
+    );
+
+    if (completedError) {
+      return Response.json({ error: completedError.message }, { status: 400 });
+    }
+
     const progress = {
       joined: lobby.joined_count,
       cap: lobby.voter_cap,
-      votesCast: lobby.votes_count,
+      completedCount: completedCount ?? 0,
     };
 
     let tally = null;

@@ -111,7 +111,7 @@ export default function PresentLobbyPage() {
           ) : (
             results.data && (
               <p className="text-center text-2xl text-[var(--foreground-muted)]">
-                {results.data.progress.votesCast} of {results.data.progress.joined} have voted
+                {results.data.progress.completedCount} of {results.data.progress.joined} have voted
               </p>
             )
           )}

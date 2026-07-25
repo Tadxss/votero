@@ -353,7 +353,7 @@ export default function ManageLobbyPage() {
                 })
               ) : (
                 <p className="text-sm text-[var(--foreground-muted)]">
-                  {results.data.progress.votesCast} of {results.data.progress.joined} have voted —
+                  {results.data.progress.completedCount} of {results.data.progress.joined} have voted —
                   tally hidden until the lobby closes.
                 </p>
               )}
