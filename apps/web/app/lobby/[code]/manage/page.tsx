@@ -27,10 +27,11 @@ import { Avatar } from "../../../_components/Avatar";
 import { downloadResultsCsv, downloadResultsImage } from "../../../_components/downloadResults";
 
 function friendlyManageError(message: string): string {
-  if (message === "FORBIDDEN") {
-    return "Only this lobby's creator can do that.";
-  }
-  return message;
+  if (message === "FORBIDDEN") return "Only this lobby's creator can do that.";
+  if (message === "LOBBY_NOT_FOUND") return "This lobby no longer exists.";
+  if (message === "LOBBY_NOT_DRAFT") return "This lobby has already been opened.";
+  if (message === "LOBBY_NOT_OPEN") return "This lobby isn't open, so it can't be closed.";
+  return "Something went wrong. Please try again.";
 }
 
 function resolveVoterLabel(entry: BallotDetailEntry): { primary: string; secondary: string | null } {
@@ -399,7 +400,10 @@ export default function ManageLobbyPage() {
         onConfirm={() =>
           deleteLobby.mutate(lobby.id, { onSuccess: () => router.push("/lobbies") })
         }
-        onCancel={() => setShowDeleteConfirm(false)}
+        onCancel={() => {
+          setShowDeleteConfirm(false);
+          deleteLobby.reset();
+        }}
       />
     </main>
   );

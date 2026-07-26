@@ -14,6 +14,11 @@ const LOBBY_CAP = 10;
 const VIEW_STORAGE_KEY = "votero:lobbies-view";
 type View = "table" | "grid";
 
+function friendlyDeleteError(message: string): string {
+  if (message === "FORBIDDEN") return "Only this lobby's creator can delete it.";
+  return "Something went wrong deleting this lobby. Please try again.";
+}
+
 function TableIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
@@ -267,8 +272,12 @@ export default function MyLobbiesPage() {
         title={`Delete "${pendingDelete?.title ?? ""}"?`}
         message="This can't be undone — all votes and data for this lobby will be permanently deleted."
         isPending={deleteLobby.isPending}
+        error={deleteLobby.isError ? friendlyDeleteError(deleteLobby.error.message) : null}
         onConfirm={confirmDelete}
-        onCancel={() => setPendingDelete(null)}
+        onCancel={() => {
+          setPendingDelete(null);
+          deleteLobby.reset();
+        }}
       />
     </main>
   );
