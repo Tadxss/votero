@@ -137,6 +137,7 @@ export function ProfileModal({ open, onClose }: { open: boolean; onClose: () => 
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
               placeholder="Daryl"
+              maxLength={100}
               className={inputClasses}
             />
           </label>
@@ -148,6 +149,7 @@ export function ProfileModal({ open, onClose }: { open: boolean; onClose: () => 
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
               placeholder="Tadeo"
+              maxLength={100}
               className={inputClasses}
             />
           </label>

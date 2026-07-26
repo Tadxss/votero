@@ -21,6 +21,14 @@ import { LiveDot } from "../../_components/LiveDot";
 import { Spinner } from "../../_components/Spinner";
 import { useConfetti } from "../../_components/useConfetti";
 
+function friendlyVoteError(message: string): string {
+  if (message === "LOBBY_NOT_OPEN") return "Voting has closed for this lobby.";
+  if (message === "LOBBY_NOT_FOUND") return "This lobby no longer exists.";
+  if (message === "RESPONSE_TEXT_REQUIRED") return "Type an answer before submitting.";
+  if (message === "RESPONSE_TEXT_TOO_LONG") return "Your answer is too long (300 characters max).";
+  return "Something went wrong. Please try again.";
+}
+
 function EmptyState({ icon, message }: { icon: string; message: string }) {
   return (
     <main className="flex h-[calc(100vh-4rem)] flex-col items-center justify-center gap-3 px-4 text-center">
@@ -237,10 +245,14 @@ export default function VotePage() {
               </div>
             )}
             {currentQuestion.type === "choice"
-              ? castVote.isError && <p className="text-sm font-medium text-red-600">{castVote.error.message}</p>
+              ? castVote.isError && (
+                  <p className="text-sm font-medium text-red-600">
+                    {friendlyVoteError(castVote.error.message)}
+                  </p>
+                )
               : submitTextResponse.isError && (
                   <p className="text-sm font-medium text-red-600">
-                    {submitTextResponse.error.message}
+                    {friendlyVoteError(submitTextResponse.error.message)}
                   </p>
                 )}
             <div className="flex gap-2">

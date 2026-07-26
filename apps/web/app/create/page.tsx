@@ -22,7 +22,7 @@ function friendlyCreateError(message: string): string {
   if (message.includes("AT_LEAST_TWO_OPTIONS_REQUIRED")) {
     return "Every question needs at least 2 options.";
   }
-  return message;
+  return "Something went wrong. Please try again.";
 }
 
 interface QuestionDraft {
@@ -59,7 +59,8 @@ export default function CreateLobbyPage() {
     title.trim().length > 0 &&
     preparedQuestions.length > 0 &&
     preparedQuestions.every((q) => q.title.length > 0 && (q.type === "text" || q.options.length >= 2)) &&
-    voterCap > 0;
+    voterCap > 0 &&
+    voterCap <= 10000;
 
   function updateQuestionTitle(qIndex: number, value: string) {
     setQuestions((prev) => prev.map((q, i) => (i === qIndex ? { ...q, title: value } : q)));
@@ -125,6 +126,10 @@ export default function CreateLobbyPage() {
       setFormError("Voter cap must be at least 1.");
       return;
     }
+    if (voterCap > 10000) {
+      setFormError("Voter cap can't exceed 10,000.");
+      return;
+    }
     if (closesAt && new Date(closesAt) <= new Date()) {
       setFormError("Auto-close time must be in the future.");
       return;
@@ -171,6 +176,7 @@ export default function CreateLobbyPage() {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Team survey"
+                maxLength={200}
                 className={inputClasses}
               />
             </label>
@@ -190,6 +196,7 @@ export default function CreateLobbyPage() {
                       value={question.title}
                       onChange={(e) => updateQuestionTitle(qIndex, e.target.value)}
                       placeholder="Best pizza topping?"
+                      maxLength={200}
                       className={`flex-1 ${inputClasses}`}
                     />
                     {questions.length > 1 && (
@@ -237,6 +244,7 @@ export default function CreateLobbyPage() {
                             value={option}
                             onChange={(e) => updateOption(qIndex, oIndex, e.target.value)}
                             placeholder={`Option ${oIndex + 1}`}
+                            maxLength={200}
                             className={`flex-1 ${inputClasses} py-2 text-sm`}
                           />
                           {question.options.length > 2 && (
@@ -274,6 +282,7 @@ export default function CreateLobbyPage() {
               <input
                 type="number"
                 min={1}
+                max={10000}
                 value={voterCap}
                 onChange={(e) => setVoterCap(Number(e.target.value))}
                 className={inputClasses}

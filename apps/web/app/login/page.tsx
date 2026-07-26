@@ -6,6 +6,23 @@ import { useSignInWithOtp, useVerifyOtp } from "@repo/shared";
 import { Button } from "../_components/Button";
 import { inputClasses } from "../_components/styles";
 
+// Supabase auth errors are plain English already, but not every failure mode is covered (and a
+// network-level failure can surface with an empty/missing message) — always fall back to a real
+// sentence rather than showing an empty string or a raw error object.
+function friendlyAuthError(message: string | undefined): string {
+  if (!message) return "Something went wrong. Please try again.";
+  if (/invalid.*email|email.*invalid/i.test(message)) {
+    return "That email address doesn't look valid — check for typos.";
+  }
+  if (/token.*expired|token.*invalid|invalid.*otp/i.test(message)) {
+    return "That code is incorrect or has expired — try sending a new one.";
+  }
+  if (/rate limit/i.test(message)) {
+    return "Too many attempts — wait a bit before trying again.";
+  }
+  return message;
+}
+
 export default function LoginPage() {
   return (
     <Suspense>
@@ -68,7 +85,9 @@ function LoginForm() {
                 />
               </label>
               {sendCode.isError && (
-                <p className="text-sm font-medium text-red-600">{sendCode.error.message}</p>
+                <p className="text-sm font-medium text-red-600">
+                  {friendlyAuthError(sendCode.error.message)}
+                </p>
               )}
               <Button type="submit" disabled={sendCode.isPending} className="w-full">
                 {sendCode.isPending ? "Sending…" : "Send code"}
@@ -87,14 +106,17 @@ function LoginForm() {
                   inputMode="numeric"
                   autoFocus
                   required
+                  maxLength={6}
                   value={code}
-                  onChange={(e) => setCode(e.target.value)}
+                  onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
                   placeholder="123456"
                   className={`${inputClasses} text-center tracking-[0.4em]`}
                 />
               </label>
               {verifyCode.isError && (
-                <p className="text-sm font-medium text-red-600">{verifyCode.error.message}</p>
+                <p className="text-sm font-medium text-red-600">
+                  {friendlyAuthError(verifyCode.error.message)}
+                </p>
               )}
               <Button type="submit" disabled={verifyCode.isPending} className="w-full">
                 {verifyCode.isPending ? "Verifying…" : "Verify & sign in"}
