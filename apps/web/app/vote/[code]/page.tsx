@@ -115,7 +115,7 @@ export default function VotePage() {
   return (
     <main className="relative min-h-[calc(100vh-4rem)] px-4 py-10">
       <div className="relative mx-auto flex max-w-md flex-col gap-6">
-        <h1 className="font-display text-2xl font-bold text-[var(--foreground)]">
+        <h1 className="font-display text-3xl font-bold text-[var(--foreground)]">
           {lobby.title}
         </h1>
 
@@ -233,7 +233,7 @@ export default function VotePage() {
                   maxLength={300}
                   rows={3}
                   placeholder="Type your answer…"
-                  className="rounded-2xl border-2 border-neutral-200 bg-[var(--surface)] p-3.5 text-base text-[var(--foreground)] outline-none focus:border-brand-400 dark:border-neutral-700"
+                  className="rounded-2xl border-2 border-neutral-200 bg-[var(--surface)] p-4 text-base text-[var(--foreground)] outline-none focus:border-brand-400 dark:border-neutral-700"
                 />
                 <span className="self-end text-xs text-[var(--foreground-muted)]">
                   {textResponse.length}/300

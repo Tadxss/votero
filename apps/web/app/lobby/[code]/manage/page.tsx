@@ -135,7 +135,7 @@ export default function ManageLobbyPage() {
         </Link>
 
         <div className="flex items-center justify-between gap-3">
-          <h1 className="font-display text-2xl font-bold text-[var(--foreground)]">
+          <h1 className="font-display text-3xl font-bold text-[var(--foreground)]">
             {lobby.title}
           </h1>
           <StatusPill status={lobby.status} />

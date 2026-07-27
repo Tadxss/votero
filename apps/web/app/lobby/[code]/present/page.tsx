@@ -52,7 +52,7 @@ export default function PresentLobbyPage() {
           <div className="w-full max-w-[280px] rounded-3xl bg-white p-6 shadow-2xl [&>svg]:h-auto [&>svg]:w-full">
             <QRCodeSVG value={voteUrl} size={280} />
           </div>
-          <p className="rounded-full bg-brand-50 px-5 py-1.5 font-mono text-2xl font-bold tracking-widest text-brand-700 dark:bg-brand-900/30 dark:text-brand-300">
+          <p className="rounded-full bg-brand-50 px-6 py-2 font-mono text-2xl font-bold tracking-widest text-brand-700 dark:bg-brand-900/30 dark:text-brand-300">
             {lobby.code}
           </p>
           <p className="flex items-center gap-2 text-lg text-[var(--foreground-muted)]">
