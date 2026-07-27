@@ -107,7 +107,10 @@ On any page (except Present Mode, which has no header), click the sun/moon icon 
 ### 29. Dashboard
 Sign in, then confirm you land on `/dashboard`, not `/lobbies` (this is the new default post-sign-in destination — a direct link with `?redirect=...`, like the one used mid-vote sign-in, still goes wherever it points instead). With no lobbies yet, the dashboard should show a simple "create one to start seeing stats" prompt rather than empty/zeroed stat cards. Create a lobby, open it, and have a second (voter) session join and vote — back on `/dashboard`, confirm "Lobbies created," "Voters joined," and "Votes cast" all reflect reality, the "Lobbies by status" row shows the right counts next to Draft/Open/Closed, and "Voters by lobby" shows a bar for that lobby sized proportionally with its voter count next to it. The header should show both "Dashboard" and "My Lobbies" links while signed in; "My Lobbies" should still go to the full lobby list/table.
 
-### 30. Resetting between test runs
+### 30. Mobile header (signed in) + disabled-button contrast in light mode
+Sign in, then narrow the browser window to a phone width (or use device emulation). Confirm the header shows just your avatar next to a hamburger icon — not the full "Dashboard / My Lobbies / email / Edit profile / Sign out" row wrapping across multiple lines. Tap it — a dropdown should open showing your email/username, Dashboard, My Lobbies, Edit profile, and Sign out; tapping any item should both navigate/act and close the dropdown, and tapping outside it should close it without navigating. Widen back to desktop width — the full inline nav should return. Separately, in light mode, go to `/create` and leave required fields empty so the "Create lobby" button is disabled — its text should be clearly readable (medium-gray text on a light-gray button), not washed-out white-on-light-gray.
+
+### 31. Resetting between test runs
 - **Local**: `npx supabase db reset` wipes all lobbies/votes/test users and reapplies migrations fresh.
 - **Hosted project**: delete test lobby rows via Supabase Studio, or delete the underlying test `auth.users` rows (Authentication → Users in the dashboard, or the admin API) — deleting a user cascades to their created lobbies and participant rows.
 
