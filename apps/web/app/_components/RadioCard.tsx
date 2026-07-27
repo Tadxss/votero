@@ -22,7 +22,7 @@ export function RadioCard<T extends string>({
   return (
     <label
       className={`flex cursor-pointer items-center gap-3 rounded-2xl border-2 transition-all ${
-        size === "lg" ? "p-4 text-base" : "p-3.5 text-sm"
+        size === "lg" ? "p-4 text-base" : "p-4 text-sm"
       } ${
         selected
           ? "border-brand-500 bg-brand-50 dark:bg-brand-900/20"

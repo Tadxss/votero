@@ -155,21 +155,24 @@ export default function MyLobbiesPage() {
         ) : lobbies && lobbies.length > 0 ? (
           <>
             {view === "table" && (
-              <div className="hidden animate-pop-in overflow-hidden rounded-3xl border border-neutral-200 bg-[var(--surface)] lg:block dark:border-neutral-800">
+              // Deliberately squared off (rounded-lg, not the rounded-2xl/3xl/full used
+              // everywhere else) — a data table reads as more considered next to something
+              // crisp, and gives the app's otherwise uniform softness one point of contrast.
+              <div className="hidden animate-pop-in overflow-hidden rounded-lg border border-neutral-200 bg-[var(--surface)] lg:block dark:border-neutral-800">
                 <table className="w-full border-collapse text-left text-sm">
                   <thead className="bg-neutral-50 dark:bg-neutral-900/40">
                     <tr>
-                      <th className="px-5 py-3 font-semibold text-[var(--foreground-muted)]">
+                      <th className="px-4 py-4 font-semibold text-[var(--foreground-muted)]">
                         Title
                       </th>
-                      <th className="px-5 py-3 font-semibold text-[var(--foreground-muted)]">
+                      <th className="px-4 py-4 font-semibold text-[var(--foreground-muted)]">
                         Status
                       </th>
-                      <th className="px-5 py-3 font-semibold text-[var(--foreground-muted)]">
+                      <th className="px-4 py-4 font-semibold text-[var(--foreground-muted)]">
                         Created
                       </th>
-                      <th className="px-5 py-3" />
-                      <th className="px-5 py-3" />
+                      <th className="px-4 py-4" />
+                      <th className="px-4 py-4" />
                     </tr>
                   </thead>
                   <tbody>
@@ -178,19 +181,19 @@ export default function MyLobbiesPage() {
                         key={lobby.id}
                         className="border-t border-neutral-100 transition-colors hover:bg-neutral-50 dark:border-neutral-800 dark:hover:bg-neutral-900/40"
                       >
-                        <td className="px-5 py-3.5 font-semibold text-[var(--foreground)]">
+                        <td className="px-4 py-4 font-semibold text-[var(--foreground)]">
                           {lobby.title}
                         </td>
-                        <td className="px-5 py-3.5">
+                        <td className="px-4 py-4">
                           <StatusPill status={lobby.status} />
                         </td>
-                        <td className="px-5 py-3.5 text-[var(--foreground-muted)]">
+                        <td className="px-4 py-4 text-[var(--foreground-muted)]">
                           {new Date(lobby.createdAt).toLocaleString(undefined, {
                             dateStyle: "medium",
                             timeStyle: "short",
                           })}
                         </td>
-                        <td className="px-5 py-3.5 text-right">
+                        <td className="px-4 py-4 text-right">
                           <Link
                             href={`/lobby/${lobby.code}/manage`}
                             className="font-semibold text-brand-600 hover:underline"
@@ -198,7 +201,7 @@ export default function MyLobbiesPage() {
                             Manage →
                           </Link>
                         </td>
-                        <td className="px-5 py-3.5 text-right">
+                        <td className="px-4 py-4 text-right">
                           <button
                             type="button"
                             onClick={() => setPendingDelete(lobby)}
