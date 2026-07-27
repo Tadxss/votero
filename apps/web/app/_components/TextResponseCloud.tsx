@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+import { X } from "lucide-react";
 import type { TextResponseGroup } from "@repo/types";
 
 // Reuses TallyBars' fixed series-color order (same --series-* vars/light-dark values) for visual
@@ -21,7 +23,8 @@ const SERIES_BG_VARS = SERIES_VARS.map((v) => `${v}-bg`) as readonly string[];
 
 // A response can be up to 300 characters (see rpc_submit_text_response) — full sentences don't
 // read as a "collective thoughts" cloud at a glance, especially projected on Present Mode from
-// across a room, so badges show a short preview with the full text only on hover.
+// across a room, so badges show a short preview and reveal the full text in a modal on click
+// (a hover tooltip doesn't work on touch devices or for an audience watching a projected screen).
 function truncate(text: string, maxChars: number): string {
   if (text.length <= maxChars) return text;
   return `${text.slice(0, maxChars - 1).trimEnd()}…`;
@@ -35,10 +38,11 @@ export function TextResponseCloud({
   size?: "md" | "lg";
 }) {
   const large = size === "lg";
-  const maxCount = Math.max(1, ...responses.map((r) => r.count));
-  const minRem = large ? 1 : 0.875;
-  const maxRem = large ? 2.25 : 1.5;
-  const previewChars = large ? 24 : 36;
+  // Fixed, compact badge size regardless of response frequency — these are meant to read as small
+  // previews at a glance (even projected on Present Mode), not scale up into full sentences. The
+  // "×N" count already communicates frequency, so font-size-by-frequency was redundant on top of it.
+  const previewChars = large ? 20 : 16;
+  const [expanded, setExpanded] = useState<TextResponseGroup | null>(null);
 
   if (responses.length === 0) {
     return <p className="text-sm text-[var(--foreground-muted)]">No responses yet.</p>;
@@ -75,24 +79,58 @@ export function TextResponseCloud({
         }
       `}</style>
       {responses.map((r, index) => {
-        const scale = r.count / maxCount;
-        const fontSize = `${minRem + scale * (maxRem - minRem)}rem`;
         const colorVar = SERIES_VARS[index % SERIES_VARS.length];
         const bgVar = SERIES_BG_VARS[index % SERIES_BG_VARS.length];
+        const isTruncated = r.text.length > previewChars;
         return (
-          <span
+          <button
             key={r.text}
-            className="inline-flex items-center gap-1 rounded-full px-[0.7em] py-[0.35em] font-semibold leading-none whitespace-nowrap"
-            style={{ fontSize, color: `var(${colorVar})`, backgroundColor: `var(${bgVar})` }}
-            title={r.count > 1 ? `${r.text} · ${r.count} responses` : r.text}
+            type="button"
+            onClick={() => setExpanded(r)}
+            className={`inline-flex items-center gap-1 rounded-full px-3 py-1 font-semibold leading-none whitespace-nowrap transition-transform hover:scale-105 active:scale-95 ${large ? "text-sm" : "text-xs"}`}
+            style={{ color: `var(${colorVar})`, backgroundColor: `var(${bgVar})` }}
+            aria-label={
+              isTruncated
+                ? `Show full response: ${r.text}${r.count > 1 ? ` (${r.count} responses)` : ""}`
+                : undefined
+            }
           >
             {truncate(r.text, previewChars)}
             {r.count > 1 && (
-              <span className="text-[0.7em] font-normal opacity-70">×{r.count}</span>
+              <span className="text-[0.85em] font-normal opacity-70">×{r.count}</span>
             )}
-          </span>
+          </button>
         );
       })}
+
+      {expanded && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={() => setExpanded(null)}
+        >
+          <div
+            className="w-full max-w-sm animate-pop-in rounded-3xl border border-neutral-200 bg-[var(--surface)] p-6 shadow-xl dark:border-neutral-800"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between gap-3">
+              <p className="text-base text-[var(--foreground)]">{expanded.text}</p>
+              <button
+                type="button"
+                onClick={() => setExpanded(null)}
+                aria-label="Close"
+                className="shrink-0 rounded-full p-1 text-[var(--foreground-muted)] transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            {expanded.count > 1 && (
+              <p className="mt-3 text-sm text-[var(--foreground-muted)]">
+                {expanded.count} people gave this response
+              </p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

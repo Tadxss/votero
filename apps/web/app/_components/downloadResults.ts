@@ -151,22 +151,18 @@ function truncateForChip(text: string, maxChars: number): string {
   return `${text.slice(0, maxChars - 1).trimEnd()}…`;
 }
 
-// Flow-layout for text-question chips, mirroring TextResponseCloud's font-size-by-frequency
-// sizing and pill-badge look — computed with a throwaway measuring context first (canvas has no
-// native text wrapping), since the image's total height must be known before the real canvas is
-// sized. Simplification: every line uses one shared line-height (based on the section's own max
-// font size), not a per-line max — occasional extra whitespace above smaller chips is an
-// acceptable trade for not needing a second measurement pass per line.
+// Flow-layout for text-question chips, mirroring TextResponseCloud's fixed-size pill-badge look
+// (see that component for why frequency no longer drives size — the "×N" count already says that)
+// — computed with a throwaway measuring context first (canvas has no native text wrapping), since
+// the image's total height must be known before the real canvas is sized.
 function layoutChips(
   measureCtx: CanvasRenderingContext2D,
   responses: { text: string; count: number }[],
   availableWidth: number,
-  minFontPx: number,
-  maxFontPx: number,
+  fontSize: number,
   previewChars: number,
 ): { chips: ChipLayout[]; height: number } {
-  const maxCount = Math.max(1, ...responses.map((r) => r.count));
-  const lineHeight = maxFontPx * (1 + 2 * CHIP_PAD_Y_RATIO);
+  const lineHeight = fontSize * (1 + 2 * CHIP_PAD_Y_RATIO);
   const gapX = 10;
   const gapY = 10;
 
@@ -175,8 +171,6 @@ function layoutChips(
   const chips: ChipLayout[] = [];
 
   responses.forEach((r, index) => {
-    const scale = r.count / maxCount;
-    const fontSize = minFontPx + scale * (maxFontPx - minFontPx);
     const label = truncateForChip(r.text, previewChars) + (r.count > 1 ? ` ×${r.count}` : "");
     measureCtx.font = `600 ${fontSize}px system-ui, sans-serif`;
     const textWidth = measureCtx.measureText(label).width;
@@ -221,9 +215,8 @@ export function downloadResultsImage(
   const footerHeight = 36;
   const labelWidth = 220;
   const countWidth = 50;
-  const chipMinFont = 16;
-  const chipMaxFont = 34;
-  const chipPreviewChars = 28;
+  const chipFontSize = 15;
+  const chipPreviewChars = 20;
 
   const measureCtx = document.createElement("canvas").getContext("2d")!;
   const questionContent = tally.map((q) => {
@@ -234,8 +227,7 @@ export function downloadResultsImage(
       measureCtx,
       q.responses,
       width - padding * 2,
-      chipMinFont,
-      chipMaxFont,
+      chipFontSize,
       chipPreviewChars,
     );
     return { contentHeight: height, chips };

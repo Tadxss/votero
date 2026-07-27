@@ -4,7 +4,11 @@
 // packages/ui ships shared RN-Web components that need it.
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  darkMode: "media",
+  // A manual toggle (see ThemeToggle.tsx) sets `data-theme` on <html>, bootstrapped from system
+  // preference on first visit (see the inline script in layout.tsx) — `dark:` utilities key off
+  // that attribute rather than `prefers-color-scheme` directly, so an explicit user choice can
+  // override the OS setting.
+  darkMode: ["selector", '[data-theme="dark"]'],
   content: ["./app/**/*.{ts,tsx}"],
   theme: {
     extend: {
