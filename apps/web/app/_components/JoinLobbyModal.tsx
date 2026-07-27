@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import jsQR from "jsqr";
+import { QrCode, Keyboard } from "lucide-react";
 import { Button } from "./Button";
 import { inputClasses } from "./styles";
 
@@ -142,8 +143,8 @@ export function JoinLobbyModal({ open, onClose }: { open: boolean; onClose: () =
                 onClick={() => setMode("scan")}
                 className="rounded-2xl border-2 border-neutral-200 p-4 text-left transition-colors hover:border-brand-300 dark:border-neutral-700"
               >
-                <span className="block font-semibold text-[var(--foreground)]">
-                  📷 Scan QR code
+                <span className="inline-flex items-center gap-1.5 font-semibold text-[var(--foreground)]">
+                  <QrCode size={16} /> Scan QR code
                 </span>
                 <span className="text-sm text-[var(--foreground-muted)]">
                   Use your camera to scan a lobby&apos;s QR code.
@@ -155,8 +156,8 @@ export function JoinLobbyModal({ open, onClose }: { open: boolean; onClose: () =
               onClick={() => setMode("code")}
               className="rounded-2xl border-2 border-neutral-200 p-4 text-left transition-colors hover:border-brand-300 dark:border-neutral-700"
             >
-              <span className="block font-semibold text-[var(--foreground)]">
-                ⌨️ Enter code instead
+              <span className="inline-flex items-center gap-1.5 font-semibold text-[var(--foreground)]">
+                <Keyboard size={16} /> Enter code instead
               </span>
               <span className="text-sm text-[var(--foreground-muted)]">
                 Type the 8-character lobby code.

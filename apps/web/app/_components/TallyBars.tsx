@@ -1,5 +1,6 @@
 "use client";
 
+import { Trophy } from "lucide-react";
 import type { LobbyOption, TallyEntry } from "@repo/types";
 
 // Categorical palette + mark spec from the dataviz skill (references/palette.md,
@@ -66,7 +67,13 @@ export function TallyBars({
               title={option.label}
             >
               <span className="min-w-0 flex-1 truncate">{option.label}</span>
-              {option.id === winnerOptionId && <span aria-label="Winner">🏆</span>}
+              {option.id === winnerOptionId && (
+                <Trophy
+                  size={large ? 18 : 14}
+                  className="shrink-0 text-accent-500"
+                  aria-label="Winner"
+                />
+              )}
             </span>
             <div
               className={`flex-1 overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800 ${large ? "h-6" : "h-3"}`}

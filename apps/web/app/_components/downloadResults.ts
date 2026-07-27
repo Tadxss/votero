@@ -101,6 +101,33 @@ function roundRect(
   ctx.closePath();
 }
 
+// Winner indicator, drawn instead of a 🏆 emoji glyph — canvas can't render a React icon
+// component, so this is a plain 5-point star polygon (alternating outer/inner radius over 10
+// vertices), matching the same "small solid accent-colored badge" idea as TallyBars' Trophy icon.
+function drawStar(
+  ctx: CanvasRenderingContext2D,
+  cx: number,
+  cy: number,
+  outerRadius: number,
+  color: string,
+) {
+  const innerRadius = outerRadius * 0.45;
+  const spikes = 5;
+  const step = Math.PI / spikes;
+  let rot = -Math.PI / 2;
+  ctx.beginPath();
+  ctx.moveTo(cx + Math.cos(rot) * outerRadius, cy + Math.sin(rot) * outerRadius);
+  for (let i = 0; i < spikes; i++) {
+    rot += step;
+    ctx.lineTo(cx + Math.cos(rot) * innerRadius, cy + Math.sin(rot) * innerRadius);
+    rot += step;
+    ctx.lineTo(cx + Math.cos(rot) * outerRadius, cy + Math.sin(rot) * outerRadius);
+  }
+  ctx.closePath();
+  ctx.fillStyle = color;
+  ctx.fill();
+}
+
 interface ChipLayout {
   label: string;
   x: number;
@@ -275,15 +302,17 @@ export function downloadResultsImage(
         const barWidth = maxCount > 0 ? (entry.count / maxCount) * barMaxWidth : 0;
         const barCenterY = y + rowHeight / 2;
 
+        const isWinner = entry.optionId === winnerOptionId;
+        let labelX = padding;
+        if (isWinner) {
+          drawStar(ctx, padding + 6, barCenterY, 6, "#eda100");
+          labelX = padding + 16;
+        }
+
         ctx.font = "500 16px system-ui, sans-serif";
         ctx.fillStyle = "#22132b";
         ctx.textAlign = "left";
-        ctx.fillText(
-          entry.optionId === winnerOptionId ? `🏆 ${label}` : label,
-          padding,
-          barCenterY + 5,
-          labelWidth - 12,
-        );
+        ctx.fillText(label, labelX, barCenterY + 5, labelWidth - 12 - (labelX - padding));
 
         ctx.fillStyle = "#ece3e0";
         roundRect(ctx, barX, barCenterY - 10, barMaxWidth, 20, 10);

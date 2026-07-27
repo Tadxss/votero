@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { ListChecks, Type } from "lucide-react";
 import { useCreateLobby, useEnsureSession, useAuthUser } from "@repo/shared";
 import type { BallotMode, QuestionType, TallyVisibility } from "@repo/types";
 import { Button } from "../_components/Button";
@@ -153,12 +154,7 @@ export default function CreateLobbyPage() {
   }
 
   return (
-    <main className="relative min-h-[calc(100vh-4rem)] overflow-hidden px-4 py-10">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -top-32 -right-24 h-72 w-72 rounded-full bg-accent-400/30 blur-3xl dark:bg-accent-600/15"
-      />
-
+    <main className="relative min-h-[calc(100vh-4rem)] px-4 py-10">
       <div className="relative mx-auto flex max-w-5xl flex-col gap-6 px-4 sm:px-8">
         <h1 className="font-display text-3xl font-bold text-[var(--foreground)]">
           Create a lobby
@@ -214,24 +210,24 @@ export default function CreateLobbyPage() {
                     <button
                       type="button"
                       onClick={() => updateQuestionType(qIndex, "choice")}
-                      className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+                      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
                         question.type === "choice"
                           ? "bg-brand-500 text-white"
                           : "bg-neutral-100 text-[var(--foreground-muted)] dark:bg-neutral-800"
                       }`}
                     >
-                      📊 Choice
+                      <ListChecks size={14} /> Choice
                     </button>
                     <button
                       type="button"
                       onClick={() => updateQuestionType(qIndex, "text")}
-                      className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+                      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
                         question.type === "text"
                           ? "bg-brand-500 text-white"
                           : "bg-neutral-100 text-[var(--foreground-muted)] dark:bg-neutral-800"
                       }`}
                     >
-                      ✍️ Free text
+                      <Type size={14} /> Free text
                     </button>
                   </div>
 
@@ -365,7 +361,7 @@ export default function CreateLobbyPage() {
               disabled={!canSubmit || createLobby.isPending}
               className="w-full lg:w-auto lg:self-start"
             >
-              {createLobby.isPending ? "Creating…" : "Create lobby 🎉"}
+              {createLobby.isPending ? "Creating…" : "Create lobby"}
             </Button>
           </div>
         </form>

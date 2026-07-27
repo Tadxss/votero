@@ -16,6 +16,7 @@
     "@tanstack/react-query": "^5.90.0",
     "canvas-confetti": "^1.9.4",
     "jsqr": "^1.4.0",
+    "lucide-react": "^1.27.0",
     "next": "16.2.0",
     "qrcode.react": "^4.2.0",
     "react": "19.2.3",

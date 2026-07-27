@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Vote, Lock, Zap, QrCode } from "lucide-react";
 import { Button } from "./_components/Button";
 import { JoinLobbyModal } from "./_components/JoinLobbyModal";
 
@@ -9,18 +10,9 @@ export default function Home() {
   const [joinModalOpen, setJoinModalOpen] = useState(false);
 
   return (
-    <main className="relative flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center gap-5 overflow-hidden px-4 py-8">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -top-24 -left-24 h-72 w-72 rounded-full bg-brand-300/40 blur-3xl dark:bg-brand-700/30"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -bottom-24 -right-16 h-80 w-80 rounded-full bg-accent-400/40 blur-3xl dark:bg-accent-600/20"
-      />
-
-      <span className="flex h-20 w-20 animate-float items-center justify-center rounded-3xl bg-white text-5xl shadow-lg shadow-brand-500/10 ring-1 ring-black/5 dark:bg-white/10 dark:ring-white/10">
-        🗳️
+    <main className="relative flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center gap-5 px-4 py-8">
+      <span className="flex h-20 w-20 animate-float items-center justify-center rounded-3xl bg-white shadow-lg shadow-brand-500/10 ring-1 ring-black/5 dark:bg-white/10 dark:ring-white/10">
+        <Vote size={36} strokeWidth={1.75} className="text-brand-500" />
       </span>
 
       <div className="flex flex-col items-center gap-3 animate-pop-in">
@@ -53,14 +45,14 @@ export default function Home() {
       </p>
 
       <div className="hidden items-center gap-2 pt-2 text-xs text-[var(--foreground-muted)] sm:flex">
-        <span className="rounded-full border border-neutral-200 px-3 py-1 dark:border-neutral-700">
-          🔒 Anonymous option
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 px-3 py-1 dark:border-neutral-700">
+          <Lock size={14} /> Anonymous option
         </span>
-        <span className="rounded-full border border-neutral-200 px-3 py-1 dark:border-neutral-700">
-          ⚡ Live results
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 px-3 py-1 dark:border-neutral-700">
+          <Zap size={14} /> Live results
         </span>
-        <span className="rounded-full border border-neutral-200 px-3 py-1 dark:border-neutral-700">
-          📱 Scan & vote
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 px-3 py-1 dark:border-neutral-700">
+          <QrCode size={14} /> Scan & vote
         </span>
       </div>
 

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { QRCodeSVG } from "qrcode.react";
+import { SearchX } from "lucide-react";
 import { useLobby, useLobbyResults, useLobbyRealtime, useEnsureSession } from "@repo/shared";
 import { TallyBars } from "../../../_components/TallyBars";
 import { TextResponseCloud } from "../../../_components/TextResponseCloud";
@@ -29,7 +30,7 @@ export default function PresentLobbyPage() {
   if (error || !lobby) {
     return (
       <main className="flex min-h-screen flex-col items-center justify-center gap-3 px-4 text-center">
-        <span className="text-4xl">🔍</span>
+        <SearchX size={40} strokeWidth={1.5} className="text-[var(--foreground-muted)]" />
         <p className="text-[var(--foreground-muted)]">Lobby not found.</p>
       </main>
     );
@@ -38,16 +39,7 @@ export default function PresentLobbyPage() {
   const joinedPct = Math.min(100, (lobby.joinedCount / lobby.voterCap) * 100);
 
   return (
-    <main className="relative flex min-h-screen flex-col items-center justify-center gap-8 overflow-hidden px-6 py-10">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -top-32 -left-24 h-96 w-96 rounded-full bg-brand-300/30 blur-3xl dark:bg-brand-700/20"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -bottom-32 -right-24 h-96 w-96 rounded-full bg-accent-400/30 blur-3xl dark:bg-accent-600/15"
-      />
-
+    <main className="relative flex min-h-screen flex-col items-center justify-center gap-8 px-6 py-10">
       <div className="flex animate-pop-in items-center gap-3">
         <h1 className="font-display text-4xl font-bold text-[var(--foreground)] sm:text-5xl">
           {lobby.title}
@@ -78,7 +70,7 @@ export default function PresentLobbyPage() {
         <div className="flex w-full min-w-0 flex-col items-center gap-6">
           {lobby.status === "draft" ? (
             <p className="text-center text-2xl text-[var(--foreground-muted)]">
-              Scan to get ready — voting opens soon 🚀
+              Scan to get ready — voting opens soon
             </p>
           ) : results.data?.tally ? (
             <div className="flex w-full min-w-0 flex-col gap-6">

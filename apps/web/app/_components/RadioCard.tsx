@@ -1,5 +1,7 @@
 "use client";
 
+import { Check } from "lucide-react";
+
 export function RadioCard<T extends string>({
   name,
   value,
@@ -42,7 +44,7 @@ export function RadioCard<T extends string>({
           selected ? "border-brand-500 bg-brand-500" : "border-neutral-300 dark:border-neutral-600"
         }`}
       >
-        {selected && "✓"}
+        {selected && <Check size={size === "lg" ? 14 : 12} strokeWidth={3} />}
       </span>
       <span className="flex flex-col gap-0.5">
         <span className="font-semibold text-[var(--foreground)]">{label}</span>

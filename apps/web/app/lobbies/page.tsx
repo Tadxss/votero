@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { Table2, LayoutGrid, Trash2 } from "lucide-react";
 import { useAuthUser, useMyLobbies, useDeleteLobby } from "@repo/shared";
 import type { Lobby } from "@repo/types";
 import { StatusPill } from "../_components/StatusPill";
 import { Spinner } from "../_components/Spinner";
 import { Button } from "../_components/Button";
 import { ConfirmDialog } from "../_components/ConfirmDialog";
-import { TrashIcon } from "../_components/icons";
 
 const LOBBY_CAP = 10;
 const VIEW_STORAGE_KEY = "votero:lobbies-view";
@@ -17,27 +17,6 @@ type View = "table" | "grid";
 function friendlyDeleteError(message: string): string {
   if (message === "FORBIDDEN") return "Only this lobby's creator can delete it.";
   return "Something went wrong deleting this lobby. Please try again.";
-}
-
-function TableIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-      <rect x="1.5" y="2.5" width="13" height="3" rx="1" stroke="currentColor" strokeWidth="1.3" />
-      <rect x="1.5" y="6.5" width="13" height="3" rx="1" stroke="currentColor" strokeWidth="1.3" />
-      <rect x="1.5" y="10.5" width="13" height="3" rx="1" stroke="currentColor" strokeWidth="1.3" />
-    </svg>
-  );
-}
-
-function GridIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-      <rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1" stroke="currentColor" strokeWidth="1.3" />
-      <rect x="9" y="1.5" width="5.5" height="5.5" rx="1" stroke="currentColor" strokeWidth="1.3" />
-      <rect x="1.5" y="9" width="5.5" height="5.5" rx="1" stroke="currentColor" strokeWidth="1.3" />
-      <rect x="9" y="9" width="5.5" height="5.5" rx="1" stroke="currentColor" strokeWidth="1.3" />
-    </svg>
-  );
 }
 
 function LobbyCard({ lobby, onDelete }: { lobby: Lobby; onDelete: (lobby: Lobby) => void }) {
@@ -61,7 +40,7 @@ function LobbyCard({ lobby, onDelete }: { lobby: Lobby; onDelete: (lobby: Lobby)
             aria-label={`Delete ${lobby.title}`}
             className="rounded-full p-1.5 text-[var(--foreground-muted)] transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950"
           >
-            <TrashIcon />
+            <Trash2 size={16} />
           </button>
         </div>
       </div>
@@ -95,12 +74,7 @@ export default function MyLobbiesPage() {
   }
 
   return (
-    <main className="relative min-h-[calc(100vh-4rem)] overflow-hidden px-4 py-10">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -top-32 -right-24 h-72 w-72 rounded-full bg-accent-400/30 blur-3xl dark:bg-accent-600/15"
-      />
-
+    <main className="relative min-h-[calc(100vh-4rem)] px-4 py-10">
       <div className="relative mx-auto flex max-w-6xl flex-col gap-6 px-4 sm:px-8">
         <div className="flex items-start justify-between gap-3">
           <div>
@@ -127,7 +101,7 @@ export default function MyLobbiesPage() {
                       : "text-[var(--foreground-muted)] hover:text-brand-600"
                   }`}
                 >
-                  <TableIcon />
+                  <Table2 size={16} />
                 </button>
                 <button
                   type="button"
@@ -140,7 +114,7 @@ export default function MyLobbiesPage() {
                       : "text-[var(--foreground-muted)] hover:text-brand-600"
                   }`}
                 >
-                  <GridIcon />
+                  <LayoutGrid size={16} />
                 </button>
               </div>
             )}
@@ -231,7 +205,7 @@ export default function MyLobbiesPage() {
                             aria-label={`Delete ${lobby.title}`}
                             className="rounded-full p-1.5 text-[var(--foreground-muted)] transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950"
                           >
-                            <TrashIcon />
+                            <Trash2 size={16} />
                           </button>
                         </td>
                       </tr>
