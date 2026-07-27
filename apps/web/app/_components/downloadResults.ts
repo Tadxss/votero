@@ -14,6 +14,18 @@ const SERIES_COLORS = [
   "#e34948",
 ];
 
+// Same hues as SERIES_COLORS at low alpha — matches TextResponseCloud's badge background swatches.
+const SERIES_BG_COLORS = [
+  "rgba(42, 120, 214, 0.14)",
+  "rgba(235, 104, 52, 0.14)",
+  "rgba(27, 175, 122, 0.14)",
+  "rgba(237, 161, 0, 0.14)",
+  "rgba(232, 123, 164, 0.14)",
+  "rgba(0, 131, 0, 0.14)",
+  "rgba(74, 58, 167, 0.14)",
+  "rgba(227, 73, 72, 0.14)",
+];
+
 function slugifyForFilename(title: string): string {
   const slug = title
     .toLowerCase()
@@ -90,29 +102,45 @@ function roundRect(
 }
 
 interface ChipLayout {
-  text: string;
+  label: string;
   x: number;
   y: number; // top of the chip's line, relative to the chip section's own origin
+  width: number;
+  height: number;
   fontSize: number;
   color: string;
+  bgColor: string;
+}
+
+const CHIP_PAD_X_RATIO = 0.7;
+const CHIP_PAD_Y_RATIO = 0.35;
+
+// A response can be up to 300 characters — full sentences don't read as a "collective thoughts"
+// cloud at a glance, so badges get a short preview, matching TextResponseCloud's on-screen
+// truncation (the full text is only ever shown there, via a hover tooltip a static image can't
+// offer — acceptable, since the CSV export already has every response's full, untruncated text).
+function truncateForChip(text: string, maxChars: number): string {
+  if (text.length <= maxChars) return text;
+  return `${text.slice(0, maxChars - 1).trimEnd()}…`;
 }
 
 // Flow-layout for text-question chips, mirroring TextResponseCloud's font-size-by-frequency
-// sizing — computed with a throwaway measuring context first (canvas has no native text
-// wrapping), since the image's total height must be known before the real canvas is sized.
-// Simplification: every line uses one shared line-height (based on the section's own max font
-// size), not a per-line max — occasional extra whitespace above smaller chips is an acceptable
-// trade for not needing a second measurement pass per line.
+// sizing and pill-badge look — computed with a throwaway measuring context first (canvas has no
+// native text wrapping), since the image's total height must be known before the real canvas is
+// sized. Simplification: every line uses one shared line-height (based on the section's own max
+// font size), not a per-line max — occasional extra whitespace above smaller chips is an
+// acceptable trade for not needing a second measurement pass per line.
 function layoutChips(
   measureCtx: CanvasRenderingContext2D,
   responses: { text: string; count: number }[],
   availableWidth: number,
   minFontPx: number,
   maxFontPx: number,
+  previewChars: number,
 ): { chips: ChipLayout[]; height: number } {
   const maxCount = Math.max(1, ...responses.map((r) => r.count));
-  const lineHeight = maxFontPx * 1.5;
-  const gapX = 22;
+  const lineHeight = maxFontPx * (1 + 2 * CHIP_PAD_Y_RATIO);
+  const gapX = 10;
   const gapY = 10;
 
   let x = 0;
@@ -122,23 +150,30 @@ function layoutChips(
   responses.forEach((r, index) => {
     const scale = r.count / maxCount;
     const fontSize = minFontPx + scale * (maxFontPx - minFontPx);
-    const label = r.count > 1 ? `${r.text} ×${r.count}` : r.text;
+    const label = truncateForChip(r.text, previewChars) + (r.count > 1 ? ` ×${r.count}` : "");
     measureCtx.font = `600 ${fontSize}px system-ui, sans-serif`;
     const textWidth = measureCtx.measureText(label).width;
+    const padX = fontSize * CHIP_PAD_X_RATIO;
+    const padY = fontSize * CHIP_PAD_Y_RATIO;
+    const chipWidth = textWidth + padX * 2;
+    const chipHeight = fontSize + padY * 2;
 
-    if (x > 0 && x + textWidth > availableWidth) {
+    if (x > 0 && x + chipWidth > availableWidth) {
       x = 0;
       lineTop += lineHeight + gapY;
     }
 
     chips.push({
-      text: label,
+      label,
       x,
       y: lineTop,
+      width: chipWidth,
+      height: chipHeight,
       fontSize,
       color: SERIES_COLORS[index % SERIES_COLORS.length]!,
+      bgColor: SERIES_BG_COLORS[index % SERIES_BG_COLORS.length]!,
     });
-    x += textWidth + gapX;
+    x += chipWidth + gapX;
   });
 
   return { chips, height: lineTop + lineHeight };
@@ -159,15 +194,23 @@ export function downloadResultsImage(
   const footerHeight = 36;
   const labelWidth = 220;
   const countWidth = 50;
-  const chipMinFont = 18;
-  const chipMaxFont = 42;
+  const chipMinFont = 16;
+  const chipMaxFont = 34;
+  const chipPreviewChars = 28;
 
   const measureCtx = document.createElement("canvas").getContext("2d")!;
   const questionContent = tally.map((q) => {
     if (q.type === "choice") {
       return { contentHeight: q.tally.length * rowHeight };
     }
-    const { chips, height } = layoutChips(measureCtx, q.responses, width - padding * 2, chipMinFont, chipMaxFont);
+    const { chips, height } = layoutChips(
+      measureCtx,
+      q.responses,
+      width - padding * 2,
+      chipMinFont,
+      chipMaxFont,
+      chipPreviewChars,
+    );
     return { contentHeight: height, chips };
   });
 
@@ -262,10 +305,19 @@ export function downloadResultsImage(
       });
     } else {
       for (const chip of content.chips ?? []) {
+        const chipX = padding + chip.x;
+        const chipY = y + chip.y;
+
+        ctx.fillStyle = chip.bgColor;
+        roundRect(ctx, chipX, chipY, chip.width, chip.height, chip.height / 2);
+        ctx.fill();
+
         ctx.font = `600 ${chip.fontSize}px system-ui, sans-serif`;
         ctx.fillStyle = chip.color;
         ctx.textAlign = "left";
-        ctx.fillText(chip.text, padding + chip.x, y + chip.y + chip.fontSize * 0.8);
+        ctx.textBaseline = "middle";
+        ctx.fillText(chip.label, chipX + chip.fontSize * CHIP_PAD_X_RATIO, chipY + chip.height / 2);
+        ctx.textBaseline = "alphabetic";
       }
       y += content.contentHeight;
     }
