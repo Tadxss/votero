@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useAuthUser, useProfile, useSignOut } from "@repo/shared";
 import { Avatar } from "./Avatar";
 import { ProfileModal } from "./ProfileModal";
+import { ThemeToggle } from "./ThemeToggle";
 
 const navLinkClasses =
   "rounded-full border border-neutral-200 px-3 py-1 font-medium text-[var(--foreground-muted)] transition-colors hover:border-brand-300 hover:text-brand-600 dark:border-neutral-700";
@@ -29,6 +30,12 @@ export function Header() {
       <nav className="flex items-center gap-3 text-sm">
         {loading ? null : isSignedIn ? (
           <>
+            <Link
+              href="/dashboard"
+              className="font-medium text-[var(--foreground-muted)] transition-colors hover:text-brand-600"
+            >
+              Dashboard
+            </Link>
             <Link
               href="/lobbies"
               className="font-medium text-[var(--foreground-muted)] transition-colors hover:text-brand-600"
@@ -56,6 +63,7 @@ export function Header() {
             Sign in
           </Link>
         )}
+        <ThemeToggle />
       </nav>
       <ProfileModal open={isProfileModalOpen} onClose={() => setProfileModalOpen(false)} />
     </header>

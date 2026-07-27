@@ -34,7 +34,7 @@ export default function LoginPage() {
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirect") || "/lobbies";
+  const redirectTo = searchParams.get("redirect") || "/dashboard";
   const sendCode = useSignInWithOtp();
   const verifyCode = useVerifyOtp();
 

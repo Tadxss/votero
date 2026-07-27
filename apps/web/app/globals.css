@@ -9,13 +9,15 @@
   --foreground-muted: #6b5b73;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #1b1420;
-    --surface: #241a2c;
-    --foreground: #fff3f8;
-    --foreground-muted: #c9b8d1;
-  }
+/* `data-theme` (set by the inline bootstrap script in layout.tsx + ThemeToggle.tsx) is the single
+   source of truth for both these custom properties and Tailwind's `dark:` utilities (see
+   tailwind.config.cjs) — it's always present before first paint, seeded from system preference on
+   a first visit and from localStorage after an explicit toggle. */
+:root[data-theme="dark"] {
+  --background: #1b1420;
+  --surface: #241a2c;
+  --foreground: #fff3f8;
+  --foreground-muted: #c9b8d1;
 }
 
 html,
@@ -40,8 +42,10 @@ a {
   text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
+html[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+html[data-theme="light"] {
+  color-scheme: light;
 }
