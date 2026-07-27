@@ -87,7 +87,7 @@ export function ProfileModal({ open, onClose }: { open: boolean; onClose: () => 
       onClick={onClose}
     >
       <div
-        className="w-full max-w-sm animate-pop-in rounded-3xl border border-neutral-200 bg-[var(--surface)] p-6 shadow-xl dark:border-neutral-800"
+        className="w-full max-w-sm animate-pop-in rounded-3xl border border-neutral-300 bg-[var(--surface)] p-6 shadow-xl dark:border-neutral-800"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="font-display text-xl font-bold text-[var(--foreground)]">Edit profile</h2>

@@ -5,6 +5,7 @@
 :root {
   --background: #fff9f6;
   --surface: #ffffff;
+  --input-bg: #f7f3f1;
   --foreground: #22132b;
   --foreground-muted: #6b5b73;
 }
@@ -16,6 +17,7 @@
 :root[data-theme="dark"] {
   --background: #1b1420;
   --surface: #241a2c;
+  --input-bg: #2c2136;
   --foreground: #fff3f8;
   --foreground-muted: #c9b8d1;
 }

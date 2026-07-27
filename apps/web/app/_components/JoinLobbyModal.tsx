@@ -130,7 +130,7 @@ export function JoinLobbyModal({ open, onClose }: { open: boolean; onClose: () =
       onClick={onClose}
     >
       <div
-        className="w-full max-w-sm animate-pop-in rounded-3xl border border-neutral-200 bg-[var(--surface)] p-6 shadow-xl dark:border-neutral-800"
+        className="w-full max-w-sm animate-pop-in rounded-3xl border border-neutral-300 bg-[var(--surface)] p-6 shadow-xl dark:border-neutral-800"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="font-display text-xl font-bold text-[var(--foreground)]">Join a lobby</h2>
@@ -141,7 +141,7 @@ export function JoinLobbyModal({ open, onClose }: { open: boolean; onClose: () =
               <button
                 type="button"
                 onClick={() => setMode("scan")}
-                className="rounded-2xl border-2 border-neutral-200 p-4 text-left transition-colors hover:border-brand-300 dark:border-neutral-700"
+                className="rounded-2xl border-2 border-neutral-300 p-4 text-left transition-colors hover:border-brand-300 dark:border-neutral-700"
               >
                 <span className="inline-flex items-center gap-1.5 font-semibold text-[var(--foreground)]">
                   <QrCode size={16} /> Scan QR code
@@ -154,7 +154,7 @@ export function JoinLobbyModal({ open, onClose }: { open: boolean; onClose: () =
             <button
               type="button"
               onClick={() => setMode("code")}
-              className="rounded-2xl border-2 border-neutral-200 p-4 text-left transition-colors hover:border-brand-300 dark:border-neutral-700"
+              className="rounded-2xl border-2 border-neutral-300 p-4 text-left transition-colors hover:border-brand-300 dark:border-neutral-700"
             >
               <span className="inline-flex items-center gap-1.5 font-semibold text-[var(--foreground)]">
                 <Keyboard size={16} /> Enter code instead

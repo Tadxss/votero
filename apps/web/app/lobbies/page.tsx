@@ -21,7 +21,7 @@ function friendlyDeleteError(message: string): string {
 
 function LobbyCard({ lobby, onDelete }: { lobby: Lobby; onDelete: (lobby: Lobby) => void }) {
   return (
-    <li className="rounded-2xl border border-neutral-200 bg-[var(--surface)] p-4 transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-neutral-800">
+    <li className="rounded-2xl border border-neutral-300 bg-[var(--surface)] p-4 transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-neutral-800">
       <div className="flex items-center justify-between gap-3">
         <Link href={`/lobby/${lobby.code}/manage`} className="flex flex-1 flex-col gap-0.5">
           <span className="font-semibold text-[var(--foreground)]">{lobby.title}</span>
@@ -89,7 +89,7 @@ export default function MyLobbiesPage() {
           </div>
           <div className="flex items-center gap-3">
             {isSignedIn && lobbies && lobbies.length > 0 && (
-              <div className="hidden items-center gap-1 rounded-full border border-neutral-200 p-1 lg:flex dark:border-neutral-700">
+              <div className="hidden items-center gap-1 rounded-full border border-neutral-300 p-1 lg:flex dark:border-neutral-700">
                 <button
                   type="button"
                   onClick={() => selectView("table")}
@@ -142,7 +142,7 @@ export default function MyLobbiesPage() {
         {authLoading ? (
           <Spinner />
         ) : !isSignedIn ? (
-          <div className="flex animate-pop-in flex-col items-start gap-3 rounded-3xl border border-neutral-200 bg-[var(--surface)] p-6 shadow-sm dark:border-neutral-800">
+          <div className="flex animate-pop-in flex-col items-start gap-3 rounded-3xl border border-neutral-300 bg-[var(--surface)] p-6 shadow-sm dark:border-neutral-800">
             <p className="text-sm text-[var(--foreground-muted)]">
               Sign in to see the lobbies you&apos;ve created — from any device.
             </p>
@@ -158,7 +158,7 @@ export default function MyLobbiesPage() {
               // Deliberately squared off (rounded-lg, not the rounded-2xl/3xl/full used
               // everywhere else) — a data table reads as more considered next to something
               // crisp, and gives the app's otherwise uniform softness one point of contrast.
-              <div className="hidden animate-pop-in overflow-hidden rounded-lg border border-neutral-200 bg-[var(--surface)] lg:block dark:border-neutral-800">
+              <div className="hidden animate-pop-in overflow-hidden rounded-lg border border-neutral-300 bg-[var(--surface)] lg:block dark:border-neutral-800">
                 <table className="w-full border-collapse text-left text-sm">
                   <thead className="bg-neutral-50 dark:bg-neutral-900/40">
                     <tr>
@@ -233,7 +233,7 @@ export default function MyLobbiesPage() {
             </ul>
           </>
         ) : (
-          <div className="flex animate-pop-in flex-col items-start gap-3 rounded-3xl border border-neutral-200 bg-[var(--surface)] p-6 shadow-sm dark:border-neutral-800">
+          <div className="flex animate-pop-in flex-col items-start gap-3 rounded-3xl border border-neutral-300 bg-[var(--surface)] p-6 shadow-sm dark:border-neutral-800">
             <p className="text-sm text-[var(--foreground-muted)]">
               No lobbies yet — anything you create while signed in will show up here.
             </p>

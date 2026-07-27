@@ -26,7 +26,7 @@ export function RadioCard<T extends string>({
       } ${
         selected
           ? "border-brand-500 bg-brand-50 dark:bg-brand-900/20"
-          : "border-neutral-200 hover:border-brand-200 dark:border-neutral-700"
+          : "border-neutral-300 hover:border-brand-200 dark:border-neutral-700"
       }`}
     >
       <input

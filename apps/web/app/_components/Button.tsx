@@ -10,7 +10,7 @@ const variantClasses: Record<Variant, string> = {
   primary:
     "bg-brand-500 text-white shadow-md shadow-brand-500/25 hover:bg-brand-600 hover:shadow-lg hover:shadow-brand-500/30 disabled:bg-neutral-200 disabled:text-neutral-400 disabled:shadow-none dark:disabled:bg-neutral-700 dark:disabled:text-neutral-500",
   secondary:
-    "bg-[var(--surface)] text-[var(--foreground)] border-2 border-neutral-200 hover:border-brand-300 hover:text-brand-600 disabled:text-neutral-400 dark:border-neutral-700",
+    "bg-[var(--surface)] text-[var(--foreground)] border-2 border-neutral-300 hover:border-brand-300 hover:text-brand-600 disabled:text-neutral-400 dark:border-neutral-700",
   danger:
     "bg-white text-red-600 border-2 border-red-200 hover:bg-red-50 disabled:border-neutral-200 disabled:text-neutral-300 dark:bg-transparent dark:border-red-900 dark:hover:bg-red-950 dark:disabled:border-neutral-800 dark:disabled:text-neutral-600",
 };

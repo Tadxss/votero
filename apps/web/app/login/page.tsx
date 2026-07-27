@@ -62,7 +62,7 @@ function LoginForm() {
       <div className="relative mx-auto flex max-w-sm flex-col gap-6">
         <h1 className="font-display text-3xl font-bold text-[var(--foreground)]">Sign in</h1>
 
-        <div className="flex animate-pop-in flex-col gap-6 rounded-3xl border border-neutral-200 bg-[var(--surface)] p-6 shadow-sm dark:border-neutral-800">
+        <div className="flex animate-pop-in flex-col gap-6 rounded-3xl border border-neutral-300 bg-[var(--surface)] p-6 shadow-sm dark:border-neutral-800">
           {step === "email" ? (
             <form onSubmit={handleSendCode} className="flex flex-col gap-4">
               <p className="text-sm text-[var(--foreground-muted)]">

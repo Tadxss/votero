@@ -10,7 +10,7 @@ import { ProfileModal } from "./ProfileModal";
 import { ThemeToggle } from "./ThemeToggle";
 
 const navLinkClasses =
-  "rounded-full border border-neutral-200 px-3 py-1 font-medium text-[var(--foreground-muted)] transition-colors hover:border-brand-300 hover:text-brand-600 dark:border-neutral-700";
+  "rounded-full border border-neutral-300 px-3 py-1 font-medium text-[var(--foreground-muted)] transition-colors hover:border-brand-300 hover:text-brand-600 dark:border-neutral-700";
 
 export function Header() {
   const pathname = usePathname();
@@ -72,7 +72,7 @@ export function Header() {
                 onClick={() => setMobileMenuOpen((v) => !v)}
                 aria-label="Open menu"
                 aria-expanded={isMobileMenuOpen}
-                className="flex items-center gap-1.5 rounded-full border border-neutral-200 p-1.5 text-[var(--foreground-muted)] dark:border-neutral-700"
+                className="flex items-center gap-1.5 rounded-full border border-neutral-300 p-1.5 text-[var(--foreground-muted)] dark:border-neutral-700"
               >
                 <Avatar url={profile?.avatarUrl} label={profile?.username || user?.email || "?"} size="sm" />
                 <Menu size={16} />
@@ -84,7 +84,7 @@ export function Header() {
                     className="fixed inset-0 z-40"
                     onClick={() => setMobileMenuOpen(false)}
                   />
-                  <div className="absolute right-0 top-full z-50 mt-2 flex w-56 animate-pop-in flex-col gap-1 rounded-2xl border border-neutral-200 bg-[var(--surface)] p-2 shadow-lg dark:border-neutral-800">
+                  <div className="absolute right-0 top-full z-50 mt-2 flex w-56 animate-pop-in flex-col gap-1 rounded-2xl border border-neutral-300 bg-[var(--surface)] p-2 shadow-lg dark:border-neutral-800">
                     <span className="truncate px-3 py-2 text-xs font-medium text-[var(--foreground-muted)]">
                       {identityLabel}
                     </span>
