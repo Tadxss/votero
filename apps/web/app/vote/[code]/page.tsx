@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import { SearchX, Hourglass, Lock, Clock, Ban, type LucideIcon } from "lucide-react";
 import {
   useLobby,
   useLobbyResults,
@@ -29,10 +30,10 @@ function friendlyVoteError(message: string): string {
   return "Something went wrong. Please try again.";
 }
 
-function EmptyState({ icon, message }: { icon: string; message: string }) {
+function EmptyState({ icon: Icon, message }: { icon: LucideIcon; message: string }) {
   return (
     <main className="flex h-[calc(100vh-4rem)] flex-col items-center justify-center gap-3 px-4 text-center">
-      <span className="text-4xl">{icon}</span>
+      <Icon size={40} strokeWidth={1.5} className="text-[var(--foreground-muted)]" />
       <p className="text-sm text-[var(--foreground-muted)]">{message}</p>
     </main>
   );
@@ -80,17 +81,17 @@ export default function VotePage() {
 
   if (!ready || isLoading) return <Spinner />;
   if (error || !lobby) {
-    return <EmptyState icon="🔍" message="Lobby not found." />;
+    return <EmptyState icon={SearchX} message="Lobby not found." />;
   }
 
   if (lobby.status === "draft") {
-    return <EmptyState icon="⏳" message="This lobby hasn't opened yet — check back soon." />;
+    return <EmptyState icon={Hourglass} message="This lobby hasn't opened yet — check back soon." />;
   }
 
   if (lobby.status === "open" && lobby.ballotMode === "open" && !isSignedIn) {
     return (
       <main className="flex h-[calc(100vh-4rem)] flex-col items-center justify-center gap-4 px-4 text-center">
-        <span className="text-4xl">🔏</span>
+        <Lock size={40} strokeWidth={1.5} className="text-[var(--foreground-muted)]" />
         <p className="max-w-xs text-sm text-[var(--foreground-muted)]">
           This lobby shows who voted for what — sign in to vote.
         </p>
@@ -102,7 +103,7 @@ export default function VotePage() {
   }
 
   if (joinLobby.error?.message === "LOBBY_FULL") {
-    return <EmptyState icon="🙅" message="This lobby is full." />;
+    return <EmptyState icon={Ban} message="This lobby is full." />;
   }
 
   const showResults = lobby.status === "closed" || hasVoted;
@@ -112,20 +113,15 @@ export default function VotePage() {
   const textResponse = currentQuestion ? (textAnswers[currentQuestion.id] ?? "") : "";
 
   return (
-    <main className="relative min-h-[calc(100vh-4rem)] overflow-hidden px-4 py-10">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -top-32 -right-24 h-72 w-72 rounded-full bg-brand-300/30 blur-3xl dark:bg-brand-700/20"
-      />
-
+    <main className="relative min-h-[calc(100vh-4rem)] px-4 py-10">
       <div className="relative mx-auto flex max-w-md flex-col gap-6">
         <h1 className="font-display text-2xl font-bold text-[var(--foreground)]">
           {lobby.title}
         </h1>
 
         {lobby.closesAt && lobby.status === "open" && (
-          <p className="-mt-4 text-xs text-[var(--foreground-muted)]">
-            ⏰ Voting closes{" "}
+          <p className="-mt-4 inline-flex items-center gap-1.5 text-xs text-[var(--foreground-muted)]">
+            <Clock size={14} /> Voting closes{" "}
             {new Date(lobby.closesAt).toLocaleString(undefined, {
               dateStyle: "medium",
               timeStyle: "short",
@@ -139,7 +135,7 @@ export default function VotePage() {
               <p className="text-sm font-medium text-[var(--foreground-muted)]">
                 {lobby.status === "closed"
                   ? "Voting is closed."
-                  : "You're in — thanks for voting! 🎉"}
+                  : "You're in — thanks for voting!"}
               </p>
               {lobby.tallyVisibility === "live" && <LiveDot />}
             </div>
@@ -282,8 +278,8 @@ export default function VotePage() {
                   : !isLastQuestion
                     ? "Next →"
                     : questions.length > 1
-                      ? "Submit ✋"
-                      : "Vote ✋"}
+                      ? "Submit"
+                      : "Vote"}
               </Button>
             </div>
           </form>

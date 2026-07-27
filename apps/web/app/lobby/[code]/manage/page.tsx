@@ -5,6 +5,18 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
 import {
+  Hourglass,
+  Lock,
+  Link as LinkIcon,
+  Copy,
+  Share2,
+  Check,
+  Monitor,
+  Clock,
+  Download,
+  Trash2,
+} from "lucide-react";
+import {
   useLobby,
   useLobbyResults,
   useLobbyRealtime,
@@ -22,7 +34,6 @@ import { LiveDot } from "../../../_components/LiveDot";
 import { Spinner } from "../../../_components/Spinner";
 import { useConfetti } from "../../../_components/useConfetti";
 import { ConfirmDialog } from "../../../_components/ConfirmDialog";
-import { TrashIcon } from "../../../_components/icons";
 import { Avatar } from "../../../_components/Avatar";
 import { downloadResultsCsv, downloadResultsImage } from "../../../_components/downloadResults";
 
@@ -114,12 +125,7 @@ export default function ManageLobbyPage() {
   ).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
 
   return (
-    <main className="relative min-h-[calc(100vh-4rem)] overflow-hidden px-4 py-10">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -top-32 -left-24 h-72 w-72 rounded-full bg-brand-300/30 blur-3xl dark:bg-brand-700/20"
-      />
-
+    <main className="relative min-h-[calc(100vh-4rem)] px-4 py-10">
       <div className="relative mx-auto flex max-w-5xl flex-col gap-6 px-4 sm:px-8">
         <Link
           href={isSignedIn ? "/lobbies" : "/"}
@@ -137,7 +143,7 @@ export default function ManageLobbyPage() {
 
         {isCreator && !isSignedIn && (
           <div className="flex items-start gap-2 rounded-2xl border border-neutral-200 bg-[var(--surface)] px-4 py-3 text-sm text-[var(--foreground-muted)] dark:border-neutral-800">
-            <span aria-hidden>⏳</span>
+            <Hourglass size={16} className="mt-0.5 shrink-0" aria-hidden />
             <p>
               This lobby isn&apos;t tied to an account, so it&apos;ll be automatically deleted on{" "}
               <strong className="text-[var(--foreground)]">{deleteByLabel}</strong>{" "}
@@ -154,7 +160,7 @@ export default function ManageLobbyPage() {
 
         {!authLoading && !isCreator && (
           <div className="flex items-start gap-2 rounded-2xl border border-neutral-200 bg-[var(--surface)] px-4 py-3 text-sm text-[var(--foreground-muted)] dark:border-neutral-800">
-            <span aria-hidden>🔒</span>
+            <Lock size={16} className="mt-0.5 shrink-0" aria-hidden />
             <p>
               You&apos;re viewing this lobby&apos;s dashboard, but only its creator can open/close
               voting or delete it — the account or browser session that created it doesn&apos;t
@@ -181,25 +187,41 @@ export default function ManageLobbyPage() {
                   <Button
                     type="button"
                     variant="secondary"
-                    className="text-xs"
+                    className="inline-flex items-center gap-1.5 text-xs"
                     onClick={() => copyToClipboard(voteUrl, "link")}
                   >
-                    {copied === "link" ? "Copied! ✓" : "Copy link"}
+                    {copied === "link" ? (
+                      <>
+                        <Check size={14} /> Copied!
+                      </>
+                    ) : (
+                      <>
+                        <LinkIcon size={14} /> Copy link
+                      </>
+                    )}
                   </Button>
                   <Button
                     type="button"
                     variant="secondary"
-                    className="text-xs"
+                    className="inline-flex items-center gap-1.5 text-xs"
                     onClick={() => copyToClipboard(lobby.code, "code")}
                   >
-                    {copied === "code" ? "Copied! ✓" : "Copy code"}
+                    {copied === "code" ? (
+                      <>
+                        <Check size={14} /> Copied!
+                      </>
+                    ) : (
+                      <>
+                        <Copy size={14} /> Copy code
+                      </>
+                    )}
                   </Button>
                   <Button
                     type="button"
-                    className="text-xs"
+                    className="inline-flex items-center gap-1.5 text-xs"
                     onClick={() => shareLobby(lobby.title, voteUrl)}
                   >
-                    Share
+                    <Share2 size={14} /> Share
                   </Button>
                 </div>
               </div>
@@ -212,7 +234,7 @@ export default function ManageLobbyPage() {
               className="self-start"
             >
               <Button type="button" variant="secondary" className="inline-flex items-center gap-1.5">
-                🖥️ Present Mode
+                <Monitor size={14} /> Present Mode
               </Button>
             </Link>
 
@@ -232,8 +254,8 @@ export default function ManageLobbyPage() {
             </div>
 
             {lobby.closesAt && lobby.status !== "closed" && (
-              <p className="text-xs text-[var(--foreground-muted)]">
-                ⏰ Auto-closes{" "}
+              <p className="inline-flex items-center gap-1.5 text-xs text-[var(--foreground-muted)]">
+                <Clock size={14} /> Auto-closes{" "}
                 {new Date(lobby.closesAt).toLocaleString(undefined, {
                   dateStyle: "medium",
                   timeStyle: "short",
@@ -246,7 +268,7 @@ export default function ManageLobbyPage() {
                 onClick={() => setStatus.mutate({ lobbyId: lobby.id, action: "open" })}
                 disabled={setStatus.isPending}
               >
-                Open voting 🚀
+                Open voting
               </Button>
             )}
 
@@ -274,7 +296,7 @@ export default function ManageLobbyPage() {
                   className="inline-flex items-center gap-1.5"
                   onClick={() => setShowDeleteConfirm(true)}
                 >
-                  <TrashIcon />
+                  <Trash2 size={16} />
                   Delete lobby
                 </Button>
                 {deleteLobby.isError && (
@@ -295,24 +317,24 @@ export default function ManageLobbyPage() {
                     <Button
                       type="button"
                       variant="secondary"
-                      className="text-xs"
+                      className="inline-flex items-center gap-1.5 text-xs"
                       onClick={() =>
                         results.data?.tally &&
                         downloadResultsCsv(lobby, questions, results.data.tally)
                       }
                     >
-                      ⬇️ CSV
+                      <Download size={14} /> CSV
                     </Button>
                     <Button
                       type="button"
                       variant="secondary"
-                      className="text-xs"
+                      className="inline-flex items-center gap-1.5 text-xs"
                       onClick={() =>
                         results.data?.tally &&
                         downloadResultsImage(lobby, questions, results.data.tally)
                       }
                     >
-                      🖼️ Image
+                      <Download size={14} /> Image
                     </Button>
                   </div>
                 </div>
