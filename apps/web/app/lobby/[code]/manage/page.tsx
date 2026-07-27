@@ -142,7 +142,7 @@ export default function ManageLobbyPage() {
         </div>
 
         {isCreator && !isSignedIn && (
-          <div className="flex items-start gap-2 rounded-2xl border border-neutral-200 bg-[var(--surface)] px-4 py-3 text-sm text-[var(--foreground-muted)] dark:border-neutral-800">
+          <div className="flex items-start gap-2 rounded-2xl border border-neutral-300 bg-[var(--surface)] px-4 py-3 text-sm text-[var(--foreground-muted)] dark:border-neutral-800">
             <Hourglass size={16} className="mt-0.5 shrink-0" aria-hidden />
             <p>
               This lobby isn&apos;t tied to an account, so it&apos;ll be automatically deleted on{" "}
@@ -159,7 +159,7 @@ export default function ManageLobbyPage() {
         )}
 
         {!authLoading && !isCreator && (
-          <div className="flex items-start gap-2 rounded-2xl border border-neutral-200 bg-[var(--surface)] px-4 py-3 text-sm text-[var(--foreground-muted)] dark:border-neutral-800">
+          <div className="flex items-start gap-2 rounded-2xl border border-neutral-300 bg-[var(--surface)] px-4 py-3 text-sm text-[var(--foreground-muted)] dark:border-neutral-800">
             <Lock size={16} className="mt-0.5 shrink-0" aria-hidden />
             <p>
               You&apos;re viewing this lobby&apos;s dashboard, but only its creator can open/close
@@ -309,7 +309,7 @@ export default function ManageLobbyPage() {
           </div>
 
           {results.data && (
-            <div className="flex flex-col gap-6 rounded-3xl border border-neutral-200 bg-[var(--surface)] p-5 dark:border-neutral-800">
+            <div className="flex flex-col gap-6 rounded-3xl border border-neutral-300 bg-[var(--surface)] p-5 dark:border-neutral-800">
               {results.data.tally && (
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <h2 className="text-sm font-semibold text-[var(--foreground)]">Results</h2>

@@ -21,7 +21,7 @@ function StatCard({
   value: number;
 }) {
   return (
-    <div className="flex items-center gap-4 rounded-3xl border border-neutral-200 bg-[var(--surface)] p-5 dark:border-neutral-800">
+    <div className="flex items-center gap-4 rounded-3xl border border-neutral-300 bg-[var(--surface)] p-5 dark:border-neutral-800">
       <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-brand-50 text-brand-500 dark:bg-brand-900/30">
         <Icon size={20} strokeWidth={1.75} />
       </span>
@@ -91,7 +91,7 @@ export default function DashboardPage() {
         {authLoading ? (
           <Spinner />
         ) : !isSignedIn ? (
-          <div className="flex animate-pop-in flex-col items-start gap-3 rounded-3xl border border-neutral-200 bg-[var(--surface)] p-6 shadow-sm dark:border-neutral-800">
+          <div className="flex animate-pop-in flex-col items-start gap-3 rounded-3xl border border-neutral-300 bg-[var(--surface)] p-6 shadow-sm dark:border-neutral-800">
             <p className="text-sm text-[var(--foreground-muted)]">
               Sign in to see stats about the lobbies you&apos;ve created.
             </p>
@@ -102,7 +102,7 @@ export default function DashboardPage() {
         ) : isLoading ? (
           <Spinner />
         ) : totalLobbies === 0 ? (
-          <div className="flex animate-pop-in flex-col items-start gap-3 rounded-3xl border border-neutral-200 bg-[var(--surface)] p-6 shadow-sm dark:border-neutral-800">
+          <div className="flex animate-pop-in flex-col items-start gap-3 rounded-3xl border border-neutral-300 bg-[var(--surface)] p-6 shadow-sm dark:border-neutral-800">
             <p className="text-sm text-[var(--foreground-muted)]">
               No lobbies yet — create one to start seeing stats here.
             </p>
@@ -118,7 +118,7 @@ export default function DashboardPage() {
               <StatCard icon={VoteIcon} label="Votes cast" value={totalVotes} />
             </div>
 
-            <div className="rounded-3xl border border-neutral-200 bg-[var(--surface)] p-5 dark:border-neutral-800">
+            <div className="rounded-3xl border border-neutral-300 bg-[var(--surface)] p-5 dark:border-neutral-800">
               <h2 className="mb-4 text-sm font-semibold text-[var(--foreground)]">
                 Lobbies by status
               </h2>
@@ -134,7 +134,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            <div className="rounded-3xl border border-neutral-200 bg-[var(--surface)] p-5 dark:border-neutral-800">
+            <div className="rounded-3xl border border-neutral-300 bg-[var(--surface)] p-5 dark:border-neutral-800">
               <h2 className="mb-4 text-sm font-semibold text-[var(--foreground)]">
                 Voters by lobby
               </h2>

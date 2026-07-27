@@ -130,7 +130,7 @@ export default function VotePage() {
         )}
 
         {showResults ? (
-          <div className="flex animate-pop-in flex-col gap-4 rounded-3xl border border-neutral-200 bg-[var(--surface)] p-5 dark:border-neutral-800">
+          <div className="flex animate-pop-in flex-col gap-4 rounded-3xl border border-neutral-300 bg-[var(--surface)] p-5 dark:border-neutral-800">
             <div className="flex items-center justify-between">
               <p className="text-sm font-medium text-[var(--foreground-muted)]">
                 {lobby.status === "closed"
@@ -233,7 +233,7 @@ export default function VotePage() {
                   maxLength={300}
                   rows={3}
                   placeholder="Type your answer…"
-                  className="rounded-2xl border-2 border-neutral-200 bg-[var(--surface)] p-4 text-base text-[var(--foreground)] outline-none focus:border-brand-400 dark:border-neutral-700"
+                  className="rounded-2xl border-2 border-neutral-300 bg-[var(--input-bg)] p-4 text-base text-[var(--foreground)] outline-none focus:border-brand-400 dark:border-neutral-700"
                 />
                 <span className="self-end text-xs text-[var(--foreground-muted)]">
                   {textResponse.length}/300

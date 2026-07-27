@@ -162,7 +162,7 @@ export default function CreateLobbyPage() {
 
         <form
           onSubmit={handleSubmit}
-          className="grid animate-pop-in grid-cols-1 gap-6 rounded-3xl border border-neutral-200 bg-[var(--surface)] p-6 shadow-sm dark:border-neutral-800 lg:grid-cols-2 lg:gap-x-10 lg:p-8"
+          className="grid animate-pop-in grid-cols-1 gap-6 rounded-3xl border border-neutral-300 bg-[var(--surface)] p-6 shadow-sm dark:border-neutral-800 lg:grid-cols-2 lg:gap-x-10 lg:p-8"
         >
           <div className="flex flex-col gap-6">
             <label className="flex flex-col gap-1.5 text-sm font-semibold text-[var(--foreground)]">
@@ -181,7 +181,7 @@ export default function CreateLobbyPage() {
               {questions.map((question, qIndex) => (
                 <div
                   key={qIndex}
-                  className="flex flex-col gap-3 rounded-2xl border border-neutral-200 p-4 dark:border-neutral-800"
+                  className="flex flex-col gap-3 rounded-2xl border border-neutral-300 p-4 dark:border-neutral-800"
                 >
                   <div className="flex items-center gap-2">
                     <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-100 text-xs font-bold text-brand-600 dark:bg-brand-900/40 dark:text-brand-300">

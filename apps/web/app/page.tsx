@@ -56,13 +56,13 @@ export default function Home() {
         <p className="text-xs text-[var(--foreground-muted)]">Free · No sign-up required</p>
 
         <div className="flex flex-wrap items-center justify-center gap-2 pt-2 text-xs text-[var(--foreground-muted)] lg:justify-start">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 px-3 py-1 dark:border-neutral-700">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300 px-3 py-1 dark:border-neutral-700">
             <Lock size={14} /> Anonymous option
           </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 px-3 py-1 dark:border-neutral-700">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300 px-3 py-1 dark:border-neutral-700">
             <Zap size={14} /> Live results
           </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 px-3 py-1 dark:border-neutral-700">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300 px-3 py-1 dark:border-neutral-700">
             <QrCode size={14} /> Scan & vote
           </span>
         </div>
@@ -71,7 +71,7 @@ export default function Home() {
       {/* Desktop-only glimpse of a real lobby card, tilted so the two columns don't mirror each
           other — the text block stays left-aligned, this stays put as its visual counterweight. */}
       <div className="hidden lg:flex lg:justify-center">
-        <div className="w-72 -rotate-2 rounded-3xl border border-neutral-200 bg-[var(--surface)] p-5 shadow-xl transition-transform hover:rotate-0 dark:border-neutral-800">
+        <div className="w-72 -rotate-2 rounded-3xl border border-neutral-300 bg-[var(--surface)] p-5 shadow-xl transition-transform hover:rotate-0 dark:border-neutral-800">
           <p className="mb-3 text-sm font-semibold text-[var(--foreground)]">Team pizza night?</p>
           <div className="mb-4 flex justify-center rounded-2xl bg-white p-3">
             <QRCodeSVG value="https://votero.app/vote/DEMOABCD" size={104} />
