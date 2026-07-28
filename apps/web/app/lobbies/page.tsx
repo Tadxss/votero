@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Table2, LayoutGrid, Trash2 } from "lucide-react";
+import { Table2, LayoutGrid, Trash2, BarChart3 } from "lucide-react";
 import { useAuthUser, useMyLobbies, useDeleteLobby } from "@repo/shared";
 import type { Lobby } from "@repo/types";
 import { StatusPill } from "../_components/StatusPill";
@@ -34,6 +34,13 @@ function LobbyCard({ lobby, onDelete }: { lobby: Lobby; onDelete: (lobby: Lobby)
         </Link>
         <div className="flex shrink-0 items-center gap-2">
           <StatusPill status={lobby.status} />
+          <Link
+            href={`/lobby/${lobby.code}/stats`}
+            aria-label={`View stats for ${lobby.title}`}
+            className="rounded-full p-1.5 text-[var(--foreground-muted)] transition-colors hover:bg-neutral-100 hover:text-brand-600 dark:hover:bg-neutral-800"
+          >
+            <BarChart3 size={16} />
+          </Link>
           <button
             type="button"
             onClick={() => onDelete(lobby)}
@@ -194,12 +201,20 @@ export default function MyLobbiesPage() {
                           })}
                         </td>
                         <td className="px-4 py-4 text-right">
-                          <Link
-                            href={`/lobby/${lobby.code}/manage`}
-                            className="font-semibold text-brand-600 hover:underline"
-                          >
-                            Manage →
-                          </Link>
+                          <div className="flex items-center justify-end gap-4">
+                            <Link
+                              href={`/lobby/${lobby.code}/stats`}
+                              className="font-semibold text-brand-600 hover:underline"
+                            >
+                              Stats
+                            </Link>
+                            <Link
+                              href={`/lobby/${lobby.code}/manage`}
+                              className="font-semibold text-brand-600 hover:underline"
+                            >
+                              Manage →
+                            </Link>
+                          </div>
                         </td>
                         <td className="px-4 py-4 text-right">
                           <button
