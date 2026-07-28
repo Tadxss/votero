@@ -7,31 +7,10 @@ import type { Lobby, LobbyStatus } from "@repo/types";
 import { Spinner } from "../_components/Spinner";
 import { Button } from "../_components/Button";
 import { StatusPill } from "../_components/StatusPill";
+import { StatCard } from "../_components/StatCard";
 
 const STATUSES: LobbyStatus[] = ["draft", "open", "closed"];
 const TOP_LOBBIES_SHOWN = 5;
-
-function StatCard({
-  icon: Icon,
-  label,
-  value,
-}: {
-  icon: typeof Layers;
-  label: string;
-  value: number;
-}) {
-  return (
-    <div className="flex items-center gap-4 rounded-3xl border border-neutral-300 bg-[var(--surface)] p-5 dark:border-neutral-800">
-      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-brand-50 text-brand-500 dark:bg-brand-900/30">
-        <Icon size={20} strokeWidth={1.75} />
-      </span>
-      <div className="flex flex-col">
-        <span className="text-2xl font-bold tabular-nums text-[var(--foreground)]">{value}</span>
-        <span className="text-sm text-[var(--foreground-muted)]">{label}</span>
-      </div>
-    </div>
-  );
-}
 
 // Ranked horizontal bar chart of top lobbies by voter count: one metric compared across named
 // items, not a set of recurring category series, so a single brand hue is correct here (no
@@ -46,7 +25,7 @@ function TopLobbiesChart({ lobbies }: { lobbies: Lobby[] }) {
       {top.map((lobby) => (
         <Link
           key={lobby.id}
-          href={`/lobby/${lobby.code}/manage`}
+          href={`/lobby/${lobby.code}/stats`}
           className="group flex items-center gap-3 text-sm"
         >
           <span className="w-32 shrink-0 truncate font-medium text-[var(--foreground)] group-hover:text-brand-600 sm:w-48">

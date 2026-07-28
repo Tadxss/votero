@@ -5,11 +5,13 @@ import { useParams } from "next/navigation";
 import { QRCodeSVG } from "qrcode.react";
 import { SearchX } from "lucide-react";
 import { useLobby, useLobbyResults, useLobbyRealtime, useEnsureSession } from "@repo/shared";
-import { TallyBars } from "../../../_components/TallyBars";
-import { TextResponseCloud } from "../../../_components/TextResponseCloud";
+import { TallyChart } from "../../../_components/TallyChart";
+import { ChartViewToggle, type ChartView } from "../../../_components/ChartViewToggle";
 import { StatusPill } from "../../../_components/StatusPill";
 import { LiveDot } from "../../../_components/LiveDot";
 import { Spinner } from "../../../_components/Spinner";
+
+const CHART_VIEW_STORAGE_KEY = "votero:chart-view";
 
 export default function PresentLobbyPage() {
   const { code } = useParams<{ code: string }>();
@@ -25,6 +27,16 @@ export default function PresentLobbyPage() {
   useEffect(() => {
     setVoteUrl(`${window.location.origin}/vote/${code}`);
   }, [code]);
+
+  const [chartView, setChartView] = useState<ChartView>("bar");
+  useEffect(() => {
+    const stored = window.localStorage.getItem(CHART_VIEW_STORAGE_KEY);
+    if (stored === "bar" || stored === "donut") setChartView(stored);
+  }, []);
+  function selectChartView(next: ChartView) {
+    setChartView(next);
+    window.localStorage.setItem(CHART_VIEW_STORAGE_KEY, next);
+  }
 
   if (!ready || isLoading) return <Spinner />;
   if (error || !lobby) {
@@ -74,6 +86,11 @@ export default function PresentLobbyPage() {
             </p>
           ) : results.data?.tally ? (
             <div className="flex w-full min-w-0 flex-col gap-6">
+              {results.data.tally.some((q) => q.type === "choice") && (
+                <div className="flex justify-center">
+                  <ChartViewToggle value={chartView} onChange={selectChartView} />
+                </div>
+              )}
               {results.data.tally.map((q) => {
                 const question = questions.find((qq) => qq.id === q.questionId);
                 return (
@@ -86,16 +103,13 @@ export default function PresentLobbyPage() {
                         {q.questionTitle}
                       </h2>
                     )}
-                    {q.type === "choice" ? (
-                      <TallyBars
-                        options={question?.options ?? []}
-                        tally={q.tally}
-                        closed={lobby.status === "closed"}
-                        size="lg"
-                      />
-                    ) : (
-                      <TextResponseCloud responses={q.responses} size="lg" />
-                    )}
+                    <TallyChart
+                      question={question}
+                      q={q}
+                      view={chartView}
+                      closed={lobby.status === "closed"}
+                      size="lg"
+                    />
                   </div>
                 );
               })}

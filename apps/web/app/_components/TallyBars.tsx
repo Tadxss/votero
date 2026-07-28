@@ -23,13 +23,19 @@ export function TallyBars({
   tally,
   closed = false,
   size = "md",
+  showPercentage = false,
 }: {
   options: LobbyOption[];
   tally: TallyEntry[];
   closed?: boolean;
   size?: "md" | "lg";
+  // Opt-in — the plain count-only label is unchanged everywhere this already renders (manage
+  // page, vote page, Present Mode's non-chart-toggle fallback); only the detailed stats page and
+  // Present Mode's chart-toggle view ask for percentages alongside the raw count.
+  showPercentage?: boolean;
 }) {
   const countByOption = new Map(tally.map((t) => [t.optionId, t.count]));
+  const totalCount = tally.reduce((sum, t) => sum + t.count, 0);
   const maxCount = Math.max(1, ...tally.map((t) => t.count));
   const winners = tally.filter((t) => t.count > 0 && t.count === maxCount);
   // Only crown a winner once voting has actually closed, and only when it's not a tie.
@@ -86,11 +92,22 @@ export function TallyBars({
                 }}
               />
             </div>
-            <span
-              className={`shrink-0 text-right tabular-nums text-[var(--foreground-muted)] ${large ? "w-12" : "w-6"}`}
-            >
-              {count}
-            </span>
+            {showPercentage ? (
+              <span
+                className={`flex shrink-0 flex-col items-end leading-tight ${large ? "w-16" : "w-12"}`}
+              >
+                <span className="tabular-nums text-[var(--foreground)]">{count}</span>
+                <span className="text-xs tabular-nums text-[var(--foreground-muted)]">
+                  {totalCount > 0 ? Math.round((count / totalCount) * 100) : 0}%
+                </span>
+              </span>
+            ) : (
+              <span
+                className={`shrink-0 text-right tabular-nums text-[var(--foreground-muted)] ${large ? "w-12" : "w-6"}`}
+              >
+                {count}
+              </span>
+            )}
           </div>
         );
       })}
