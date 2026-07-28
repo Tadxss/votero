@@ -21,6 +21,7 @@ import { RadioCard } from "../../_components/RadioCard";
 import { LiveDot } from "../../_components/LiveDot";
 import { Spinner } from "../../_components/Spinner";
 import { useConfetti } from "../../_components/useConfetti";
+import { useDocumentTitle } from "../../_components/useDocumentTitle";
 
 function friendlyVoteError(message: string): string {
   if (message === "LOBBY_NOT_OPEN") return "Voting has closed for this lobby.";
@@ -46,6 +47,7 @@ export default function VotePage() {
   const { data, isLoading, error } = useLobby(code, { enabled: ready });
   const lobby = data?.lobby;
   const questions = data?.questions ?? [];
+  useDocumentTitle(lobby ? lobby.title : "Vote");
 
   const joinLobby = useJoinLobby();
   const castVote = useCastVote();

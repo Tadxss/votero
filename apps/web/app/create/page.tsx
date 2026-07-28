@@ -9,6 +9,7 @@ import type { BallotMode, QuestionType, TallyVisibility } from "@repo/types";
 import { Button } from "../_components/Button";
 import { RadioCard } from "../_components/RadioCard";
 import { inputClasses } from "../_components/styles";
+import { useDocumentTitle } from "../_components/useDocumentTitle";
 
 function friendlyCreateError(message: string): string {
   if (message.includes("LOBBY_LIMIT_REACHED")) {
@@ -37,6 +38,7 @@ function makeQuestionDraft(): QuestionDraft {
 }
 
 export default function CreateLobbyPage() {
+  useDocumentTitle("Create a lobby");
   const router = useRouter();
   const { ready } = useEnsureSession();
   const { isSignedIn } = useAuthUser();

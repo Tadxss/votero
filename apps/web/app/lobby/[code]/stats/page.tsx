@@ -18,6 +18,7 @@ import { Spinner } from "../../../_components/Spinner";
 import { TallyChart } from "../../../_components/TallyChart";
 import { ChartViewToggle, type ChartView } from "../../../_components/ChartViewToggle";
 import { downloadResultsCsv, downloadResultsImage } from "../../../_components/downloadResults";
+import { useDocumentTitle } from "../../../_components/useDocumentTitle";
 
 const CHART_VIEW_STORAGE_KEY = "votero:chart-view";
 
@@ -28,6 +29,7 @@ export default function LobbyStatsPage() {
   const { data, isLoading, error } = useLobby(code, { enabled: ready });
   const lobby = data?.lobby;
   const questions = data?.questions ?? [];
+  useDocumentTitle(lobby ? `${lobby.title} · Stats` : "Stats");
   const results = useLobbyResults(lobby?.id);
 
   useLobbyRealtime({ lobbyId: lobby?.id, code, tallyVisibility: lobby?.tallyVisibility });

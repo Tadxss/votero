@@ -37,6 +37,7 @@ import { useConfetti } from "../../../_components/useConfetti";
 import { ConfirmDialog } from "../../../_components/ConfirmDialog";
 import { Avatar } from "../../../_components/Avatar";
 import { downloadResultsCsv, downloadResultsImage } from "../../../_components/downloadResults";
+import { useDocumentTitle } from "../../../_components/useDocumentTitle";
 
 function friendlyManageError(message: string): string {
   if (message === "FORBIDDEN") return "Only this lobby's creator can do that.";
@@ -65,11 +66,13 @@ export default function ManageLobbyPage() {
   const { data, isLoading, error } = useLobby(code, { enabled: ready });
   const lobby = data?.lobby;
   const questions = data?.questions ?? [];
+  useDocumentTitle(lobby ? `${lobby.title} · Manage` : "Manage lobby");
 
   const results = useLobbyResults(lobby?.id);
   const setStatus = useSetLobbyStatus();
   const deleteLobby = useDeleteLobby(user?.id);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showCloseConfirm, setShowCloseConfirm] = useState(false);
   const [copied, setCopied] = useState<"link" | "code" | null>(null);
   const { burst } = useConfetti();
 
@@ -177,7 +180,10 @@ export default function ManageLobbyPage() {
                 <div className="rounded-2xl bg-white p-3">
                   <QRCodeSVG value={voteUrl} size={180} />
                 </div>
-                <p className="break-all text-center text-sm text-[var(--foreground-muted)]">
+                <p
+                  className="w-full max-w-full truncate text-center text-sm text-[var(--foreground-muted)]"
+                  title={voteUrl}
+                >
                   {voteUrl}
                 </p>
                 <p className="rounded-full bg-brand-50 px-4 py-1 text-lg font-mono font-bold tracking-widest text-brand-700 dark:bg-brand-900/30 dark:text-brand-300">
@@ -276,7 +282,7 @@ export default function ManageLobbyPage() {
             {isCreator && lobby.status === "open" && (
               <Button
                 variant="danger"
-                onClick={() => setStatus.mutate({ lobbyId: lobby.id, action: "close" })}
+                onClick={() => setShowCloseConfirm(true)}
                 disabled={setStatus.isPending}
               >
                 Close voting
@@ -437,6 +443,25 @@ export default function ManageLobbyPage() {
         onCancel={() => {
           setShowDeleteConfirm(false);
           deleteLobby.reset();
+        }}
+      />
+
+      <ConfirmDialog
+        open={showCloseConfirm}
+        title="Close voting?"
+        message="Voters won't be able to submit or change any responses after this — there's no way to reopen it."
+        confirmLabel="Close voting"
+        pendingLabel="Closing…"
+        isPending={setStatus.isPending}
+        onConfirm={() =>
+          setStatus.mutate(
+            { lobbyId: lobby.id, action: "close" },
+            { onSuccess: () => setShowCloseConfirm(false) },
+          )
+        }
+        onCancel={() => {
+          setShowCloseConfirm(false);
+          setStatus.reset();
         }}
       />
     </main>
