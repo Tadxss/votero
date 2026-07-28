@@ -15,6 +15,7 @@ import {
   Clock,
   Download,
   Trash2,
+  BarChart3,
 } from "lucide-react";
 import {
   useLobby,
@@ -313,7 +314,18 @@ export default function ManageLobbyPage() {
               {results.data.tally && (
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <h2 className="text-sm font-semibold text-[var(--foreground)]">Results</h2>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
+                    {isSignedIn && isCreator && (
+                      <Link href={`/lobby/${code}/stats`}>
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          className="inline-flex items-center gap-1.5 text-xs"
+                        >
+                          <BarChart3 size={14} /> Detailed stats
+                        </Button>
+                      </Link>
+                    )}
                     <Button
                       type="button"
                       variant="secondary"
