@@ -143,11 +143,13 @@ export function JoinLobbyModal({ open, onClose }: { open: boolean; onClose: () =
                 onClick={() => setMode("scan")}
                 className="rounded-2xl border-2 border-neutral-300 p-4 text-left transition-colors hover:border-brand-300 dark:border-neutral-700"
               >
-                <span className="inline-flex items-center gap-1.5 font-semibold text-[var(--foreground)]">
-                  <QrCode size={16} /> Scan QR code
-                </span>
-                <span className="text-sm text-[var(--foreground-muted)]">
-                  Use your camera to scan a lobby&apos;s QR code.
+                <span className="flex flex-col gap-0.5">
+                  <span className="inline-flex items-center gap-1.5 font-semibold text-[var(--foreground)]">
+                    <QrCode size={16} /> Scan QR code
+                  </span>
+                  <span className="text-sm text-[var(--foreground-muted)]">
+                    Use your camera to scan a lobby&apos;s QR code.
+                  </span>
                 </span>
               </button>
             )}
@@ -156,11 +158,13 @@ export function JoinLobbyModal({ open, onClose }: { open: boolean; onClose: () =
               onClick={() => setMode("code")}
               className="rounded-2xl border-2 border-neutral-300 p-4 text-left transition-colors hover:border-brand-300 dark:border-neutral-700"
             >
-              <span className="inline-flex items-center gap-1.5 font-semibold text-[var(--foreground)]">
-                <Keyboard size={16} /> Enter code instead
-              </span>
-              <span className="text-sm text-[var(--foreground-muted)]">
-                Type the 8-character lobby code.
+              <span className="flex flex-col gap-0.5">
+                <span className="inline-flex items-center gap-1.5 font-semibold text-[var(--foreground)]">
+                  <Keyboard size={16} /> Enter code instead
+                </span>
+                <span className="text-sm text-[var(--foreground-muted)]">
+                  Type the 8-character lobby code.
+                </span>
               </span>
             </button>
             <Button type="button" variant="secondary" onClick={onClose} className="self-end">
