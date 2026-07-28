@@ -2,9 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
-import { SearchX } from "lucide-react";
-import { useLobby, useLobbyResults, useLobbyRealtime, useEnsureSession } from "@repo/shared";
+import { SearchX, BarChart3 } from "lucide-react";
+import {
+  useLobby,
+  useLobbyResults,
+  useLobbyRealtime,
+  useEnsureSession,
+  useAuthUser,
+} from "@repo/shared";
 import { TallyChart } from "../../../_components/TallyChart";
 import { ChartViewToggle, type ChartView } from "../../../_components/ChartViewToggle";
 import { StatusPill } from "../../../_components/StatusPill";
@@ -16,6 +23,7 @@ const CHART_VIEW_STORAGE_KEY = "votero:chart-view";
 export default function PresentLobbyPage() {
   const { code } = useParams<{ code: string }>();
   const { ready } = useEnsureSession();
+  const { user, isSignedIn } = useAuthUser();
   const { data, isLoading, error } = useLobby(code, { enabled: ready });
   const lobby = data?.lobby;
   const questions = data?.questions ?? [];
@@ -49,6 +57,10 @@ export default function PresentLobbyPage() {
   }
 
   const joinedPct = Math.min(100, (lobby.joinedCount / lobby.voterCap) * 100);
+  // Only shown to the operator (a real signed-in creator) — Present Mode is otherwise a public,
+  // unauthenticated display (see the RLS fix noted above), and the destination page enforces the
+  // same signed-in-creator check anyway, so a stranger would just hit a sign-in wall.
+  const isCreator = isSignedIn && user?.id === lobby.creatorId;
 
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center gap-8 px-6 py-10">
@@ -57,6 +69,14 @@ export default function PresentLobbyPage() {
           {lobby.title}
         </h1>
         <StatusPill status={lobby.status} />
+        {isCreator && (
+          <Link
+            href={`/lobby/${code}/stats`}
+            className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300 px-3 py-1 text-sm font-medium text-[var(--foreground-muted)] transition-colors hover:border-brand-300 hover:text-brand-600 dark:border-neutral-700"
+          >
+            <BarChart3 size={14} /> Detailed stats
+          </Link>
+        )}
       </div>
 
       <div className="grid w-full max-w-6xl grid-cols-1 items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
