@@ -17,6 +17,7 @@ import { ChartViewToggle, type ChartView } from "../../../_components/ChartViewT
 import { StatusPill } from "../../../_components/StatusPill";
 import { LiveDot } from "../../../_components/LiveDot";
 import { Spinner } from "../../../_components/Spinner";
+import { useDocumentTitle } from "../../../_components/useDocumentTitle";
 
 const CHART_VIEW_STORAGE_KEY = "votero:chart-view";
 
@@ -27,6 +28,7 @@ export default function PresentLobbyPage() {
   const { data, isLoading, error } = useLobby(code, { enabled: ready });
   const lobby = data?.lobby;
   const questions = data?.questions ?? [];
+  useDocumentTitle(lobby ? `${lobby.title} · Present` : "Present");
   const results = useLobbyResults(lobby?.id);
 
   useLobbyRealtime({ lobbyId: lobby?.id, code, tallyVisibility: lobby?.tallyVisibility });
@@ -64,8 +66,8 @@ export default function PresentLobbyPage() {
 
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center gap-8 px-6 py-10">
-      <div className="flex animate-pop-in items-center gap-3">
-        <h1 className="font-display text-4xl font-bold text-[var(--foreground)] sm:text-5xl">
+      <div className="flex flex-wrap animate-pop-in items-center justify-center gap-3">
+        <h1 className="font-display text-2xl font-bold text-[var(--foreground)] sm:text-4xl lg:text-5xl">
           {lobby.title}
         </h1>
         <StatusPill status={lobby.status} />

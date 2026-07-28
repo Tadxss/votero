@@ -22,7 +22,18 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 export function Providers({ children }: { children: ReactNode }) {
-  const [queryClient] = useState(() => new QueryClient());
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          // TanStack Query's own default (3 retries, exponential backoff) adds ~7s of delay
+          // before a definitively-nonexistent resource (e.g. a mistyped /vote/<code>) ever
+          // reaches its error state — noticeable as a long stuck "Loading" screen. One retry is
+          // still enough to smooth over a genuine transient network blip.
+          queries: { retry: 1 },
+        },
+      }),
+  );
   // Supabase isn't initialized yet (docs/ARCHITECTURE.md build order step 2) — stay null (and skip
   // the provider below) until NEXT_PUBLIC_SUPABASE_URL/ANON_KEY are set, rather than crashing `pnpm dev`.
   const [supabase] = useState(() =>

@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useSignInWithOtp, useVerifyOtp } from "@repo/shared";
 import { Button } from "../_components/Button";
 import { inputClasses } from "../_components/styles";
+import { useDocumentTitle } from "../_components/useDocumentTitle";
 
 // Supabase auth errors are plain English already, but not every failure mode is covered (and a
 // network-level failure can surface with an empty/missing message) — always fall back to a real
@@ -32,6 +33,7 @@ export default function LoginPage() {
 }
 
 function LoginForm() {
+  useDocumentTitle("Sign in");
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") || "/dashboard";

@@ -9,6 +9,7 @@ import { StatusPill } from "../_components/StatusPill";
 import { Spinner } from "../_components/Spinner";
 import { Button } from "../_components/Button";
 import { ConfirmDialog } from "../_components/ConfirmDialog";
+import { useDocumentTitle } from "../_components/useDocumentTitle";
 
 const LOBBY_CAP = 10;
 const VIEW_STORAGE_KEY = "votero:lobbies-view";
@@ -56,6 +57,7 @@ function LobbyCard({ lobby, onDelete }: { lobby: Lobby; onDelete: (lobby: Lobby)
 }
 
 export default function MyLobbiesPage() {
+  useDocumentTitle("My Lobbies");
   const { user, isSignedIn, loading: authLoading } = useAuthUser();
   const { data: lobbies, isLoading } = useMyLobbies(isSignedIn ? user?.id : undefined);
   const deleteLobby = useDeleteLobby(user?.id);

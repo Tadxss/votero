@@ -8,6 +8,7 @@ import { Spinner } from "../_components/Spinner";
 import { Button } from "../_components/Button";
 import { StatusPill } from "../_components/StatusPill";
 import { StatCard } from "../_components/StatCard";
+import { useDocumentTitle } from "../_components/useDocumentTitle";
 
 const STATUSES: LobbyStatus[] = ["draft", "open", "closed"];
 const TOP_LOBBIES_SHOWN = 5;
@@ -47,6 +48,7 @@ function TopLobbiesChart({ lobbies }: { lobbies: Lobby[] }) {
 }
 
 export default function DashboardPage() {
+  useDocumentTitle("Dashboard");
   const { user, isSignedIn, loading: authLoading } = useAuthUser();
   const { data: lobbies, isLoading } = useMyLobbies(isSignedIn ? user?.id : undefined);
 

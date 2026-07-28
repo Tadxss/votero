@@ -8,6 +8,7 @@ export function ConfirmDialog({
   title,
   message,
   confirmLabel = "Delete",
+  pendingLabel = "Deleting…",
   isPending,
   error,
   onConfirm,
@@ -17,6 +18,7 @@ export function ConfirmDialog({
   title: string;
   message: string;
   confirmLabel?: string;
+  pendingLabel?: string;
   isPending?: boolean;
   error?: string | null;
   onConfirm: () => void;
@@ -50,7 +52,7 @@ export function ConfirmDialog({
             Cancel
           </Button>
           <Button type="button" variant="danger" onClick={onConfirm} disabled={isPending}>
-            {isPending ? "Deleting…" : confirmLabel}
+            {isPending ? pendingLabel : confirmLabel}
           </Button>
         </div>
       </div>
