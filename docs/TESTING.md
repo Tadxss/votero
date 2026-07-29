@@ -6,6 +6,27 @@ Use **two separate browser profiles** (e.g. a normal window + an Incognito/priva
 
 This was already verified once end-to-end with a scripted browser (Playwright) covering scenarios 1–7 and 10 below — this guide is for you to repeat it by hand and to cover the scenarios a script doesn't (5, 9).
 
+## Automated suite
+
+Every scenario below that *can* run unattended is committed as a real Playwright test in `apps/web/e2e/` (21 tests, `pnpm test:e2e` from `apps/web` — see `CLAUDE.md`'s Commands section for prerequisites and the interactive UI-mode variant). This manual guide still matters for the two categories automation can't cover — a genuine second physical device for QR-scanning (scenario 16's camera path) and pure eyeballing of animations/motion feel — plus as a from-scratch sanity check if you don't trust the committed suite's local Supabase state. The mapping:
+
+| `e2e/*.spec.ts` | Scenarios covered |
+|---|---|
+| `single-question.spec.ts` | 2–4, 21 (single-question regression case) |
+| `multi-question.spec.ts` | 21 |
+| `free-text.spec.ts` | 22, 23 |
+| `back-button.spec.ts` | 24 |
+| `creator-gate.spec.ts` | 25 |
+| `progress-count.spec.ts` | Build Order step 28's fix (present-mode progress ratio) |
+| `refresh-midsurvey.spec.ts` | Refresh-mid-survey recovery (noted throughout scenario 21) |
+| `badge-cloud.spec.ts` | 23, 31 (badge sizing/truncation) |
+| `ux-fixes.spec.ts` | 26 |
+| `dashboard.spec.ts` | 29 |
+| `chart-toggle-and-stats.spec.ts` | 33 |
+| `ux-audit-fixes.spec.ts` | 34 |
+
+Scenarios without a row (1, 5, 8, 9, 11–20, 27, 32) are either pure visual/motion judgment calls, need a second physical device, or haven't been ported yet — still manual-only.
+
 ## Setup
 
 1. `npx supabase start` (Docker Desktop must be running).

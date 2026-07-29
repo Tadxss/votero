@@ -27,7 +27,11 @@ cd apps/web && pnpm dev      # Next.js dev server on port 3000
 cd apps/mobile && pnpm start # Expo dev server (then press a/i/w, or: pnpm android / pnpm ios / pnpm web)
 ```
 
-There is no test runner configured yet in either app.
+`apps/mobile` has no test runner configured yet. `apps/web` has a Playwright end-to-end suite (`apps/web/e2e/`, 21 tests across every core flow — creating/voting/managing lobbies, sign-in, the Dashboard, the chart toggle + stats page, and the UX-audit fixes) — see `docs/TESTING.md` for what each spec covers and the local prerequisites:
+```sh
+cd apps/web && pnpm test:e2e     # headless run — requires local Supabase running + the dev server
+cd apps/web && pnpm test:e2e:ui  # interactive UI mode, for debugging a single spec
+```
 
 ### Supabase
 
