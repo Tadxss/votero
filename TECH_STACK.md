@@ -49,6 +49,18 @@ Build one app that ships to **iOS**, **Android**, and **Web**, using a single mo
 - Auto-generated TypeScript types from DB schema
 - **Supabase Edge Functions** (Deno-based) — for complex server-side logic beyond basic CRUD (multi-step transactions, third-party API orchestration, webhooks)
 
+### Testing
+
+- **Playwright** (`@playwright/test`) — committed end-to-end test suite for the web app (`apps/web/e2e/`), run via `pnpm test:e2e`
+
+### Error Monitoring
+
+- **Sentry** (`@sentry/nextjs`) — production error capture for the web app, covering the browser, server, and edge runtimes (`instrumentation-client.ts`, `instrumentation.ts`, `app/global-error.tsx`)
+
+### CI/CD
+
+- **GitHub Actions** (`.github/workflows/ci.yml`) — on every push/PR to `main`/`develop`: lint + type-check + build (`checks` job), and the full Playwright suite against a real local Supabase stack (`e2e` job)
+
 ---
 
 ## Repository Structure
