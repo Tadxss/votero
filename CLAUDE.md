@@ -45,6 +45,10 @@ npx supabase config push         # sync config.toml (e.g. [auth] settings) to th
 ```
 This repo is already linked (`supabase link`) to a hosted project. `apps/web/.env.local` and `apps/mobile/.env` (both gitignored — copy from their `.example` files) point at the **local** stack (`http://127.0.0.1:54321`) by default; swap in the hosted project's URL/anon key to test against it instead. See `packages/types/src/database.ts`'s header comment for how to regenerate types — the documented `supabase gen types typescript --local` fails on this machine (shells out to `podman` unconditionally) and needs a `docker run` workaround.
 
+### Error monitoring (Sentry)
+
+`@sentry/nextjs` is wired up (`apps/web/instrumentation.ts`, `instrumentation-client.ts`, `app/global-error.tsx`, `next.config.js`) and **active locally** — `NEXT_PUBLIC_SENTRY_DSN` is set in `apps/web/.env.local` (gitignored) and confirmed reaching Sentry's ingest API. **Still needed**: add the same DSN to the Vercel project's environment variables so production errors are captured too (a dashboard setting, not a code change). See `apps/web/.env.local.example` for the full variable list (the DSN plus three optional build-time-only vars for source-map upload) and `docs/ARCHITECTURE.md` Build Order step 44 for what each file does.
+
 `docs/ARCHITECTURE.md`'s Build Order section (step 2) documents three real bugs found during verification that are worth knowing about before touching the schema: table/function GRANTs are required in addition to RLS (this Supabase version doesn't auto-expose new tables), and a PL/pgSQL variable-name collision in `generate_lobby_code()`.
 
 ## Architecture
