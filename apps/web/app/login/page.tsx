@@ -89,6 +89,17 @@ function LoginForm() {
               <Button type="submit" disabled={sendCode.isPending} className="w-full">
                 {sendCode.isPending ? "Sending…" : "Send code"}
               </Button>
+              <p className="text-center text-xs text-[var(--foreground-muted)]">
+                By continuing, you agree to our{" "}
+                <a href="/terms" className="font-medium hover:text-brand-600 hover:underline">
+                  Terms
+                </a>{" "}
+                and{" "}
+                <a href="/privacy" className="font-medium hover:text-brand-600 hover:underline">
+                  Privacy Policy
+                </a>
+                .
+              </p>
             </form>
           ) : (
             <form onSubmit={handleVerify} className="flex flex-col gap-4">
