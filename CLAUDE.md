@@ -35,6 +35,10 @@ cd apps/web && pnpm test:e2e     # headless run — requires local Supabase runn
 cd apps/web && pnpm test:e2e:ui  # interactive UI mode, for debugging a single spec
 ```
 
+After making a change, use the `verify` skill (`.claude/skills/verify/`) rather than re-deriving
+which checks apply — it also covers the known flaky-test classes and the `apps/mobile` local-Node
+lint false positive.
+
 ### Supabase
 
 Requires Docker Desktop running. From repo root:
