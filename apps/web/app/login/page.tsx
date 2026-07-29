@@ -6,6 +6,7 @@ import { useSignInWithOtp, useVerifyOtp } from "@repo/shared";
 import { Button } from "../_components/Button";
 import { inputClasses } from "../_components/styles";
 import { useDocumentTitle } from "../_components/useDocumentTitle";
+import { trackEvent } from "../_lib/analytics";
 
 // Supabase auth errors are plain English already, but not every failure mode is covered (and a
 // network-level failure can surface with an empty/missing message) — always fall back to a real
@@ -55,7 +56,12 @@ function LoginForm() {
     if (!code.trim()) return;
     verifyCode.mutate(
       { email: email.trim(), token: code.trim() },
-      { onSuccess: () => router.push(redirectTo) },
+      {
+        onSuccess: () => {
+          trackEvent("sign_in_completed");
+          router.push(redirectTo);
+        },
+      },
     );
   }
 

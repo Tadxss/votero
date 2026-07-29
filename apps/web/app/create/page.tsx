@@ -10,6 +10,7 @@ import { Button } from "../_components/Button";
 import { RadioCard } from "../_components/RadioCard";
 import { inputClasses } from "../_components/styles";
 import { useDocumentTitle } from "../_components/useDocumentTitle";
+import { trackEvent } from "../_lib/analytics";
 
 function friendlyCreateError(message: string): string {
   if (message.includes("LOBBY_LIMIT_REACHED")) {
@@ -149,6 +150,11 @@ export default function CreateLobbyPage() {
       },
       {
         onSuccess: (result) => {
+          trackEvent("lobby_created", {
+            mode: isSignedIn ? "signedIn" : "anonymous",
+            questionCount: preparedQuestions.length,
+            tallyVisibility,
+          });
           router.push(`/lobby/${result.lobby.code}/manage`);
         },
       },

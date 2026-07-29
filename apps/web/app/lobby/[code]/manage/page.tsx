@@ -38,6 +38,7 @@ import { ConfirmDialog } from "../../../_components/ConfirmDialog";
 import { Avatar } from "../../../_components/Avatar";
 import { downloadResultsCsv, downloadResultsImage } from "../../../_components/downloadResults";
 import { useDocumentTitle } from "../../../_components/useDocumentTitle";
+import { trackEvent } from "../../../_lib/analytics";
 
 function friendlyManageError(message: string): string {
   if (message === "FORBIDDEN") return "Only this lobby's creator can do that.";
@@ -272,7 +273,12 @@ export default function ManageLobbyPage() {
 
             {isCreator && lobby.status === "draft" && (
               <Button
-                onClick={() => setStatus.mutate({ lobbyId: lobby.id, action: "open" })}
+                onClick={() =>
+                  setStatus.mutate(
+                    { lobbyId: lobby.id, action: "open" },
+                    { onSuccess: () => trackEvent("voting_opened") },
+                  )
+                }
                 disabled={setStatus.isPending}
               >
                 Open voting
@@ -336,10 +342,11 @@ export default function ManageLobbyPage() {
                       type="button"
                       variant="secondary"
                       className="inline-flex items-center gap-1.5 text-xs"
-                      onClick={() =>
-                        results.data?.tally &&
-                        downloadResultsCsv(lobby, questions, results.data.tally)
-                      }
+                      onClick={() => {
+                        if (!results.data?.tally) return;
+                        downloadResultsCsv(lobby, questions, results.data.tally);
+                        trackEvent("results_exported", { format: "csv" });
+                      }}
                     >
                       <Download size={14} /> CSV
                     </Button>
@@ -347,10 +354,11 @@ export default function ManageLobbyPage() {
                       type="button"
                       variant="secondary"
                       className="inline-flex items-center gap-1.5 text-xs"
-                      onClick={() =>
-                        results.data?.tally &&
-                        downloadResultsImage(lobby, questions, results.data.tally)
-                      }
+                      onClick={() => {
+                        if (!results.data?.tally) return;
+                        downloadResultsImage(lobby, questions, results.data.tally);
+                        trackEvent("results_exported", { format: "image" });
+                      }}
                     >
                       <Download size={14} /> Image
                     </Button>
@@ -438,7 +446,12 @@ export default function ManageLobbyPage() {
         message="This can't be undone — all votes and data for this lobby will be permanently deleted."
         isPending={deleteLobby.isPending}
         onConfirm={() =>
-          deleteLobby.mutate(lobby.id, { onSuccess: () => router.push("/lobbies") })
+          deleteLobby.mutate(lobby.id, {
+            onSuccess: () => {
+              trackEvent("lobby_deleted");
+              router.push("/lobbies");
+            },
+          })
         }
         onCancel={() => {
           setShowDeleteConfirm(false);

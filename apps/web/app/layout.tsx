@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import localFont from "next/font/local";
 import { Baloo_2 } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { Providers } from "./providers";
 import { Header } from "./_components/Header";
@@ -67,6 +68,7 @@ export default function RootLayout({
           {children}
           <Footer />
         </Providers>
+        <Analytics />
       </body>
     </html>
   );

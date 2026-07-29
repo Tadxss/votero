@@ -7,7 +7,7 @@ export default function PrivacyPage() {
   useDocumentTitle("Privacy Policy");
 
   return (
-    <LegalPage title="Privacy Policy" updated="July 29, 2026">
+    <LegalPage title="Privacy Policy" updated="July 30, 2026">
       <LegalSection heading="1. Overview">
         <p>
           This page explains what Votero collects, why, and how it&apos;s handled. Votero is
@@ -46,6 +46,13 @@ export default function PrivacyPage() {
           your device to read the code — it&apos;s never uploaded, transmitted, or stored by
           Votero. You can always skip this and type a lobby code in manually instead.
         </p>
+        <p>
+          <strong>Usage analytics.</strong> We use Vercel Analytics to see which pages get visited
+          and which key actions happen (for example, a lobby being created, opened for voting, or
+          joined) so we know what&apos;s working and where people get stuck. It&apos;s
+          cookieless — it doesn&apos;t use a persistent identifier to track you across visits or
+          across other sites, and it isn&apos;t tied to your account or email address.
+        </p>
       </LegalSection>
 
       <LegalSection heading="3. How we use it">
@@ -77,9 +84,9 @@ export default function PrivacyPage() {
         <p>
           We use a small set of infrastructure providers to run Votero, each of which processes
           data on our behalf: <strong>Supabase</strong> (database, authentication, file storage,
-          and delivering sign-in emails), <strong>Vercel</strong> (web hosting), and{" "}
-          <strong>Sentry</strong> (error monitoring). We don&apos;t share your data with anyone
-          else, and we don&apos;t sell it.
+          and delivering sign-in emails), <strong>Vercel</strong> (web hosting and usage
+          analytics), and <strong>Sentry</strong> (error monitoring). We don&apos;t share your
+          data with anyone else, and we don&apos;t sell it.
         </p>
       </LegalSection>
 
@@ -100,9 +107,9 @@ export default function PrivacyPage() {
 
       <LegalSection heading="8. Changes to this policy">
         <p>
-          We may update this policy as Votero changes — for example, if we add usage analytics in
-          the future, we&apos;ll describe what&apos;s collected here first. We&apos;ll update the
-          &quot;Last updated&quot; date above whenever we do.
+          We may update this policy as Votero changes — we&apos;ll describe any new data we start
+          collecting here before we ship it, not after. We&apos;ll update the &quot;Last
+          updated&quot; date above whenever we do.
         </p>
       </LegalSection>
 

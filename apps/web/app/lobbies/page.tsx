@@ -10,6 +10,7 @@ import { Spinner } from "../_components/Spinner";
 import { Button } from "../_components/Button";
 import { ConfirmDialog } from "../_components/ConfirmDialog";
 import { useDocumentTitle } from "../_components/useDocumentTitle";
+import { trackEvent } from "../_lib/analytics";
 
 const LOBBY_CAP = 10;
 const VIEW_STORAGE_KEY = "votero:lobbies-view";
@@ -79,7 +80,12 @@ export default function MyLobbiesPage() {
 
   function confirmDelete() {
     if (!pendingDelete) return;
-    deleteLobby.mutate(pendingDelete.id, { onSuccess: () => setPendingDelete(null) });
+    deleteLobby.mutate(pendingDelete.id, {
+      onSuccess: () => {
+        trackEvent("lobby_deleted");
+        setPendingDelete(null);
+      },
+    });
   }
 
   return (
