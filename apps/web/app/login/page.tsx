@@ -6,6 +6,7 @@ import { useSignInWithOtp, useVerifyOtp } from "@repo/shared";
 import { Button } from "../_components/Button";
 import { inputClasses } from "../_components/styles";
 import { useDocumentTitle } from "../_components/useDocumentTitle";
+import { LegalModal, type LegalModalType } from "../_components/LegalModal";
 import { trackEvent } from "../_lib/analytics";
 
 // Supabase auth errors are plain English already, but not every failure mode is covered (and a
@@ -44,6 +45,7 @@ function LoginForm() {
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [step, setStep] = useState<"email" | "code">("email");
+  const [openLegal, setOpenLegal] = useState<LegalModalType>(null);
 
   function handleSendCode(e: React.FormEvent) {
     e.preventDefault();
@@ -66,7 +68,7 @@ function LoginForm() {
   }
 
   return (
-    <main className="relative min-h-[calc(100vh-4rem)] px-4 py-10">
+    <main className="relative flex-1 px-4 py-10">
       <div className="relative mx-auto flex max-w-sm flex-col gap-6">
         <h1 className="font-display text-3xl font-bold text-[var(--foreground)]">Sign in</h1>
 
@@ -97,13 +99,21 @@ function LoginForm() {
               </Button>
               <p className="text-center text-xs text-[var(--foreground-muted)]">
                 By continuing, you agree to our{" "}
-                <a href="/terms" className="font-medium hover:text-brand-600 hover:underline">
+                <button
+                  type="button"
+                  onClick={() => setOpenLegal("terms")}
+                  className="font-medium hover:text-brand-600 hover:underline"
+                >
                   Terms
-                </a>{" "}
+                </button>{" "}
                 and{" "}
-                <a href="/privacy" className="font-medium hover:text-brand-600 hover:underline">
+                <button
+                  type="button"
+                  onClick={() => setOpenLegal("privacy")}
+                  className="font-medium hover:text-brand-600 hover:underline"
+                >
                   Privacy Policy
-                </a>
+                </button>
                 .
               </p>
             </form>
@@ -146,6 +156,7 @@ function LoginForm() {
           )}
         </div>
       </div>
+      <LegalModal type={openLegal} onClose={() => setOpenLegal(null)} />
     </main>
   );
 }

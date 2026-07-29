@@ -89,7 +89,7 @@ export default function MyLobbiesPage() {
   }
 
   return (
-    <main className="relative min-h-[calc(100vh-4rem)] px-4 py-10">
+    <main className="relative flex-1 px-4 py-10">
       <div className="relative mx-auto flex max-w-6xl flex-col gap-6 px-4 sm:px-8">
         <div className="flex items-start justify-between gap-3">
           <div>

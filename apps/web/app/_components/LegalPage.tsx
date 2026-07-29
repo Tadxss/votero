@@ -11,7 +11,7 @@ export function LegalPage({
   children: ReactNode;
 }) {
   return (
-    <main className="relative min-h-[calc(100vh-4rem)] px-4 py-10">
+    <main className="relative flex-1 px-4 py-10">
       <div className="mx-auto flex max-w-2xl flex-col gap-6">
         <div className="flex flex-col gap-1.5">
           <h1 className="font-display text-3xl font-bold text-[var(--foreground)]">{title}</h1>

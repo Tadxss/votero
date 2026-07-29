@@ -162,7 +162,7 @@ export default function CreateLobbyPage() {
   }
 
   return (
-    <main className="relative min-h-[calc(100vh-4rem)] px-4 py-10">
+    <main className="relative flex-1 px-4 py-10">
       <div className="relative mx-auto flex max-w-5xl flex-col gap-6 px-4 sm:px-8">
         <h1 className="font-display text-3xl font-bold text-[var(--foreground)]">
           Create a lobby

@@ -117,7 +117,7 @@ export default function VotePage() {
   const textResponse = currentQuestion ? (textAnswers[currentQuestion.id] ?? "") : "";
 
   return (
-    <main className="relative min-h-[calc(100vh-4rem)] px-4 py-10">
+    <main className="relative flex-1 px-4 py-10">
       <div className="relative mx-auto flex max-w-md flex-col gap-6">
         <h1 className="font-display text-3xl font-bold text-[var(--foreground)]">
           {lobby.title}

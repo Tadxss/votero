@@ -62,10 +62,15 @@ export default function RootLayout({
           {themeInitScript}
         </Script>
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} ${baloo.variable} font-sans`}>
+      <body
+        className={`flex min-h-screen flex-col ${geistSans.variable} ${geistMono.variable} ${baloo.variable} font-sans`}
+      >
         <Providers>
           <Header />
-          {children}
+          {/* flex-1 so short pages fill exactly the space between Header and Footer instead of
+              each page's own min-h-[calc(100vh-4rem)] (sized for no footer) pushing the page a
+              full footer's-height past 100vh. */}
+          <div className="flex flex-1 flex-col">{children}</div>
           <Footer />
         </Providers>
         <Analytics />
