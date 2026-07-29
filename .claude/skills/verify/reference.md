@@ -1,5 +1,14 @@
 # Verify — reference material
 
+## Relationship to the PostToolUse hook
+
+`.claude/settings.json` registers `.claude/hooks/post-write-check.cjs` on `Write` only (not `Edit`
+— edits fire far more often, and a full check-types+lint after every one would add real per-edit
+latency during normal iteration). It runs check-types + lint scoped to whichever workspace a new
+`.ts`/`.tsx` file landed in, and blocks (exit 2) on a real failure. It's a fast, narrow safety net
+for brand-new files — it does not replace this skill's full sequence (which also covers edited
+files, the e2e suite, and the weakened-test check) before calling a change done.
+
 ## Local Supabase prerequisite for e2e
 
 The suite signs in via real email OTP (read back from Mailpit), exercises RLS-gated reads/writes,
