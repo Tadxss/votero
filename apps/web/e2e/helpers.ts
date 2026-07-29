@@ -51,5 +51,9 @@ export function lobbyCodeFromManageUrl(url: string): string {
 
 export async function openVoting(page: Page): Promise<void> {
   await page.click('button:has-text("Open voting")');
-  await page.waitForSelector('button:has-text("Close voting")', { timeout: 15000 });
+  // The button flip isn't driven by the mutation's own success handler — useSetLobbyStatus only
+  // invalidates lobby-results. It's useLobbyRealtime's postgres_changes subscription that picks up
+  // the UPDATE and invalidates the lobby query, a WebSocket-connect-then-wait-for-CDC path that can
+  // take longer than a plain request/response on a supabase start that only just booted in CI.
+  await page.waitForSelector('button:has-text("Close voting")', { timeout: 25000 });
 }
