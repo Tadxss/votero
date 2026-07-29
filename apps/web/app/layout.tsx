@@ -5,6 +5,7 @@ import { Baloo_2 } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
 import { Header } from "./_components/Header";
+import { Footer } from "./_components/Footer";
 import { THEME_STORAGE_KEY } from "./_components/theme";
 
 // Runs before hydration (Next's `beforeInteractive` guarantees this) so the correct theme is set
@@ -64,6 +65,7 @@ export default function RootLayout({
         <Providers>
           <Header />
           {children}
+          <Footer />
         </Providers>
       </body>
     </html>
