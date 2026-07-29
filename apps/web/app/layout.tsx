@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import localFont from "next/font/local";
 import { Baloo_2 } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { Providers } from "./providers";
 import { Header } from "./_components/Header";
@@ -61,12 +62,18 @@ export default function RootLayout({
           {themeInitScript}
         </Script>
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} ${baloo.variable} font-sans`}>
+      <body
+        className={`flex min-h-screen flex-col ${geistSans.variable} ${geistMono.variable} ${baloo.variable} font-sans`}
+      >
         <Providers>
           <Header />
-          {children}
+          {/* flex-1 so short pages fill exactly the space between Header and Footer instead of
+              each page's own min-h-[calc(100vh-4rem)] (sized for no footer) pushing the page a
+              full footer's-height past 100vh. */}
+          <div className="flex flex-1 flex-col">{children}</div>
           <Footer />
         </Providers>
+        <Analytics />
       </body>
     </html>
   );

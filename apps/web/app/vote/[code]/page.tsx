@@ -22,6 +22,7 @@ import { LiveDot } from "../../_components/LiveDot";
 import { Spinner } from "../../_components/Spinner";
 import { useConfetti } from "../../_components/useConfetti";
 import { useDocumentTitle } from "../../_components/useDocumentTitle";
+import { trackEvent } from "../../_lib/analytics";
 
 function friendlyVoteError(message: string): string {
   if (message === "LOBBY_NOT_OPEN") return "Voting has closed for this lobby.";
@@ -74,6 +75,7 @@ export default function VotePage() {
       { code },
       {
         onSuccess: (result) => {
+          trackEvent("lobby_joined");
           setParticipantId(result.participantId);
           setHasVoted(result.hasVoted);
         },
@@ -115,7 +117,7 @@ export default function VotePage() {
   const textResponse = currentQuestion ? (textAnswers[currentQuestion.id] ?? "") : "";
 
   return (
-    <main className="relative min-h-[calc(100vh-4rem)] px-4 py-10">
+    <main className="relative flex-1 px-4 py-10">
       <div className="relative mx-auto flex max-w-md flex-col gap-6">
         <h1 className="font-display text-3xl font-bold text-[var(--foreground)]">
           {lobby.title}
@@ -189,13 +191,26 @@ export default function VotePage() {
 
               if (currentQuestion.type === "choice") {
                 if (!selectedOptionId) return;
-                castVote.mutate({ lobbyId: lobby.id, optionId: selectedOptionId }, { onSuccess: advance });
+                castVote.mutate(
+                  { lobbyId: lobby.id, optionId: selectedOptionId },
+                  {
+                    onSuccess: () => {
+                      trackEvent("vote_cast", { questionType: "choice" });
+                      advance();
+                    },
+                  },
+                );
               } else {
                 const trimmed = textResponse.trim();
                 if (!trimmed) return;
                 submitTextResponse.mutate(
                   { lobbyId: lobby.id, questionId: currentQuestion.id, responseText: trimmed },
-                  { onSuccess: advance },
+                  {
+                    onSuccess: () => {
+                      trackEvent("vote_cast", { questionType: "text" });
+                      advance();
+                    },
+                  },
                 );
               }
             }}

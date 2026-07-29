@@ -19,6 +19,7 @@ import { TallyChart } from "../../../_components/TallyChart";
 import { ChartViewToggle, type ChartView } from "../../../_components/ChartViewToggle";
 import { downloadResultsCsv, downloadResultsImage } from "../../../_components/downloadResults";
 import { useDocumentTitle } from "../../../_components/useDocumentTitle";
+import { trackEvent } from "../../../_lib/analytics";
 
 const CHART_VIEW_STORAGE_KEY = "votero:chart-view";
 
@@ -55,7 +56,7 @@ export default function LobbyStatsPage() {
   const isCreator = isSignedIn && user?.id === lobby.creatorId;
 
   return (
-    <main className="relative min-h-[calc(100vh-4rem)] px-4 py-10">
+    <main className="relative flex-1 px-4 py-10">
       <div className="relative mx-auto flex max-w-5xl flex-col gap-6 px-4 sm:px-8">
         <Link
           href={`/lobby/${code}/manage`}
@@ -104,10 +105,11 @@ export default function LobbyStatsPage() {
                       type="button"
                       variant="secondary"
                       className="inline-flex items-center gap-1.5 text-xs"
-                      onClick={() =>
-                        results.data?.tally &&
-                        downloadResultsCsv(lobby, questions, results.data.tally)
-                      }
+                      onClick={() => {
+                        if (!results.data?.tally) return;
+                        downloadResultsCsv(lobby, questions, results.data.tally);
+                        trackEvent("results_exported", { format: "csv" });
+                      }}
                     >
                       <Download size={14} /> CSV
                     </Button>
@@ -115,10 +117,11 @@ export default function LobbyStatsPage() {
                       type="button"
                       variant="secondary"
                       className="inline-flex items-center gap-1.5 text-xs"
-                      onClick={() =>
-                        results.data?.tally &&
-                        downloadResultsImage(lobby, questions, results.data.tally)
-                      }
+                      onClick={() => {
+                        if (!results.data?.tally) return;
+                        downloadResultsImage(lobby, questions, results.data.tally);
+                        trackEvent("results_exported", { format: "image" });
+                      }}
                     >
                       <Download size={14} /> Image
                     </Button>

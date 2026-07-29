@@ -57,6 +57,10 @@ Build one app that ships to **iOS**, **Android**, and **Web**, using a single mo
 
 - **Sentry** (`@sentry/nextjs`) — production error capture for the web app, covering the browser, server, and edge runtimes (`instrumentation-client.ts`, `instrumentation.ts`, `app/global-error.tsx`)
 
+### Analytics
+
+- **Vercel Analytics** (`@vercel/analytics`) — cookieless pageviews plus a small set of named product events (`app/_lib/analytics.ts`) for funnel visibility (create → open → vote, join → vote)
+
 ### CI/CD
 
 - **GitHub Actions** (`.github/workflows/ci.yml`) — on every push/PR to `main`/`develop`: lint + type-check + build (`checks` job), and the full Playwright suite against a real local Supabase stack (`e2e` job)
