@@ -51,6 +51,10 @@ This repo is already linked (`supabase link`) to a hosted project. `apps/web/.en
 
 `docs/ARCHITECTURE.md`'s Build Order section (step 2) documents three real bugs found during verification that are worth knowing about before touching the schema: table/function GRANTs are required in addition to RLS (this Supabase version doesn't auto-expose new tables), and a PL/pgSQL variable-name collision in `generate_lobby_code()`.
 
+### CI
+
+`.github/workflows/ci.yml` runs on every push/PR to `main`/`develop`: a `checks` job (`pnpm lint`, `pnpm check-types`, `pnpm build`) and an `e2e` job (boots a real local Supabase stack via `supabase/setup-cli`, then runs the full `apps/web/e2e/` suite against it). See `docs/ARCHITECTURE.md` Build Order step 45.
+
 ## Architecture
 
 **Monorepo layout** (pnpm workspaces: `apps/*`, `packages/*`, declared in `pnpm-workspace.yaml`):
