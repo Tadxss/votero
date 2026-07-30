@@ -118,3 +118,7 @@ my-app/
 ## Project-specific decisions
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the concrete app concept (Votero — QR-code group voting), schema, RLS design, and build order chosen on top of this stack brief.
+
+## Reusing this stack elsewhere
+
+See [docs/TECH_STACK_PLAYBOOK.md](docs/TECH_STACK_PLAYBOOK.md) — a project-agnostic writeup of the patterns, gotchas, and rough build order that worked here, distilled for reuse on a future project with the same stack.
