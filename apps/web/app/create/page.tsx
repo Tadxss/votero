@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ListChecks, Type } from "lucide-react";
-import { useCreateLobby, useEnsureSession, useAuthUser } from "@repo/shared";
+import { useCreateLobby, useEnsureSession, useAuthUser, containsProfanity } from "@repo/shared";
 import type { BallotMode, QuestionType, TallyVisibility } from "@repo/types";
 import { Button } from "../_components/Button";
 import { RadioCard } from "../_components/RadioCard";
@@ -24,6 +24,12 @@ function friendlyCreateError(message: string): string {
   }
   if (message.includes("AT_LEAST_TWO_OPTIONS_REQUIRED")) {
     return "Every question needs at least 2 options.";
+  }
+  if (message.includes("INAPPROPRIATE_CONTENT")) {
+    return "Please remove inappropriate language from the title, questions, or options.";
+  }
+  if (message.includes("RATE_LIMITED")) {
+    return "You're creating lobbies too quickly — wait a few minutes and try again.";
   }
   return "Something went wrong. Please try again.";
 }
@@ -112,6 +118,10 @@ export default function CreateLobbyPage() {
       setFormError("Give the lobby a title.");
       return;
     }
+    if (containsProfanity(title)) {
+      setFormError("Please remove inappropriate language from the title.");
+      return;
+    }
     if (preparedQuestions.length === 0) {
       setFormError("Add at least one question.");
       return;
@@ -123,6 +133,13 @@ export default function CreateLobbyPage() {
       }
       if (q.type === "choice" && q.options.length < 2) {
         setFormError("Every choice question needs at least 2 options.");
+        return;
+      }
+      if (
+        containsProfanity(q.title) ||
+        (q.type === "choice" && q.options.some((opt) => containsProfanity(opt)))
+      ) {
+        setFormError("Please remove inappropriate language from the questions or options.");
         return;
       }
     }
@@ -192,7 +209,7 @@ export default function CreateLobbyPage() {
                   className="flex flex-col gap-3 rounded-2xl border border-neutral-300 p-4 dark:border-neutral-800"
                 >
                   <div className="flex items-center gap-2">
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-100 text-xs font-bold text-brand-600 dark:bg-brand-900/40 dark:text-brand-300">
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-100 text-xs font-bold text-brand-900 dark:bg-brand-900/40 dark:text-brand-300">
                       Q{qIndex + 1}
                     </span>
                     <input
@@ -220,7 +237,7 @@ export default function CreateLobbyPage() {
                       onClick={() => updateQuestionType(qIndex, "choice")}
                       className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
                         question.type === "choice"
-                          ? "bg-brand-500 text-white"
+                          ? "bg-brand-700 text-white"
                           : "bg-neutral-100 text-[var(--foreground-muted)] dark:bg-neutral-800"
                       }`}
                     >
@@ -231,7 +248,7 @@ export default function CreateLobbyPage() {
                       onClick={() => updateQuestionType(qIndex, "text")}
                       className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
                         question.type === "text"
-                          ? "bg-brand-500 text-white"
+                          ? "bg-brand-700 text-white"
                           : "bg-neutral-100 text-[var(--foreground-muted)] dark:bg-neutral-800"
                       }`}
                     >
@@ -348,16 +365,20 @@ export default function CreateLobbyPage() {
           </div>
 
           <div className="flex flex-col gap-3 lg:col-span-2">
-            {formError && <p className="text-sm font-medium text-red-600">{formError}</p>}
+            {formError && (
+              <p role="alert" className="text-sm font-medium text-red-600">
+                {formError}
+              </p>
+            )}
             {createLobby.isError && (
-              <p className="text-sm font-medium text-red-600">
+              <p role="alert" className="text-sm font-medium text-red-600">
                 {friendlyCreateError(createLobby.error.message)}
               </p>
             )}
 
             {!isSignedIn && (
               <p className="text-sm text-[var(--foreground-muted)]">
-                <Link href="/login" className="font-semibold text-brand-600 hover:underline">
+                <Link href="/login" className="font-semibold text-brand-700 hover:underline">
                   Sign in
                 </Link>{" "}
                 to save this to your history — or just create it, no account needed.

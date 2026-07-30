@@ -94,7 +94,7 @@ export function TermsContent() {
           Questions about these Terms? Reach out at{" "}
           <a
             href="mailto:daryltadss.workemail@gmail.com"
-            className="font-medium text-brand-600 hover:underline"
+            className="font-medium text-brand-700 hover:underline"
           >
             daryltadss.workemail@gmail.com
           </a>
@@ -159,7 +159,7 @@ export function PrivacyContent() {
         <p>
           To operate sign-in, associate lobbies and votes with your account, enforce the lobby
           limit and auto-deletion rules described in our{" "}
-          <a href="/terms" className="font-medium text-brand-600 hover:underline">
+          <a href="/terms" className="font-medium text-brand-700 hover:underline">
             Terms of Service
           </a>
           , and to find and fix bugs. We don&apos;t sell your information, and we don&apos;t use
@@ -218,7 +218,7 @@ export function PrivacyContent() {
           Questions about this policy, or a data request? Email{" "}
           <a
             href="mailto:daryltadss.workemail@gmail.com"
-            className="font-medium text-brand-600 hover:underline"
+            className="font-medium text-brand-700 hover:underline"
           >
             daryltadss.workemail@gmail.com
           </a>

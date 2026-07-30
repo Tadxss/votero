@@ -130,7 +130,7 @@ export default function DashboardPage() {
 
             <Link
               href="/lobbies"
-              className="self-start text-sm font-semibold text-brand-600 hover:underline"
+              className="self-start text-sm font-semibold text-brand-700 hover:underline"
             >
               View all lobbies →
             </Link>

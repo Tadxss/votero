@@ -28,7 +28,7 @@ export function Avatar({
 
   return (
     <span
-      className={`flex shrink-0 items-center justify-center rounded-full bg-brand-100 font-bold text-brand-600 dark:bg-brand-900/40 dark:text-brand-300 ${sizeClass}`}
+      className={`flex shrink-0 items-center justify-center rounded-full bg-brand-100 font-bold text-brand-900 dark:bg-brand-900/40 dark:text-brand-300 ${sizeClass}`}
       aria-hidden
     >
       {label[0]?.toUpperCase() ?? "?"}

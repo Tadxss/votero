@@ -25,7 +25,7 @@ export default function Home() {
   return (
     <main className="relative mx-auto flex w-full flex-1 max-w-6xl flex-col items-center justify-center gap-14 px-4 py-10 lg:grid lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-10 lg:py-16">
       <div className="flex max-w-md animate-pop-in flex-col items-center gap-5 lg:items-start">
-        <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-brand-600">
+        <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-brand-700">
           <Vote size={14} /> QR-code group voting
         </span>
 
@@ -40,7 +40,7 @@ export default function Home() {
         <div className="flex flex-col gap-3 sm:flex-row">
           <Link
             href="/create"
-            className="group flex items-center justify-center gap-2 rounded-full bg-brand-500 px-8 py-4 text-sm font-semibold text-white shadow-md shadow-brand-500/25 transition-all hover:bg-brand-600 hover:shadow-lg hover:shadow-brand-500/30 active:scale-95"
+            className="group flex items-center justify-center gap-2 rounded-full bg-brand-700 px-8 py-4 text-sm font-semibold text-white shadow-md shadow-brand-700/25 transition-all hover:bg-brand-900 hover:shadow-lg hover:shadow-brand-700/30 active:scale-95"
           >
             Create a lobby
             <span aria-hidden className="transition-transform group-hover:translate-x-0.5">
@@ -74,7 +74,11 @@ export default function Home() {
         <div className="w-72 -rotate-2 rounded-3xl border border-neutral-300 bg-[var(--surface)] p-5 shadow-xl transition-transform hover:rotate-0 dark:border-neutral-800">
           <p className="mb-3 text-sm font-semibold text-[var(--foreground)]">Team pizza night?</p>
           <div className="mb-4 flex justify-center rounded-2xl bg-white p-3">
-            <QRCodeSVG value="https://votero.app/vote/DEMOABCD" size={104} />
+            <QRCodeSVG
+              value="https://votero.app/vote/DEMOABCD"
+              size={104}
+              title="Example QR code linking to a demo Votero lobby"
+            />
           </div>
           <TallyBars options={DEMO_OPTIONS} tally={DEMO_TALLY} />
           <p className="mt-4 text-xs text-[var(--foreground-muted)]">42 joined · live</p>

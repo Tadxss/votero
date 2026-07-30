@@ -1,20 +1,15 @@
 "use client";
 
-import { useEffect } from "react";
+import { useRef } from "react";
 import { X } from "lucide-react";
 import { TermsContent, PrivacyContent, TERMS_UPDATED, PRIVACY_UPDATED } from "./legalContent";
+import { useModalA11y } from "./useModalA11y";
 
 export type LegalModalType = "terms" | "privacy" | null;
 
 export function LegalModal({ type, onClose }: { type: LegalModalType; onClose: () => void }) {
-  useEffect(() => {
-    if (!type) return;
-    function onKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
-    }
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [type, onClose]);
+  const containerRef = useRef<HTMLDivElement>(null);
+  useModalA11y({ open: Boolean(type), onClose, containerRef });
 
   if (!type) return null;
 
@@ -23,20 +18,27 @@ export function LegalModal({ type, onClose }: { type: LegalModalType; onClose: (
   const fullPageHref = type === "terms" ? "/terms" : "/privacy";
 
   return (
+    // Click-outside-to-dismiss backdrop — Escape (handled by useModalA11y) is the keyboard
+    // equivalent, so this div itself doesn't need its own key handler.
+    // eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
       onClick={onClose}
     >
+      {/* stopPropagation only guards against the backdrop's onClose above, not a real interaction */}
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/click-events-have-key-events */}
       <div
+        ref={containerRef}
         role="dialog"
         aria-modal="true"
-        aria-label={title}
+        aria-labelledby="legal-modal-title"
+        tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
         className="flex max-h-[85vh] w-full max-w-2xl animate-pop-in flex-col rounded-3xl border border-neutral-300 bg-[var(--surface)] shadow-xl dark:border-neutral-800"
       >
         <div className="flex items-start justify-between gap-4 border-b border-neutral-200 p-6 dark:border-neutral-800">
           <div className="flex flex-col gap-1">
-            <h2 className="font-display text-xl font-bold text-[var(--foreground)]">{title}</h2>
+            <h2 id="legal-modal-title" className="font-display text-xl font-bold text-[var(--foreground)]">{title}</h2>
             <p className="text-xs text-[var(--foreground-muted)]">Last updated {updated}</p>
           </div>
           <button

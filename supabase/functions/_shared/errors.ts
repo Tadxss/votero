@@ -14,6 +14,8 @@ const STATUS_BY_MESSAGE: Record<string, number> = {
   AT_LEAST_TWO_OPTIONS_REQUIRED: 400,
   RESPONSE_TEXT_REQUIRED: 400,
   RESPONSE_TEXT_TOO_LONG: 400,
+  INAPPROPRIATE_CONTENT: 400,
+  RATE_LIMITED: 429,
 };
 
 export function statusForRpcError(message: string): number {

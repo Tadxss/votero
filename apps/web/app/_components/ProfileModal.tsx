@@ -5,6 +5,7 @@ import { useAuthUser, useProfile, useUpdateProfile, useUploadAvatar } from "@rep
 import { Avatar } from "./Avatar";
 import { Button } from "./Button";
 import { inputClasses } from "./styles";
+import { useModalA11y } from "./useModalA11y";
 
 const MAX_AVATAR_BYTES = 2 * 1024 * 1024;
 
@@ -62,14 +63,8 @@ export function ProfileModal({ open, onClose }: { open: boolean; onClose: () => 
     });
   }
 
-  useEffect(() => {
-    if (!open) return;
-    function onKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
-    }
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [open, onClose]);
+  const containerRef = useRef<HTMLDivElement>(null);
+  useModalA11y({ open, onClose, containerRef });
 
   if (!open) return null;
 
@@ -82,15 +77,25 @@ export function ProfileModal({ open, onClose }: { open: boolean; onClose: () => 
   }
 
   return (
+    // Click-outside-to-dismiss backdrop — Escape (handled by useModalA11y) is the keyboard
+    // equivalent, so this div itself doesn't need its own key handler.
+    // eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
       onClick={onClose}
     >
+      {/* stopPropagation only guards against the backdrop's onClose above, not a real interaction */}
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/click-events-have-key-events */}
       <div
+        ref={containerRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="profile-modal-title"
+        tabIndex={-1}
         className="w-full max-w-sm animate-pop-in rounded-3xl border border-neutral-300 bg-[var(--surface)] p-6 shadow-xl dark:border-neutral-800"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="font-display text-xl font-bold text-[var(--foreground)]">Edit profile</h2>
+        <h2 id="profile-modal-title" className="font-display text-xl font-bold text-[var(--foreground)]">Edit profile</h2>
 
         <div className="mt-4 flex flex-col items-center gap-2">
           <Avatar
@@ -114,7 +119,11 @@ export function ProfileModal({ open, onClose }: { open: boolean; onClose: () => 
           >
             {uploadAvatar.isPending ? "Uploading…" : "Change photo"}
           </Button>
-          {avatarError && <p className="text-xs font-medium text-red-600">{avatarError}</p>}
+          {avatarError && (
+            <p role="alert" className="text-xs font-medium text-red-600">
+              {avatarError}
+            </p>
+          )}
         </div>
 
         <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-4">
@@ -155,7 +164,7 @@ export function ProfileModal({ open, onClose }: { open: boolean; onClose: () => 
           </label>
 
           {updateProfile.isError && (
-            <p className="text-sm font-medium text-red-600">
+            <p role="alert" className="text-sm font-medium text-red-600">
               {friendlyError(updateProfile.error.message)}
             </p>
           )}

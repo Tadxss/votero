@@ -112,7 +112,7 @@ export default function MyLobbiesPage() {
                   aria-pressed={view === "table"}
                   className={`rounded-full p-1.5 transition-colors ${
                     view === "table"
-                      ? "bg-brand-500 text-white"
+                      ? "bg-brand-700 text-white"
                       : "text-[var(--foreground-muted)] hover:text-brand-600"
                   }`}
                 >
@@ -125,7 +125,7 @@ export default function MyLobbiesPage() {
                   aria-pressed={view === "grid"}
                   className={`rounded-full p-1.5 transition-colors ${
                     view === "grid"
-                      ? "bg-brand-500 text-white"
+                      ? "bg-brand-700 text-white"
                       : "text-[var(--foreground-muted)] hover:text-brand-600"
                   }`}
                 >
@@ -212,13 +212,13 @@ export default function MyLobbiesPage() {
                           <div className="flex items-center justify-end gap-4">
                             <Link
                               href={`/lobby/${lobby.code}/stats`}
-                              className="font-semibold text-brand-600 hover:underline"
+                              className="font-semibold text-brand-700 hover:underline"
                             >
                               Stats
                             </Link>
                             <Link
                               href={`/lobby/${lobby.code}/manage`}
-                              className="font-semibold text-brand-600 hover:underline"
+                              className="font-semibold text-brand-700 hover:underline"
                             >
                               Manage →
                             </Link>

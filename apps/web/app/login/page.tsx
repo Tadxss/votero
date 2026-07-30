@@ -90,7 +90,7 @@ function LoginForm() {
                 />
               </label>
               {sendCode.isError && (
-                <p className="text-sm font-medium text-red-600">
+                <p role="alert" className="text-sm font-medium text-red-600">
                   {friendlyAuthError(sendCode.error.message)}
                 </p>
               )}
@@ -125,9 +125,12 @@ function LoginForm() {
               </p>
               <label className="flex flex-col gap-1.5 text-sm font-semibold text-[var(--foreground)]">
                 6-digit code
+                {/* Focus-safe here: this input only appears after the user submits their email
+                    on this same page, not on initial page load. */}
                 <input
                   type="text"
                   inputMode="numeric"
+                  // eslint-disable-next-line jsx-a11y/no-autofocus
                   autoFocus
                   required
                   maxLength={6}
@@ -138,7 +141,7 @@ function LoginForm() {
                 />
               </label>
               {verifyCode.isError && (
-                <p className="text-sm font-medium text-red-600">
+                <p role="alert" className="text-sm font-medium text-red-600">
                   {friendlyAuthError(verifyCode.error.message)}
                 </p>
               )}

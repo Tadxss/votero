@@ -13,6 +13,7 @@ import {
   useSubmitTextResponse,
   useEnsureSession,
   useAuthUser,
+  containsProfanity,
 } from "@repo/shared";
 import { Button } from "../../_components/Button";
 import { TallyBars } from "../../_components/TallyBars";
@@ -29,6 +30,10 @@ function friendlyVoteError(message: string): string {
   if (message === "LOBBY_NOT_FOUND") return "This lobby no longer exists.";
   if (message === "RESPONSE_TEXT_REQUIRED") return "Type an answer before submitting.";
   if (message === "RESPONSE_TEXT_TOO_LONG") return "Your answer is too long (300 characters max).";
+  if (message === "INAPPROPRIATE_CONTENT") {
+    return "Please remove inappropriate language from your answer.";
+  }
+  if (message === "RATE_LIMITED") return "You're going too fast — wait a moment and try again.";
   return "Something went wrong. Please try again.";
 }
 
@@ -65,6 +70,7 @@ export default function VotePage() {
   // shows what was previously picked/typed there, rather than a blank slate.
   const [choiceAnswers, setChoiceAnswers] = useState<Record<string, string>>({});
   const [textAnswers, setTextAnswers] = useState<Record<string, string>>({});
+  const [textError, setTextError] = useState<string | null>(null);
   const joinAttempted = useRef(false);
 
   useEffect(() => {
@@ -203,6 +209,11 @@ export default function VotePage() {
               } else {
                 const trimmed = textResponse.trim();
                 if (!trimmed) return;
+                if (containsProfanity(trimmed)) {
+                  setTextError("Please remove inappropriate language from your answer.");
+                  return;
+                }
+                setTextError(null);
                 submitTextResponse.mutate(
                   { lobbyId: lobby.id, questionId: currentQuestion.id, responseText: trimmed },
                   {
@@ -217,7 +228,10 @@ export default function VotePage() {
             className="flex animate-pop-in flex-col gap-3"
           >
             {questions.length > 1 && (
-              <p className="text-xs font-semibold tracking-wide text-[var(--foreground-muted)] uppercase">
+              <p
+                className="text-xs font-semibold tracking-wide text-[var(--foreground-muted)] uppercase"
+                aria-live="polite"
+              >
                 Question {questionIndex + 1} of {questions.length}
               </p>
             )}
@@ -242,15 +256,24 @@ export default function VotePage() {
               ))
             ) : (
               <div className="flex flex-col gap-1">
+                <label htmlFor="vote-text-answer" className="sr-only">
+                  Your answer
+                </label>
                 <textarea
+                  id="vote-text-answer"
                   value={textResponse}
-                  onChange={(e) =>
-                    setTextAnswers((prev) => ({ ...prev, [currentQuestion.id]: e.target.value }))
-                  }
+                  onChange={(e) => {
+                    setTextAnswers((prev) => ({ ...prev, [currentQuestion.id]: e.target.value }));
+                    setTextError(null);
+                  }}
                   maxLength={300}
                   rows={3}
                   placeholder="Type your answer…"
-                  className="rounded-2xl border-2 border-neutral-300 bg-[var(--input-bg)] p-4 text-base text-[var(--foreground)] outline-none focus:border-brand-400 dark:border-neutral-700"
+                  aria-invalid={textError !== null || submitTextResponse.isError}
+                  aria-describedby={
+                    textError || submitTextResponse.isError ? "vote-text-answer-error" : undefined
+                  }
+                  className="rounded-2xl border-2 border-neutral-300 bg-[var(--input-bg)] p-4 text-base text-[var(--foreground)] outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus:border-brand-400 dark:border-neutral-700"
                 />
                 <span className="self-end text-xs text-[var(--foreground-muted)]">
                   {textResponse.length}/300
@@ -259,15 +282,21 @@ export default function VotePage() {
             )}
             {currentQuestion.type === "choice"
               ? castVote.isError && (
-                  <p className="text-sm font-medium text-red-600">
+                  <p role="alert" className="text-sm font-medium text-red-600">
                     {friendlyVoteError(castVote.error.message)}
                   </p>
                 )
-              : submitTextResponse.isError && (
-                  <p className="text-sm font-medium text-red-600">
-                    {friendlyVoteError(submitTextResponse.error.message)}
-                  </p>
-                )}
+              : textError
+                ? (
+                    <p id="vote-text-answer-error" role="alert" className="text-sm font-medium text-red-600">
+                      {textError}
+                    </p>
+                  )
+                : submitTextResponse.isError && (
+                    <p id="vote-text-answer-error" role="alert" className="text-sm font-medium text-red-600">
+                      {friendlyVoteError(submitTextResponse.error.message)}
+                    </p>
+                  )}
             <div className="flex gap-2">
               {questionIndex > 0 && (
                 <Button

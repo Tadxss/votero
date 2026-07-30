@@ -152,7 +152,10 @@ export default function LobbyStatsPage() {
               </div>
             ) : (
               results.data && (
-                <div className="rounded-3xl border border-neutral-300 bg-[var(--surface)] p-6 text-sm text-[var(--foreground-muted)] dark:border-neutral-800">
+                <div
+                  className="rounded-3xl border border-neutral-300 bg-[var(--surface)] p-6 text-sm text-[var(--foreground-muted)] dark:border-neutral-800"
+                  aria-live="polite"
+                >
                   {results.data.progress.completedCount} of {results.data.progress.joined} have
                   voted.
                 </div>

@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { X } from "lucide-react";
 import type { TextResponseGroup } from "@repo/types";
+import { useModalA11y } from "./useModalA11y";
 
 // Reuses TallyBars' fixed series-color order (same --series-* vars/light-dark values) for visual
 // consistency between choice-question bars and text-question chips in the same survey. The `-bg`
@@ -43,6 +44,12 @@ export function TextResponseCloud({
   // "×N" count already communicates frequency, so font-size-by-frequency was redundant on top of it.
   const previewChars = large ? 20 : 16;
   const [expanded, setExpanded] = useState<TextResponseGroup | null>(null);
+  const expandedRef = useRef<HTMLDivElement>(null);
+  useModalA11y({
+    open: expanded !== null,
+    onClose: () => setExpanded(null),
+    containerRef: expandedRef,
+  });
 
   if (responses.length === 0) {
     return <p className="text-sm text-[var(--foreground-muted)]">No responses yet.</p>;
@@ -104,11 +111,21 @@ export function TextResponseCloud({
       })}
 
       {expanded && (
+        // Click-outside-to-dismiss backdrop — Escape (handled by useModalA11y) is the keyboard
+        // equivalent, so this div itself doesn't need its own key handler.
+        // eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
           onClick={() => setExpanded(null)}
         >
+          {/* stopPropagation only guards against the backdrop's onClose above, not a real interaction */}
+          {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/click-events-have-key-events */}
           <div
+            ref={expandedRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Response detail"
+            tabIndex={-1}
             className="w-full max-w-sm animate-pop-in rounded-3xl border border-neutral-300 bg-[var(--surface)] p-6 shadow-xl dark:border-neutral-800"
             onClick={(e) => e.stopPropagation()}
           >

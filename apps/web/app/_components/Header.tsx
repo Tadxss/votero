@@ -80,6 +80,11 @@ export function Header() {
 
               {isMobileMenuOpen && (
                 <>
+                  {/* Click-outside-to-dismiss backdrop for the mobile menu — the menu button's
+                      own aria-expanded plus the visible menu items are how keyboard users close
+                      it (click it again, or the toggle re-renders it away); this backdrop is a
+                      convenience target, not a distinct interactive control. */}
+                  {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events */}
                   <div
                     className="fixed inset-0 z-40"
                     onClick={() => setMobileMenuOpen(false)}
