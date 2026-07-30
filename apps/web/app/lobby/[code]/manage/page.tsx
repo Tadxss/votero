@@ -29,6 +29,7 @@ import {
 import type { BallotDetailEntry, LobbyStatus } from "@repo/types";
 import { Button } from "../../../_components/Button";
 import { TallyBars } from "../../../_components/TallyBars";
+import { RankedResults } from "../../../_components/RankedResults";
 import { TextResponseCloud } from "../../../_components/TextResponseCloud";
 import { StatusPill } from "../../../_components/StatusPill";
 import { LiveDot } from "../../../_components/LiveDot";
@@ -404,6 +405,13 @@ export default function ManageLobbyPage() {
                           tally={q.tally}
                           closed={lobby.status === "closed"}
                         />
+                      ) : q.type === "ranked" ? (
+                        <RankedResults
+                          options={question?.options ?? []}
+                          rounds={q.rounds}
+                          winner={q.winner}
+                          closed={lobby.status === "closed"}
+                        />
                       ) : (
                         <TextResponseCloud responses={q.responses} />
                       )}
@@ -411,34 +419,46 @@ export default function ManageLobbyPage() {
                       {ballotDetail && ballotDetail.entries.length > 0 && (
                         <div className="flex flex-col gap-2 border-t border-neutral-100 pt-4 dark:border-neutral-800">
                           <h3 className="text-sm font-semibold text-[var(--foreground)]">
-                            {q.type === "choice" ? "Who voted for what" : "Who said what"}
+                            {q.type === "text" ? "Who said what" : "Who voted for what"}
                           </h3>
                           <ul className="flex flex-col gap-2">
                             {(() => {
-                              // A multi-select question produces one vote row (one entry) per
-                              // selected option — group by participant so a person who picked
-                              // several options shows one row listing all of them, not duplicates.
+                              // A multi-select or ranked question produces one vote row (one
+                              // entry) per selected/ranked option — group by participant so a
+                              // person's multiple picks show as one row, not duplicates. Ranked
+                              // entries carry a `rank`, sorted and numbered; multi-select entries
+                              // have rank: null and just join in whatever order they arrived.
                               const grouped = new Map<
                                 string,
-                                { entry: BallotDetailEntry; optionLabels: string[] }
+                                { entry: BallotDetailEntry; picks: { label: string; rank: number | null }[] }
                               >();
                               for (const entry of ballotDetail.entries) {
-                                const optionLabel =
+                                const label =
                                   "optionId" in entry
-                                    ? question?.options.find((o) => o.id === entry.optionId)?.label
+                                    ? (question?.options.find((o) => o.id === entry.optionId)?.label ??
+                                      "Unknown option")
                                     : undefined;
+                                const rank = "rank" in entry ? entry.rank : null;
                                 const existing = grouped.get(entry.participantId);
                                 if (existing) {
-                                  if (optionLabel) existing.optionLabels.push(optionLabel);
+                                  if (label) existing.picks.push({ label, rank });
                                 } else {
                                   grouped.set(entry.participantId, {
                                     entry,
-                                    optionLabels: optionLabel ? [optionLabel] : [],
+                                    picks: label ? [{ label, rank }] : [],
                                   });
                                 }
                               }
-                              return Array.from(grouped.values()).map(({ entry, optionLabels }) => {
+                              return Array.from(grouped.values()).map(({ entry, picks }) => {
                                 const { primary, secondary } = resolveVoterLabel(entry);
+                                const isRanked = picks.some((p) => p.rank !== null);
+                                const displayText = isRanked
+                                  ? picks
+                                      .slice()
+                                      .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
+                                      .map((p, i) => `${i + 1}. ${p.label}`)
+                                      .join(", ")
+                                  : picks.map((p) => p.label).join(", ");
                                 return (
                                   <li
                                     key={entry.participantId}
@@ -456,9 +476,7 @@ export default function ManageLobbyPage() {
                                       )}
                                     </div>
                                     <span className="ml-auto font-semibold text-[var(--foreground)]">
-                                      {"optionId" in entry
-                                        ? optionLabels.join(", ")
-                                        : entry.responseText}
+                                      {"optionId" in entry ? displayText : entry.responseText}
                                     </span>
                                   </li>
                                 );

@@ -4,7 +4,7 @@ export type LobbyStatus = "draft" | "open" | "closed";
 export type BallotMode = "anonymous" | "open";
 export type TallyVisibility = "live" | "hidden";
 export type LobbyVisibility = "public" | "private";
-export type QuestionType = "choice" | "text";
+export type QuestionType = "choice" | "text" | "ranked";
 
 export interface Lobby {
   id: string;
@@ -120,6 +120,14 @@ export interface CastVoteMultiInput {
   optionIds: string[];
 }
 
+// For a "ranked" question — rankedOptionIds is the participant's full ordered preference list
+// (index 0 = most preferred), replacing any previous ranking for that question in one call.
+export interface CastVoteRankedInput {
+  lobbyId: string;
+  questionId: string;
+  rankedOptionIds: string[];
+}
+
 export interface CastTextResponseInput {
   lobbyId: string;
   questionId: string;
@@ -138,9 +146,23 @@ export interface TextResponseGroup {
   count: number;
 }
 
+// One round of instant-runoff elimination — counts keyed by optionId, current as of that round
+// (an option present in an earlier round's counts but absent from a later one has been eliminated).
+export interface IrvRound {
+  round: number;
+  counts: Record<string, number>;
+}
+
 export type QuestionTally =
   | { questionId: string; questionTitle: string; type: "choice"; tally: TallyEntry[] }
-  | { questionId: string; questionTitle: string; type: "text"; responses: TextResponseGroup[] };
+  | { questionId: string; questionTitle: string; type: "text"; responses: TextResponseGroup[] }
+  | {
+      questionId: string;
+      questionTitle: string;
+      type: "ranked";
+      rounds: IrvRound[];
+      winner: string | null; // null only if the question has zero votes so far
+    };
 
 interface BallotDetailIdentity {
   participantId: string;
@@ -152,12 +174,13 @@ interface BallotDetailIdentity {
 }
 
 export type BallotDetailEntry =
-  | (BallotDetailIdentity & { optionId: string })
+  | (BallotDetailIdentity & { optionId: string; rank: number | null })
   | (BallotDetailIdentity & { responseText: string });
 
 export type QuestionBallotDetail =
   | { questionId: string; questionTitle: string; type: "choice"; entries: BallotDetailEntry[] }
-  | { questionId: string; questionTitle: string; type: "text"; entries: BallotDetailEntry[] };
+  | { questionId: string; questionTitle: string; type: "text"; entries: BallotDetailEntry[] }
+  | { questionId: string; questionTitle: string; type: "ranked"; entries: BallotDetailEntry[] };
 
 export interface LobbyProgress {
   joined: number;

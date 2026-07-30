@@ -10,6 +10,7 @@ export * from "./hooks/useCreateLobby";
 export * from "./hooks/useJoinLobby";
 export * from "./hooks/useCastVote";
 export * from "./hooks/useCastVoteMulti";
+export * from "./hooks/useCastVoteRanked";
 export * from "./hooks/useSubmitTextResponse";
 export * from "./hooks/useLobbyResults";
 export * from "./hooks/useSetLobbyStatus";

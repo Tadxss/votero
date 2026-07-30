@@ -286,6 +286,7 @@ export type Database = {
           option_id: string | null
           participant_id: string
           question_id: string
+          rank: number | null
           response_text: string | null
         }
         Insert: {
@@ -295,6 +296,7 @@ export type Database = {
           option_id?: string | null
           participant_id: string
           question_id: string
+          rank?: number | null
           response_text?: string | null
         }
         Update: {
@@ -304,6 +306,7 @@ export type Database = {
           option_id?: string | null
           participant_id?: string
           question_id?: string
+          rank?: number | null
           response_text?: string | null
         }
         Relationships: [
@@ -422,10 +425,44 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      rpc_cast_vote_ranked: {
+        Args: {
+          p_lobby_id: string
+          p_question_id: string
+          p_ranked_option_ids: string[]
+        }
+        Returns: {
+          ballot_mode: Database["public"]["Enums"]["ballot_mode"]
+          closed_at: string | null
+          closes_at: string | null
+          code: string
+          created_at: string
+          creator_id: string
+          id: string
+          joined_count: number
+          opened_at: string | null
+          otp_required: boolean
+          question_count: number
+          status: Database["public"]["Enums"]["lobby_status"]
+          tally_visibility: Database["public"]["Enums"]["tally_visibility"]
+          title: string
+          updated_at: string
+          visibility: Database["public"]["Enums"]["lobby_visibility"]
+          voter_cap: number
+          votes_count: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "lobbies"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       rpc_check_rate_limit: {
         Args: { p_action: string; p_max_count: number; p_window: string }
         Returns: undefined
       }
+      rpc_compute_irv: { Args: { p_question_id: string }; Returns: Json }
       rpc_count_completed_participants: {
         Args: { p_lobby_id: string }
         Returns: number
@@ -523,7 +560,7 @@ export type Database = {
       ballot_mode: "anonymous" | "open"
       lobby_status: "draft" | "open" | "closed"
       lobby_visibility: "public" | "private"
-      question_type: "choice" | "text"
+      question_type: "choice" | "text" | "ranked"
       tally_visibility: "live" | "hidden"
     }
     CompositeTypes: {
@@ -658,7 +695,7 @@ export const Constants = {
       ballot_mode: ["anonymous", "open"],
       lobby_status: ["draft", "open", "closed"],
       lobby_visibility: ["public", "private"],
-      question_type: ["choice", "text"],
+      question_type: ["choice", "text", "ranked"],
       tally_visibility: ["live", "hidden"],
     },
   },

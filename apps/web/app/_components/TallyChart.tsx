@@ -2,6 +2,7 @@ import type { QuestionTally, SurveyQuestion } from "@repo/types";
 import { TallyBars } from "./TallyBars";
 import { DonutChart } from "./DonutChart";
 import { TextResponseCloud } from "./TextResponseCloud";
+import { RankedResults } from "./RankedResults";
 import type { ChartView } from "./ChartViewToggle";
 
 // Per-question dispatcher used by Present Mode and the detailed stats page — both offer the
@@ -25,6 +26,13 @@ export function TallyChart({
   }
 
   const options = question?.options ?? [];
+
+  if (q.type === "ranked") {
+    return (
+      <RankedResults options={options} rounds={q.rounds} winner={q.winner} closed={closed} size={size} />
+    );
+  }
+
   return view === "donut" ? (
     <DonutChart options={options} tally={q.tally} closed={closed} size={size} />
   ) : (

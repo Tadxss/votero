@@ -11,6 +11,7 @@ import {
   useJoinLobby,
   useCastVote,
   useCastVoteMulti,
+  useCastVoteRanked,
   useSubmitTextResponse,
   useEnsureSession,
   useAuthUser,
@@ -18,6 +19,7 @@ import {
 } from "@repo/shared";
 import { Button } from "../../_components/Button";
 import { TallyBars } from "../../_components/TallyBars";
+import { RankedResults } from "../../_components/RankedResults";
 import { TextResponseCloud } from "../../_components/TextResponseCloud";
 import { RadioCard } from "../../_components/RadioCard";
 import { LiveDot } from "../../_components/LiveDot";
@@ -59,6 +61,7 @@ export default function VotePage() {
   const joinLobby = useJoinLobby();
   const castVote = useCastVote();
   const castVoteMulti = useCastVoteMulti();
+  const castVoteRanked = useCastVoteRanked();
   const submitTextResponse = useSubmitTextResponse();
   const results = useLobbyResults(lobby?.id);
   const { burst } = useConfetti();
@@ -74,6 +77,9 @@ export default function VotePage() {
   // Separate state for multi-select (maxSelections > 1) questions — single-select's state/logic
   // above is untouched, this is an additive path.
   const [multiChoiceAnswers, setMultiChoiceAnswers] = useState<Record<string, string[]>>({});
+  // Ranked questions: array order IS the ranking (index 0 = most preferred) — built up by tapping
+  // options in preference order; tapping an already-ranked option removes it.
+  const [rankedAnswers, setRankedAnswers] = useState<Record<string, string[]>>({});
   const [textAnswers, setTextAnswers] = useState<Record<string, string>>({});
   const [textError, setTextError] = useState<string | null>(null);
   const joinAttempted = useRef(false);
@@ -127,6 +133,7 @@ export default function VotePage() {
   const selectedOptionId = currentQuestion ? (choiceAnswers[currentQuestion.id] ?? null) : null;
   const isMultiSelect = Boolean(currentQuestion && currentQuestion.maxSelections > 1);
   const selectedOptionIds = currentQuestion ? (multiChoiceAnswers[currentQuestion.id] ?? []) : [];
+  const rankedOptionIds = currentQuestion ? (rankedAnswers[currentQuestion.id] ?? []) : [];
   const textResponse = currentQuestion ? (textAnswers[currentQuestion.id] ?? "") : "";
 
   return (
@@ -171,6 +178,13 @@ export default function VotePage() {
                         <TallyBars
                           options={question?.options ?? []}
                           tally={q.tally}
+                          closed={lobby.status === "closed"}
+                        />
+                      ) : q.type === "ranked" ? (
+                        <RankedResults
+                          options={question?.options ?? []}
+                          rounds={q.rounds}
+                          winner={q.winner}
                           closed={lobby.status === "closed"}
                         />
                       ) : (
@@ -220,6 +234,17 @@ export default function VotePage() {
                   {
                     onSuccess: () => {
                       trackEvent("vote_cast", { questionType: "choice" });
+                      advance();
+                    },
+                  },
+                );
+              } else if (currentQuestion.type === "ranked") {
+                if (rankedOptionIds.length < 2) return;
+                castVoteRanked.mutate(
+                  { lobbyId: lobby.id, questionId: currentQuestion.id, rankedOptionIds },
+                  {
+                    onSuccess: () => {
+                      trackEvent("vote_cast", { questionType: "ranked" });
                       advance();
                     },
                   },
@@ -305,6 +330,47 @@ export default function VotePage() {
                   }
                 />
               ))
+            ) : currentQuestion.type === "ranked" ? (
+              <>
+                <p className="-mt-1 text-xs text-[var(--foreground-muted)]">
+                  Tap options in order of preference — tap again to remove.
+                </p>
+                {currentQuestion.options.map((option) => {
+                  const rankIndex = rankedOptionIds.indexOf(option.id);
+                  const ranked = rankIndex !== -1;
+                  return (
+                    <button
+                      key={option.id}
+                      type="button"
+                      onClick={() =>
+                        setRankedAnswers((prev) => {
+                          const current = prev[currentQuestion.id] ?? [];
+                          const next = current.includes(option.id)
+                            ? current.filter((id) => id !== option.id)
+                            : [...current, option.id];
+                          return { ...prev, [currentQuestion.id]: next };
+                        })
+                      }
+                      className={`flex items-center gap-3 rounded-2xl border-2 p-4 text-left text-base transition-all ${
+                        ranked
+                          ? "border-brand-500 bg-brand-50 dark:bg-brand-900/20"
+                          : "border-neutral-300 hover:border-brand-200 dark:border-neutral-700"
+                      }`}
+                    >
+                      <span
+                        className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 text-xs font-bold transition-colors ${
+                          ranked
+                            ? "border-brand-500 bg-brand-500 text-white"
+                            : "border-neutral-300 text-transparent dark:border-neutral-600"
+                        }`}
+                      >
+                        {ranked ? rankIndex + 1 : ""}
+                      </span>
+                      <span className="font-semibold text-[var(--foreground)]">{option.label}</span>
+                    </button>
+                  );
+                })}
+              </>
             ) : (
               <div className="flex flex-col gap-1">
                 <label htmlFor="vote-text-answer" className="sr-only">
@@ -339,23 +405,34 @@ export default function VotePage() {
                     )}
                   </p>
                 )
-              : textError
-                ? (
-                    <p id="vote-text-answer-error" role="alert" className="text-sm font-medium text-red-600">
-                      {textError}
+              : currentQuestion.type === "ranked"
+                ? castVoteRanked.isError && (
+                    <p role="alert" className="text-sm font-medium text-red-600">
+                      {friendlyVoteError(castVoteRanked.error.message)}
                     </p>
                   )
-                : submitTextResponse.isError && (
-                    <p id="vote-text-answer-error" role="alert" className="text-sm font-medium text-red-600">
-                      {friendlyVoteError(submitTextResponse.error.message)}
-                    </p>
-                  )}
+                : textError
+                  ? (
+                      <p id="vote-text-answer-error" role="alert" className="text-sm font-medium text-red-600">
+                        {textError}
+                      </p>
+                    )
+                  : submitTextResponse.isError && (
+                      <p id="vote-text-answer-error" role="alert" className="text-sm font-medium text-red-600">
+                        {friendlyVoteError(submitTextResponse.error.message)}
+                      </p>
+                    )}
             <div className="flex gap-2">
               {questionIndex > 0 && (
                 <Button
                   type="button"
                   variant="secondary"
-                  disabled={castVote.isPending || castVoteMulti.isPending || submitTextResponse.isPending}
+                  disabled={
+                    castVote.isPending ||
+                    castVoteMulti.isPending ||
+                    castVoteRanked.isPending ||
+                    submitTextResponse.isPending
+                  }
                   onClick={() => setQuestionIndex((i) => i - 1)}
                 >
                   ← Back
@@ -368,14 +445,19 @@ export default function VotePage() {
                     ? isMultiSelect
                       ? selectedOptionIds.length === 0 || castVoteMulti.isPending
                       : !selectedOptionId || castVote.isPending
-                    : textResponse.trim().length === 0 || submitTextResponse.isPending
+                    : currentQuestion.type === "ranked"
+                      ? rankedOptionIds.length < 2 || castVoteRanked.isPending
+                      : textResponse.trim().length === 0 || submitTextResponse.isPending
                 }
                 className="flex-1"
               >
-                {castVote.isPending || castVoteMulti.isPending || submitTextResponse.isPending
-                  ? currentQuestion.type === "choice"
-                    ? "Voting…"
-                    : "Submitting…"
+                {castVote.isPending ||
+                castVoteMulti.isPending ||
+                castVoteRanked.isPending ||
+                submitTextResponse.isPending
+                  ? currentQuestion.type === "text"
+                    ? "Submitting…"
+                    : "Voting…"
                   : !isLastQuestion
                     ? "Next →"
                     : questions.length > 1
