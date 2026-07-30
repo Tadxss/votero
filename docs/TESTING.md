@@ -27,6 +27,33 @@ Every scenario below that *can* run unattended is committed as a real Playwright
 
 Scenarios without a row (1, 5, 8, 9, 11–20, 27, 32) are either pure visual/motion judgment calls, need a second physical device, or haven't been ported yet — still manual-only.
 
+## Load/concurrency testing
+
+`apps/web/e2e/load/vote-burst.mjs` covers the one scenario the Playwright suite structurally
+can't: **many people scanning a QR code and voting within the same short window**, the real shape
+of an in-person event, as opposed to the suite's sequential one-voter-at-a-time flows. It's a
+plain Node script (not a Playwright spec — no browser involved) that talks to the local Supabase
+stack directly over HTTP: mints N anonymous sessions concurrently, joins a lobby concurrently,
+votes concurrently, and reports latency/broadcast/correctness numbers.
+
+**Not wired into CI** — latency numbers are too environment-dependent to gate a pipeline on. This
+is a manual/ad-hoc tool, run when investigating real capacity (e.g. before a live event with an
+expected headcount), not a regression gate.
+
+```sh
+cd apps/web
+node --env-file=.env.local e2e/load/vote-burst.mjs          # default: 100 concurrent voters
+VOTER_COUNT=200 node --env-file=.env.local e2e/load/vote-burst.mjs
+```
+
+Requires the local Supabase stack running, same as `pnpm test:e2e`. It reports: join/vote latency
+(p50/p95/max) and wall-clock time for the whole concurrent burst; how many live-tally Realtime
+broadcasts arrived vs. expected (every vote sends its own broadcast — no batching exists today,
+per `cast-vote/index.ts`'s own comment); and a pass/fail correctness check that `joined_count`/
+`votes_count` on the lobby match the voter count afterward (a real regression — a lost vote under
+row-lock contention — fails loudly here, distinct from the latency numbers, which are informational
+only).
+
 ## Setup
 
 1. `npx supabase start` (Docker Desktop must be running).
