@@ -25,6 +25,9 @@ function friendlyCreateError(message: string): string {
   if (message.includes("AT_LEAST_TWO_OPTIONS_REQUIRED")) {
     return "Every question needs at least 2 options.";
   }
+  if (message.includes("INVALID_MAX_SELECTIONS")) {
+    return "Max selections must be between 1 and the number of options.";
+  }
   if (message.includes("INAPPROPRIATE_CONTENT")) {
     return "Please remove inappropriate language from the title, questions, or options.";
   }
@@ -38,10 +41,11 @@ interface QuestionDraft {
   title: string;
   type: QuestionType;
   options: string[];
+  maxSelections: number;
 }
 
 function makeQuestionDraft(): QuestionDraft {
-  return { title: "", type: "choice", options: ["", ""] };
+  return { title: "", type: "choice", options: ["", ""], maxSelections: 1 };
 }
 
 export default function CreateLobbyPage() {
@@ -63,12 +67,20 @@ export default function CreateLobbyPage() {
     title: q.title.trim(),
     type: q.type,
     options: q.type === "choice" ? q.options.map((o) => o.trim()).filter(Boolean) : [],
+    maxSelections: q.type === "choice" ? q.maxSelections : undefined,
   }));
   const canSubmit =
     ready &&
     title.trim().length > 0 &&
     preparedQuestions.length > 0 &&
-    preparedQuestions.every((q) => q.title.length > 0 && (q.type === "text" || q.options.length >= 2)) &&
+    preparedQuestions.every(
+      (q) =>
+        q.title.length > 0 &&
+        (q.type === "text" ||
+          (q.options.length >= 2 &&
+            (q.maxSelections ?? 1) >= 1 &&
+            (q.maxSelections ?? 1) <= q.options.length)),
+    ) &&
     voterCap > 0 &&
     voterCap <= 10000;
 
@@ -96,8 +108,20 @@ export default function CreateLobbyPage() {
 
   function removeOption(qIndex: number, oIndex: number) {
     setQuestions((prev) =>
+      prev.map((q, i) => {
+        if (i !== qIndex) return q;
+        const options = q.options.filter((_, j) => j !== oIndex);
+        return { ...q, options, maxSelections: Math.min(q.maxSelections, options.length) };
+      }),
+    );
+  }
+
+  function updateMaxSelections(qIndex: number, value: number) {
+    setQuestions((prev) =>
       prev.map((q, i) =>
-        i === qIndex ? { ...q, options: q.options.filter((_, j) => j !== oIndex) } : q,
+        i === qIndex
+          ? { ...q, maxSelections: Math.max(1, Math.min(value, q.options.length)) }
+          : q,
       ),
     );
   }
@@ -133,6 +157,13 @@ export default function CreateLobbyPage() {
       }
       if (q.type === "choice" && q.options.length < 2) {
         setFormError("Every choice question needs at least 2 options.");
+        return;
+      }
+      if (
+        q.type === "choice" &&
+        ((q.maxSelections ?? 1) < 1 || (q.maxSelections ?? 1) > q.options.length)
+      ) {
+        setFormError("Max selections must be between 1 and the number of options.");
         return;
       }
       if (
@@ -287,6 +318,22 @@ export default function CreateLobbyPage() {
                       >
                         + Add option
                       </Button>
+                      {question.options.length > 2 && (
+                        <label className="flex items-center gap-2 text-xs font-semibold text-[var(--foreground-muted)]">
+                          Max selections
+                          <input
+                            type="number"
+                            min={1}
+                            max={question.options.length}
+                            value={question.maxSelections}
+                            onChange={(e) => updateMaxSelections(qIndex, Number(e.target.value))}
+                            className={`${inputClasses} w-16 py-1 text-center text-sm`}
+                          />
+                          <span className="font-normal">
+                            of {question.options.length} — 1 for a classic single-choice question
+                          </span>
+                        </label>
+                      )}
                     </div>
                   )}
                 </div>

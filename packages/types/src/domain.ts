@@ -40,6 +40,7 @@ export interface SurveyQuestion {
   lobbyId: string;
   title: string;
   type: QuestionType;
+  maxSelections: number; // > 1 means "choose up to N"; always 1 for type: "text"
   position: number;
   options: LobbyOption[]; // empty for type: "text"
 }
@@ -76,6 +77,7 @@ export interface CreateLobbyQuestionInput {
   title: string;
   type: QuestionType;
   options?: string[]; // required (min 2 labels) when type: "choice"; unused for type: "text"
+  maxSelections?: number; // choice only; 1..options.length. Omit for classic single-select.
 }
 
 export interface CreateLobbyInput {
@@ -107,6 +109,15 @@ export interface JoinLobbyResult {
 export interface CastVoteInput {
   lobbyId: string;
   optionId: string;
+}
+
+// For a question with maxSelections > 1 — replaces the participant's full selection set for that
+// question in one call (matches the vote page's "accumulate locally, submit once" model, not a
+// per-click toggle).
+export interface CastVoteMultiInput {
+  lobbyId: string;
+  questionId: string;
+  optionIds: string[];
 }
 
 export interface CastTextResponseInput {

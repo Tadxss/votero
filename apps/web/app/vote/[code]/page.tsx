@@ -10,6 +10,7 @@ import {
   useLobbyRealtime,
   useJoinLobby,
   useCastVote,
+  useCastVoteMulti,
   useSubmitTextResponse,
   useEnsureSession,
   useAuthUser,
@@ -57,6 +58,7 @@ export default function VotePage() {
 
   const joinLobby = useJoinLobby();
   const castVote = useCastVote();
+  const castVoteMulti = useCastVoteMulti();
   const submitTextResponse = useSubmitTextResponse();
   const results = useLobbyResults(lobby?.id);
   const { burst } = useConfetti();
@@ -69,6 +71,9 @@ export default function VotePage() {
   // Keyed by question ID (not a single "current selection") so going back to an earlier question
   // shows what was previously picked/typed there, rather than a blank slate.
   const [choiceAnswers, setChoiceAnswers] = useState<Record<string, string>>({});
+  // Separate state for multi-select (maxSelections > 1) questions — single-select's state/logic
+  // above is untouched, this is an additive path.
+  const [multiChoiceAnswers, setMultiChoiceAnswers] = useState<Record<string, string[]>>({});
   const [textAnswers, setTextAnswers] = useState<Record<string, string>>({});
   const [textError, setTextError] = useState<string | null>(null);
   const joinAttempted = useRef(false);
@@ -120,6 +125,8 @@ export default function VotePage() {
   const currentQuestion = questions[questionIndex];
   const isLastQuestion = questionIndex === questions.length - 1;
   const selectedOptionId = currentQuestion ? (choiceAnswers[currentQuestion.id] ?? null) : null;
+  const isMultiSelect = Boolean(currentQuestion && currentQuestion.maxSelections > 1);
+  const selectedOptionIds = currentQuestion ? (multiChoiceAnswers[currentQuestion.id] ?? []) : [];
   const textResponse = currentQuestion ? (textAnswers[currentQuestion.id] ?? "") : "";
 
   return (
@@ -195,7 +202,18 @@ export default function VotePage() {
                 }
               }
 
-              if (currentQuestion.type === "choice") {
+              if (currentQuestion.type === "choice" && isMultiSelect) {
+                if (selectedOptionIds.length === 0) return;
+                castVoteMulti.mutate(
+                  { lobbyId: lobby.id, questionId: currentQuestion.id, optionIds: selectedOptionIds },
+                  {
+                    onSuccess: () => {
+                      trackEvent("vote_cast", { questionType: "choice" });
+                      advance();
+                    },
+                  },
+                );
+              } else if (currentQuestion.type === "choice") {
                 if (!selectedOptionId) return;
                 castVote.mutate(
                   { lobbyId: lobby.id, optionId: selectedOptionId },
@@ -240,7 +258,40 @@ export default function VotePage() {
                 {currentQuestion.title}
               </h2>
             )}
-            {currentQuestion.type === "choice" ? (
+            {currentQuestion.type === "choice" && isMultiSelect ? (
+              <>
+                <p className="-mt-1 text-xs text-[var(--foreground-muted)]">
+                  Choose up to {currentQuestion.maxSelections}
+                </p>
+                {currentQuestion.options.map((option) => {
+                  const checked = selectedOptionIds.includes(option.id);
+                  const atCap = selectedOptionIds.length >= currentQuestion.maxSelections;
+                  return (
+                    <RadioCard
+                      key={option.id}
+                      type="checkbox"
+                      name="option"
+                      value={option.id}
+                      selected={checked}
+                      label={option.label}
+                      size="lg"
+                      disabled={!checked && atCap}
+                      onSelect={(optionId) =>
+                        setMultiChoiceAnswers((prev) => {
+                          const current = prev[currentQuestion.id] ?? [];
+                          const next = current.includes(optionId)
+                            ? current.filter((id) => id !== optionId)
+                            : current.length < currentQuestion.maxSelections
+                              ? [...current, optionId]
+                              : current;
+                          return { ...prev, [currentQuestion.id]: next };
+                        })
+                      }
+                    />
+                  );
+                })}
+              </>
+            ) : currentQuestion.type === "choice" ? (
               currentQuestion.options.map((option) => (
                 <RadioCard
                   key={option.id}
@@ -281,9 +332,11 @@ export default function VotePage() {
               </div>
             )}
             {currentQuestion.type === "choice"
-              ? castVote.isError && (
+              ? (isMultiSelect ? castVoteMulti.isError : castVote.isError) && (
                   <p role="alert" className="text-sm font-medium text-red-600">
-                    {friendlyVoteError(castVote.error.message)}
+                    {friendlyVoteError(
+                      (isMultiSelect ? castVoteMulti.error : castVote.error)!.message,
+                    )}
                   </p>
                 )
               : textError
@@ -302,7 +355,7 @@ export default function VotePage() {
                 <Button
                   type="button"
                   variant="secondary"
-                  disabled={castVote.isPending || submitTextResponse.isPending}
+                  disabled={castVote.isPending || castVoteMulti.isPending || submitTextResponse.isPending}
                   onClick={() => setQuestionIndex((i) => i - 1)}
                 >
                   ← Back
@@ -312,12 +365,14 @@ export default function VotePage() {
                 type="submit"
                 disabled={
                   currentQuestion.type === "choice"
-                    ? !selectedOptionId || castVote.isPending
+                    ? isMultiSelect
+                      ? selectedOptionIds.length === 0 || castVoteMulti.isPending
+                      : !selectedOptionId || castVote.isPending
                     : textResponse.trim().length === 0 || submitTextResponse.isPending
                 }
                 className="flex-1"
               >
-                {castVote.isPending || submitTextResponse.isPending
+                {castVote.isPending || castVoteMulti.isPending || submitTextResponse.isPending
                   ? currentQuestion.type === "choice"
                     ? "Voting…"
                     : "Submitting…"
