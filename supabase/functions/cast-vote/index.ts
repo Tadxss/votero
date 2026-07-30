@@ -4,17 +4,33 @@ import { statusForRpcError } from "../_shared/errors.ts";
 
 // One vote atomically touches four things and can trigger auto-close (docs/ARCHITECTURE.md
 // "cast-vote") — all handled inside rpc_cast_vote's own transaction, run as the caller.
+//
+// Branches on payload shape rather than a separate Edge Function: {lobbyId, optionId} (original,
+// single-select) calls rpc_cast_vote; {lobbyId, questionId, optionIds} (multi-select, max_selections
+// > 1 questions only) calls rpc_cast_vote_multi. Both share the same live-tally broadcast below.
 export default {
   fetch: withSupabase({ auth: "user" }, async (req, ctx) => {
-    const { lobbyId, optionId } = await req.json();
-    if (!lobbyId || !optionId) {
+    const body = await req.json();
+    const { lobbyId } = body;
+    if (!lobbyId) {
       return Response.json({ error: "MISSING_LOBBY_ID_OR_OPTION_ID" }, { status: 400 });
     }
 
-    const { data: lobby, error } = await ctx.supabase.rpc("rpc_cast_vote", {
-      p_lobby_id: lobbyId,
-      p_option_id: optionId,
-    });
+    const isMulti = Array.isArray(body.optionIds);
+    if (!isMulti && !body.optionId) {
+      return Response.json({ error: "MISSING_LOBBY_ID_OR_OPTION_ID" }, { status: 400 });
+    }
+
+    const { data: lobby, error } = isMulti
+      ? await ctx.supabase.rpc("rpc_cast_vote_multi", {
+          p_lobby_id: lobbyId,
+          p_question_id: body.questionId,
+          p_option_ids: body.optionIds,
+        })
+      : await ctx.supabase.rpc("rpc_cast_vote", {
+          p_lobby_id: lobbyId,
+          p_option_id: body.optionId,
+        });
 
     if (error) {
       return Response.json({ error: error.message }, { status: statusForRpcError(error.message) });

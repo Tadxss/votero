@@ -397,32 +397,56 @@ export default function ManageLobbyPage() {
                             {q.type === "choice" ? "Who voted for what" : "Who said what"}
                           </h3>
                           <ul className="flex flex-col gap-2">
-                            {ballotDetail.entries.map((entry) => {
-                              const { primary, secondary } = resolveVoterLabel(entry);
-                              return (
-                                <li
-                                  key={entry.participantId}
-                                  className="flex items-center gap-2.5 text-sm"
-                                >
-                                  <Avatar url={entry.avatarUrl} label={primary} size="sm" />
-                                  <div className="flex flex-col leading-tight">
-                                    <span className="font-medium text-[var(--foreground)]">
-                                      {primary}
-                                    </span>
-                                    {secondary && (
-                                      <span className="text-xs text-[var(--foreground-muted)]">
-                                        {secondary}
+                            {(() => {
+                              // A multi-select question produces one vote row (one entry) per
+                              // selected option — group by participant so a person who picked
+                              // several options shows one row listing all of them, not duplicates.
+                              const grouped = new Map<
+                                string,
+                                { entry: BallotDetailEntry; optionLabels: string[] }
+                              >();
+                              for (const entry of ballotDetail.entries) {
+                                const optionLabel =
+                                  "optionId" in entry
+                                    ? question?.options.find((o) => o.id === entry.optionId)?.label
+                                    : undefined;
+                                const existing = grouped.get(entry.participantId);
+                                if (existing) {
+                                  if (optionLabel) existing.optionLabels.push(optionLabel);
+                                } else {
+                                  grouped.set(entry.participantId, {
+                                    entry,
+                                    optionLabels: optionLabel ? [optionLabel] : [],
+                                  });
+                                }
+                              }
+                              return Array.from(grouped.values()).map(({ entry, optionLabels }) => {
+                                const { primary, secondary } = resolveVoterLabel(entry);
+                                return (
+                                  <li
+                                    key={entry.participantId}
+                                    className="flex items-center gap-2.5 text-sm"
+                                  >
+                                    <Avatar url={entry.avatarUrl} label={primary} size="sm" />
+                                    <div className="flex flex-col leading-tight">
+                                      <span className="font-medium text-[var(--foreground)]">
+                                        {primary}
                                       </span>
-                                    )}
-                                  </div>
-                                  <span className="ml-auto font-semibold text-[var(--foreground)]">
-                                    {"optionId" in entry
-                                      ? question?.options.find((o) => o.id === entry.optionId)?.label
-                                      : entry.responseText}
-                                  </span>
-                                </li>
-                              );
-                            })}
+                                      {secondary && (
+                                        <span className="text-xs text-[var(--foreground-muted)]">
+                                          {secondary}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <span className="ml-auto font-semibold text-[var(--foreground)]">
+                                      {"optionId" in entry
+                                        ? optionLabels.join(", ")
+                                        : entry.responseText}
+                                    </span>
+                                  </li>
+                                );
+                              });
+                            })()}
                           </ul>
                         </div>
                       )}

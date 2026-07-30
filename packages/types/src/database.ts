@@ -226,6 +226,7 @@ export type Database = {
         Row: {
           id: string
           lobby_id: string
+          max_selections: number
           position: number
           title: string
           type: Database["public"]["Enums"]["question_type"]
@@ -233,6 +234,7 @@ export type Database = {
         Insert: {
           id?: string
           lobby_id: string
+          max_selections?: number
           position: number
           title: string
           type?: Database["public"]["Enums"]["question_type"]
@@ -240,6 +242,7 @@ export type Database = {
         Update: {
           id?: string
           lobby_id?: string
+          max_selections?: number
           position?: number
           title?: string
           type?: Database["public"]["Enums"]["question_type"]
@@ -253,6 +256,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      rate_limit_hits: {
+        Row: {
+          action: string
+          created_at: string
+          id: number
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: never
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: never
+          user_id?: string
+        }
+        Relationships: []
       }
       votes: {
         Row: {
@@ -318,6 +342,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      contains_profanity: { Args: { p_text: string }; Returns: boolean }
       generate_lobby_code: { Args: never; Returns: string }
       lobby_to_json: {
         Args: { l: Database["public"]["Tables"]["lobbies"]["Row"] }
@@ -363,6 +388,43 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      rpc_cast_vote_multi: {
+        Args: {
+          p_lobby_id: string
+          p_option_ids: string[]
+          p_question_id: string
+        }
+        Returns: {
+          ballot_mode: Database["public"]["Enums"]["ballot_mode"]
+          closed_at: string | null
+          closes_at: string | null
+          code: string
+          created_at: string
+          creator_id: string
+          id: string
+          joined_count: number
+          opened_at: string | null
+          otp_required: boolean
+          question_count: number
+          status: Database["public"]["Enums"]["lobby_status"]
+          tally_visibility: Database["public"]["Enums"]["tally_visibility"]
+          title: string
+          updated_at: string
+          visibility: Database["public"]["Enums"]["lobby_visibility"]
+          voter_cap: number
+          votes_count: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "lobbies"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      rpc_check_rate_limit: {
+        Args: { p_action: string; p_max_count: number; p_window: string }
+        Returns: undefined
       }
       rpc_count_completed_participants: {
         Args: { p_lobby_id: string }
@@ -601,4 +663,3 @@ export const Constants = {
     },
   },
 } as const
-
