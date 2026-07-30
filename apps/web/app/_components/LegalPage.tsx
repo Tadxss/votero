@@ -1,4 +1,3 @@
-import Link from "next/link";
 import type { ReactNode } from "react";
 
 export function LegalPage({
@@ -21,13 +20,6 @@ export function LegalPage({
         <div className="flex animate-pop-in flex-col gap-6 rounded-3xl border border-neutral-300 bg-[var(--surface)] p-6 shadow-sm dark:border-neutral-800 sm:p-8">
           {children}
         </div>
-
-        <Link
-          href="/"
-          className="text-sm font-medium text-[var(--foreground-muted)] transition-colors hover:text-brand-600"
-        >
-          ← Back home
-        </Link>
       </div>
     </main>
   );

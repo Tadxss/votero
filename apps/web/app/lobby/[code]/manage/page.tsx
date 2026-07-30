@@ -235,6 +235,23 @@ export default function ManageLobbyPage() {
               </div>
             )}
 
+            {lobby.status === "closed" && (
+              <div className="flex animate-pop-in flex-col items-center gap-2 rounded-3xl border-4 border-neutral-300 bg-[var(--surface)] p-6 text-center shadow-md dark:border-neutral-700">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-neutral-100 px-3 py-1 text-xs font-semibold text-[var(--foreground-muted)] dark:bg-neutral-800">
+                  <Lock size={12} aria-hidden /> Voting closed
+                </span>
+                <p className="text-sm text-[var(--foreground-muted)]">
+                  {lobby.closedAt
+                    ? `Voting ended ${new Date(lobby.closedAt).toLocaleString(undefined, {
+                        dateStyle: "medium",
+                        timeStyle: "short",
+                      })}.`
+                    : "Voting has ended for this lobby."}{" "}
+                  See the results panel for the full breakdown.
+                </p>
+              </div>
+            )}
+
             <Link
               href={`/lobby/${code}/present`}
               target="_blank"
