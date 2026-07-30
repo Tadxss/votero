@@ -228,7 +228,10 @@ export default function VotePage() {
             className="flex animate-pop-in flex-col gap-3"
           >
             {questions.length > 1 && (
-              <p className="text-xs font-semibold tracking-wide text-[var(--foreground-muted)] uppercase">
+              <p
+                className="text-xs font-semibold tracking-wide text-[var(--foreground-muted)] uppercase"
+                aria-live="polite"
+              >
                 Question {questionIndex + 1} of {questions.length}
               </p>
             )}
@@ -253,7 +256,11 @@ export default function VotePage() {
               ))
             ) : (
               <div className="flex flex-col gap-1">
+                <label htmlFor="vote-text-answer" className="sr-only">
+                  Your answer
+                </label>
                 <textarea
+                  id="vote-text-answer"
                   value={textResponse}
                   onChange={(e) => {
                     setTextAnswers((prev) => ({ ...prev, [currentQuestion.id]: e.target.value }));
@@ -262,7 +269,11 @@ export default function VotePage() {
                   maxLength={300}
                   rows={3}
                   placeholder="Type your answer…"
-                  className="rounded-2xl border-2 border-neutral-300 bg-[var(--input-bg)] p-4 text-base text-[var(--foreground)] outline-none focus:border-brand-400 dark:border-neutral-700"
+                  aria-invalid={textError !== null || submitTextResponse.isError}
+                  aria-describedby={
+                    textError || submitTextResponse.isError ? "vote-text-answer-error" : undefined
+                  }
+                  className="rounded-2xl border-2 border-neutral-300 bg-[var(--input-bg)] p-4 text-base text-[var(--foreground)] outline-none focus-visible:ring-2 focus-visible:ring-brand-400 focus:border-brand-400 dark:border-neutral-700"
                 />
                 <span className="self-end text-xs text-[var(--foreground-muted)]">
                   {textResponse.length}/300
@@ -271,14 +282,18 @@ export default function VotePage() {
             )}
             {currentQuestion.type === "choice"
               ? castVote.isError && (
-                  <p className="text-sm font-medium text-red-600">
+                  <p role="alert" className="text-sm font-medium text-red-600">
                     {friendlyVoteError(castVote.error.message)}
                   </p>
                 )
               : textError
-                ? <p className="text-sm font-medium text-red-600">{textError}</p>
+                ? (
+                    <p id="vote-text-answer-error" role="alert" className="text-sm font-medium text-red-600">
+                      {textError}
+                    </p>
+                  )
                 : submitTextResponse.isError && (
-                    <p className="text-sm font-medium text-red-600">
+                    <p id="vote-text-answer-error" role="alert" className="text-sm font-medium text-red-600">
                       {friendlyVoteError(submitTextResponse.error.message)}
                     </p>
                   )}

@@ -27,6 +27,7 @@
     "react-dom": "19.2.3"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.12.1",
     "@playwright/test": "^1.62.0",
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",

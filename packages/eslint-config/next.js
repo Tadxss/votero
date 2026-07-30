@@ -4,6 +4,7 @@ import eslintConfigPrettier from "eslint-config-prettier";
 import tseslint from "typescript-eslint";
 import pluginReactHooks from "eslint-plugin-react-hooks";
 import pluginReact from "eslint-plugin-react";
+import pluginJsxA11y from "eslint-plugin-jsx-a11y";
 import globals from "globals";
 import pluginNext from "@next/eslint-plugin-next";
 import { config as baseConfig } from "./base.js";
@@ -54,4 +55,5 @@ export const nextJsConfig = [
       "react/react-in-jsx-scope": "off",
     },
   },
+  pluginJsxA11y.flatConfigs.recommended,
 ];

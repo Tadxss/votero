@@ -6,6 +6,7 @@ import jsQR from "jsqr";
 import { QrCode, Keyboard } from "lucide-react";
 import { Button } from "./Button";
 import { inputClasses } from "./styles";
+import { useModalA11y } from "./useModalA11y";
 
 type Mode = "choice" | "scan" | "code";
 
@@ -35,14 +36,8 @@ export function JoinLobbyModal({ open, onClose }: { open: boolean; onClose: () =
     }
   }, [open]);
 
-  useEffect(() => {
-    if (!open) return;
-    function onKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
-    }
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [open, onClose]);
+  const containerRef = useRef<HTMLDivElement>(null);
+  useModalA11y({ open, onClose, containerRef });
 
   useEffect(() => {
     if (!open || mode !== "scan") return;
@@ -125,15 +120,25 @@ export function JoinLobbyModal({ open, onClose }: { open: boolean; onClose: () =
   if (!open) return null;
 
   return (
+    // Click-outside-to-dismiss backdrop — Escape (handled by useModalA11y) is the keyboard
+    // equivalent, so this div itself doesn't need its own key handler.
+    // eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
       onClick={onClose}
     >
+      {/* stopPropagation only guards against the backdrop's onClose above, not a real interaction */}
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/click-events-have-key-events */}
       <div
+        ref={containerRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="join-lobby-title"
+        tabIndex={-1}
         className="w-full max-w-sm animate-pop-in rounded-3xl border border-neutral-300 bg-[var(--surface)] p-6 shadow-xl dark:border-neutral-800"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="font-display text-xl font-bold text-[var(--foreground)]">Join a lobby</h2>
+        <h2 id="join-lobby-title" className="font-display text-xl font-bold text-[var(--foreground)]">Join a lobby</h2>
 
         {mode === "choice" && (
           <div className="mt-4 flex flex-col gap-3">
@@ -208,10 +213,14 @@ export function JoinLobbyModal({ open, onClose }: { open: boolean; onClose: () =
           <form onSubmit={handleCodeSubmit} className="mt-4 flex flex-col gap-4">
             <label className="flex flex-col gap-1.5 text-sm font-semibold text-[var(--foreground)]">
               Lobby code
+              {/* Focus-safe here: this input only appears after switching modes inside an
+                  already-open, already-focus-trapped modal (useModalA11y) — it never steals focus
+                  on page load. */}
               <input
                 value={code}
                 onChange={(e) => setCode(e.target.value.toUpperCase().slice(0, 8))}
                 placeholder="8-CHAR CODE"
+                // eslint-disable-next-line jsx-a11y/no-autofocus
                 autoFocus
                 className={`${inputClasses} text-center font-mono tracking-widest`}
               />

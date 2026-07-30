@@ -74,7 +74,11 @@ export default function Home() {
         <div className="w-72 -rotate-2 rounded-3xl border border-neutral-300 bg-[var(--surface)] p-5 shadow-xl transition-transform hover:rotate-0 dark:border-neutral-800">
           <p className="mb-3 text-sm font-semibold text-[var(--foreground)]">Team pizza night?</p>
           <div className="mb-4 flex justify-center rounded-2xl bg-white p-3">
-            <QRCodeSVG value="https://votero.app/vote/DEMOABCD" size={104} />
+            <QRCodeSVG
+              value="https://votero.app/vote/DEMOABCD"
+              size={104}
+              title="Example QR code linking to a demo Votero lobby"
+            />
           </div>
           <TallyBars options={DEMO_OPTIONS} tally={DEMO_TALLY} />
           <p className="mt-4 text-xs text-[var(--foreground-muted)]">42 joined · live</p>

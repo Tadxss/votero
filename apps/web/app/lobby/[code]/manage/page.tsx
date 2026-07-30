@@ -179,7 +179,7 @@ export default function ManageLobbyPage() {
             {lobby.status !== "closed" && voteUrl && (
               <div className="flex animate-pop-in flex-col items-center gap-3 rounded-3xl border-4 border-brand-500 bg-[var(--surface)] p-6 shadow-md">
                 <div className="rounded-2xl bg-white p-3">
-                  <QRCodeSVG value={voteUrl} size={180} />
+                  <QRCodeSVG value={voteUrl} size={180} title={`QR code to vote in ${lobby.title}`} />
                 </div>
                 <p
                   className="w-full max-w-full truncate text-center text-sm text-[var(--foreground-muted)]"
@@ -248,7 +248,7 @@ export default function ManageLobbyPage() {
 
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between text-sm font-medium text-[var(--foreground-muted)]">
-                <span>
+                <span aria-live="polite">
                   {lobby.joinedCount} / {lobby.voterCap} joined
                 </span>
                 {lobby.tallyVisibility === "live" && <LiveDot />}
@@ -430,7 +430,7 @@ export default function ManageLobbyPage() {
                   );
                 })
               ) : (
-                <p className="text-sm text-[var(--foreground-muted)]">
+                <p className="text-sm text-[var(--foreground-muted)]" aria-live="polite">
                   {results.data.progress.completedCount} of {results.data.progress.joined} have voted —
                   tally hidden until the lobby closes.
                 </p>

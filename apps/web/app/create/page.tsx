@@ -365,9 +365,13 @@ export default function CreateLobbyPage() {
           </div>
 
           <div className="flex flex-col gap-3 lg:col-span-2">
-            {formError && <p className="text-sm font-medium text-red-600">{formError}</p>}
+            {formError && (
+              <p role="alert" className="text-sm font-medium text-red-600">
+                {formError}
+              </p>
+            )}
             {createLobby.isError && (
-              <p className="text-sm font-medium text-red-600">
+              <p role="alert" className="text-sm font-medium text-red-600">
                 {friendlyCreateError(createLobby.error.message)}
               </p>
             )}
