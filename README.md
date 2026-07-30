@@ -2,7 +2,7 @@
 
 A QR-code-based group voting/polling app — create a lobby, share a QR code, people scan to vote. Ships to iOS, Android, and Web from a single Turborepo monorepo with shared business logic.
 
-See [docs/FEATURES.md](docs/FEATURES.md) for a plain-language tour of what Votero does, [TECH_STACK.md](TECH_STACK.md) for the stack, [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the product design (schema, RLS, Edge Functions, Realtime, build order), and [docs/TESTING.md](docs/TESTING.md) for a manual walkthrough of every creator/voter scenario.
+See [docs/FEATURES.md](docs/FEATURES.md) for a plain-language tour of what Votero does, [TECH_STACK.md](TECH_STACK.md) for the stack, [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the product design (schema, RLS, Edge Functions, Realtime, build order), [docs/TESTING.md](docs/TESTING.md) for a manual walkthrough of every creator/voter scenario, and [docs/CASE_STUDY.md](docs/CASE_STUDY.md) for a portfolio-style writeup of the engineering decisions behind it.
 
 ## What's inside
 
