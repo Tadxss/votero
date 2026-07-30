@@ -155,7 +155,7 @@ export default function ManageLobbyPage() {
               (7 days after creation, regardless of whether voting is open or closed) — signing in
               now won&apos;t save this one, since it can&apos;t be transferred to an account after
               the fact.{" "}
-              <Link href="/login" className="font-semibold text-brand-600 hover:underline">
+              <Link href="/login" className="font-semibold text-brand-700 hover:underline">
                 Sign in
               </Link>{" "}
               before creating your next lobby to keep that one permanently.

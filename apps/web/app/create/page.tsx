@@ -209,7 +209,7 @@ export default function CreateLobbyPage() {
                   className="flex flex-col gap-3 rounded-2xl border border-neutral-300 p-4 dark:border-neutral-800"
                 >
                   <div className="flex items-center gap-2">
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-100 text-xs font-bold text-brand-600 dark:bg-brand-900/40 dark:text-brand-300">
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-100 text-xs font-bold text-brand-900 dark:bg-brand-900/40 dark:text-brand-300">
                       Q{qIndex + 1}
                     </span>
                     <input
@@ -237,7 +237,7 @@ export default function CreateLobbyPage() {
                       onClick={() => updateQuestionType(qIndex, "choice")}
                       className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
                         question.type === "choice"
-                          ? "bg-brand-500 text-white"
+                          ? "bg-brand-700 text-white"
                           : "bg-neutral-100 text-[var(--foreground-muted)] dark:bg-neutral-800"
                       }`}
                     >
@@ -248,7 +248,7 @@ export default function CreateLobbyPage() {
                       onClick={() => updateQuestionType(qIndex, "text")}
                       className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
                         question.type === "text"
-                          ? "bg-brand-500 text-white"
+                          ? "bg-brand-700 text-white"
                           : "bg-neutral-100 text-[var(--foreground-muted)] dark:bg-neutral-800"
                       }`}
                     >
@@ -378,7 +378,7 @@ export default function CreateLobbyPage() {
 
             {!isSignedIn && (
               <p className="text-sm text-[var(--foreground-muted)]">
-                <Link href="/login" className="font-semibold text-brand-600 hover:underline">
+                <Link href="/login" className="font-semibold text-brand-700 hover:underline">
                   Sign in
                 </Link>{" "}
                 to save this to your history — or just create it, no account needed.

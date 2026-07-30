@@ -21,7 +21,7 @@ export function ChartViewToggle({
         aria-pressed={value === "bar"}
         className={`rounded-full p-1.5 transition-colors ${
           value === "bar"
-            ? "bg-brand-500 text-white"
+            ? "bg-brand-700 text-white"
             : "text-[var(--foreground-muted)] hover:text-brand-600"
         }`}
       >
@@ -34,7 +34,7 @@ export function ChartViewToggle({
         aria-pressed={value === "donut"}
         className={`rounded-full p-1.5 transition-colors ${
           value === "donut"
-            ? "bg-brand-500 text-white"
+            ? "bg-brand-700 text-white"
             : "text-[var(--foreground-muted)] hover:text-brand-600"
         }`}
       >
