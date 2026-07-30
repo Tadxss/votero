@@ -3,6 +3,7 @@ export * from "./supabase/storage";
 export * from "./supabase/context";
 export * from "./supabase/mappers";
 export * from "./supabase/functionErrors";
+export * from "./profanity";
 export * from "./hooks/useEnsureSession";
 export * from "./hooks/useLobby";
 export * from "./hooks/useCreateLobby";

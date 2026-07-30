@@ -13,6 +13,7 @@ import {
   useSubmitTextResponse,
   useEnsureSession,
   useAuthUser,
+  containsProfanity,
 } from "@repo/shared";
 import { Button } from "../../_components/Button";
 import { TallyBars } from "../../_components/TallyBars";
@@ -29,6 +30,10 @@ function friendlyVoteError(message: string): string {
   if (message === "LOBBY_NOT_FOUND") return "This lobby no longer exists.";
   if (message === "RESPONSE_TEXT_REQUIRED") return "Type an answer before submitting.";
   if (message === "RESPONSE_TEXT_TOO_LONG") return "Your answer is too long (300 characters max).";
+  if (message === "INAPPROPRIATE_CONTENT") {
+    return "Please remove inappropriate language from your answer.";
+  }
+  if (message === "RATE_LIMITED") return "You're going too fast — wait a moment and try again.";
   return "Something went wrong. Please try again.";
 }
 
@@ -65,6 +70,7 @@ export default function VotePage() {
   // shows what was previously picked/typed there, rather than a blank slate.
   const [choiceAnswers, setChoiceAnswers] = useState<Record<string, string>>({});
   const [textAnswers, setTextAnswers] = useState<Record<string, string>>({});
+  const [textError, setTextError] = useState<string | null>(null);
   const joinAttempted = useRef(false);
 
   useEffect(() => {
@@ -203,6 +209,11 @@ export default function VotePage() {
               } else {
                 const trimmed = textResponse.trim();
                 if (!trimmed) return;
+                if (containsProfanity(trimmed)) {
+                  setTextError("Please remove inappropriate language from your answer.");
+                  return;
+                }
+                setTextError(null);
                 submitTextResponse.mutate(
                   { lobbyId: lobby.id, questionId: currentQuestion.id, responseText: trimmed },
                   {
@@ -244,9 +255,10 @@ export default function VotePage() {
               <div className="flex flex-col gap-1">
                 <textarea
                   value={textResponse}
-                  onChange={(e) =>
-                    setTextAnswers((prev) => ({ ...prev, [currentQuestion.id]: e.target.value }))
-                  }
+                  onChange={(e) => {
+                    setTextAnswers((prev) => ({ ...prev, [currentQuestion.id]: e.target.value }));
+                    setTextError(null);
+                  }}
                   maxLength={300}
                   rows={3}
                   placeholder="Type your answer…"
@@ -263,11 +275,13 @@ export default function VotePage() {
                     {friendlyVoteError(castVote.error.message)}
                   </p>
                 )
-              : submitTextResponse.isError && (
-                  <p className="text-sm font-medium text-red-600">
-                    {friendlyVoteError(submitTextResponse.error.message)}
-                  </p>
-                )}
+              : textError
+                ? <p className="text-sm font-medium text-red-600">{textError}</p>
+                : submitTextResponse.isError && (
+                    <p className="text-sm font-medium text-red-600">
+                      {friendlyVoteError(submitTextResponse.error.message)}
+                    </p>
+                  )}
             <div className="flex gap-2">
               {questionIndex > 0 && (
                 <Button

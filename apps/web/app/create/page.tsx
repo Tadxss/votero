@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ListChecks, Type } from "lucide-react";
-import { useCreateLobby, useEnsureSession, useAuthUser } from "@repo/shared";
+import { useCreateLobby, useEnsureSession, useAuthUser, containsProfanity } from "@repo/shared";
 import type { BallotMode, QuestionType, TallyVisibility } from "@repo/types";
 import { Button } from "../_components/Button";
 import { RadioCard } from "../_components/RadioCard";
@@ -24,6 +24,12 @@ function friendlyCreateError(message: string): string {
   }
   if (message.includes("AT_LEAST_TWO_OPTIONS_REQUIRED")) {
     return "Every question needs at least 2 options.";
+  }
+  if (message.includes("INAPPROPRIATE_CONTENT")) {
+    return "Please remove inappropriate language from the title, questions, or options.";
+  }
+  if (message.includes("RATE_LIMITED")) {
+    return "You're creating lobbies too quickly — wait a few minutes and try again.";
   }
   return "Something went wrong. Please try again.";
 }
@@ -112,6 +118,10 @@ export default function CreateLobbyPage() {
       setFormError("Give the lobby a title.");
       return;
     }
+    if (containsProfanity(title)) {
+      setFormError("Please remove inappropriate language from the title.");
+      return;
+    }
     if (preparedQuestions.length === 0) {
       setFormError("Add at least one question.");
       return;
@@ -123,6 +133,13 @@ export default function CreateLobbyPage() {
       }
       if (q.type === "choice" && q.options.length < 2) {
         setFormError("Every choice question needs at least 2 options.");
+        return;
+      }
+      if (
+        containsProfanity(q.title) ||
+        (q.type === "choice" && q.options.some((opt) => containsProfanity(opt)))
+      ) {
+        setFormError("Please remove inappropriate language from the questions or options.");
         return;
       }
     }
