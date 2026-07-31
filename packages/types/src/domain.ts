@@ -20,6 +20,8 @@ export interface Lobby {
   votesCount: number;
   otpRequired: boolean;
   questionCount: number;
+  brandLogoUrl: string | null;
+  brandColor: string | null;
   closesAt: string | null;
   openedAt: string | null;
   closedAt: string | null;
@@ -69,6 +71,12 @@ export interface UpdateProfileInput {
   firstName?: string;
   lastName?: string;
   avatarUrl?: string;
+}
+
+export interface UpdateLobbyBrandingInput {
+  lobbyId: string;
+  brandLogoUrl?: string;
+  brandColor?: string;
 }
 
 // --- Edge Function request/response DTOs (see docs/ARCHITECTURE.md "Edge Functions") ---

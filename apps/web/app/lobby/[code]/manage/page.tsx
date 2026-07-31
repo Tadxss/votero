@@ -16,6 +16,7 @@ import {
   Download,
   Trash2,
   BarChart3,
+  Palette,
 } from "lucide-react";
 import {
   useLobby,
@@ -25,6 +26,8 @@ import {
   useEnsureSession,
   useAuthUser,
   useDeleteLobby,
+  useUploadLobbyLogo,
+  useUpdateLobbyBranding,
 } from "@repo/shared";
 import type { BallotDetailEntry, LobbyStatus } from "@repo/types";
 import { Button } from "../../../_components/Button";
@@ -46,6 +49,7 @@ function friendlyManageError(message: string): string {
   if (message === "LOBBY_NOT_FOUND") return "This lobby no longer exists.";
   if (message === "LOBBY_NOT_DRAFT") return "This lobby has already been opened.";
   if (message === "LOBBY_NOT_OPEN") return "This lobby isn't open, so it can't be closed.";
+  if (message === "INVALID_BRAND_COLOR") return "That doesn't look like a valid color.";
   return "Something went wrong. Please try again.";
 }
 
@@ -73,10 +77,41 @@ export default function ManageLobbyPage() {
   const results = useLobbyResults(lobby?.id);
   const setStatus = useSetLobbyStatus();
   const deleteLobby = useDeleteLobby(user?.id);
+  const uploadLogo = useUploadLobbyLogo(user?.id, lobby?.id);
+  const updateBranding = useUpdateLobbyBranding(code);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showCloseConfirm, setShowCloseConfirm] = useState(false);
   const [copied, setCopied] = useState<"link" | "code" | null>(null);
   const { burst } = useConfetti();
+
+  const [brandColorInput, setBrandColorInput] = useState(lobby?.brandColor ?? "#2a78d6");
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(lobby?.brandLogoUrl ?? null);
+  const logoInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (lobby) setBrandColorInput(lobby.brandColor ?? "#2a78d6");
+  }, [lobby]);
+
+  useEffect(() => {
+    if (!logoFile) {
+      setLogoPreviewUrl(lobby?.brandLogoUrl ?? null);
+      return;
+    }
+    const url = URL.createObjectURL(logoFile);
+    setLogoPreviewUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [logoFile, lobby?.brandLogoUrl]);
+
+  async function saveBranding() {
+    if (!lobby) return;
+    let brandLogoUrl = lobby.brandLogoUrl ?? undefined;
+    if (logoFile) {
+      brandLogoUrl = await uploadLogo.mutateAsync(logoFile);
+    }
+    updateBranding.mutate({ lobbyId: lobby.id, brandLogoUrl, brandColor: brandColorInput });
+    setLogoFile(null);
+  }
 
   async function copyToClipboard(text: string, what: "link" | "code") {
     await navigator.clipboard.writeText(text);
@@ -250,6 +285,73 @@ export default function ManageLobbyPage() {
                     : "Voting has ended for this lobby."}{" "}
                   See the results panel for the full breakdown.
                 </p>
+              </div>
+            )}
+
+            {isCreator && (
+              <div className="flex flex-col gap-3 rounded-3xl border border-neutral-300 bg-[var(--surface)] p-5 dark:border-neutral-800">
+                <h2 className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--foreground)]">
+                  <Palette size={16} /> Branding
+                </h2>
+                <p className="text-xs text-[var(--foreground-muted)]">
+                  Add your own logo and accent color to this lobby&apos;s vote page and Present
+                  Mode.
+                </p>
+                <div className="flex flex-wrap items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => logoInputRef.current?.click()}
+                    className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-dashed border-neutral-300 bg-neutral-50 text-xs text-[var(--foreground-muted)] dark:border-neutral-700 dark:bg-neutral-900"
+                  >
+                    {logoPreviewUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded logo, not a static asset Next can optimize
+                      <img
+                        src={logoPreviewUrl}
+                        alt="Lobby logo preview"
+                        className="h-full w-full object-contain"
+                      />
+                    ) : (
+                      "Logo"
+                    )}
+                  </button>
+                  <input
+                    ref={logoInputRef}
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) setLogoFile(file);
+                    }}
+                  />
+                  <label className="flex flex-col gap-1 text-xs text-[var(--foreground-muted)]">
+                    Accent color
+                    <input
+                      type="color"
+                      value={brandColorInput}
+                      onChange={(e) => setBrandColorInput(e.target.value)}
+                      className="h-9 w-16 cursor-pointer rounded-lg border border-neutral-300 dark:border-neutral-700"
+                    />
+                  </label>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    className="text-xs"
+                    onClick={saveBranding}
+                    disabled={uploadLogo.isPending || updateBranding.isPending}
+                  >
+                    {uploadLogo.isPending || updateBranding.isPending
+                      ? "Saving…"
+                      : "Save branding"}
+                  </Button>
+                </div>
+                {(uploadLogo.isError || updateBranding.isError) && (
+                  <p className="text-sm font-medium text-red-600">
+                    {friendlyManageError(
+                      (uploadLogo.error ?? updateBranding.error)?.message ?? "",
+                    )}
+                  </p>
+                )}
               </div>
             )}
 

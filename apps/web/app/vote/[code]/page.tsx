@@ -18,6 +18,7 @@ import {
   containsProfanity,
 } from "@repo/shared";
 import { Button } from "../../_components/Button";
+import { lobbyBrandingStyle } from "../../_components/lobbyBranding";
 import { TallyBars } from "../../_components/TallyBars";
 import { RankedResults } from "../../_components/RankedResults";
 import { TextResponseCloud } from "../../_components/TextResponseCloud";
@@ -137,11 +138,24 @@ export default function VotePage() {
   const textResponse = currentQuestion ? (textAnswers[currentQuestion.id] ?? "") : "";
 
   return (
-    <main className="relative flex-1 px-4 py-10">
+    <main
+      className="relative flex-1 px-4 py-10"
+      style={lobbyBrandingStyle(lobby.brandColor)}
+    >
       <div className="relative mx-auto flex max-w-md flex-col gap-6">
-        <h1 className="font-display text-3xl font-bold text-[var(--foreground)]">
-          {lobby.title}
-        </h1>
+        <div className="flex items-center gap-3">
+          {lobby.brandLogoUrl && (
+            // eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded logo, not a static asset Next can optimize
+            <img
+              src={lobby.brandLogoUrl}
+              alt=""
+              className="h-10 w-10 shrink-0 rounded-lg object-contain"
+            />
+          )}
+          <h1 className="font-display text-3xl font-bold text-[var(--foreground)]">
+            {lobby.title}
+          </h1>
+        </div>
 
         {lobby.closesAt && lobby.status === "open" && (
           <p className="-mt-4 inline-flex items-center gap-1.5 text-xs text-[var(--foreground-muted)]">

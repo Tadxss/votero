@@ -26,6 +26,8 @@ export function mapLobbyRow(row: LobbyRow): Lobby {
     votesCount: row.votes_count,
     otpRequired: row.otp_required,
     questionCount: row.question_count,
+    brandLogoUrl: row.brand_logo_url,
+    brandColor: row.brand_color,
     closesAt: row.closes_at,
     openedAt: row.opened_at,
     closedAt: row.closed_at,

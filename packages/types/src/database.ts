@@ -52,6 +52,8 @@ export type Database = {
       lobbies: {
         Row: {
           ballot_mode: Database["public"]["Enums"]["ballot_mode"]
+          brand_color: string | null
+          brand_logo_url: string | null
           closed_at: string | null
           closes_at: string | null
           code: string
@@ -72,6 +74,8 @@ export type Database = {
         }
         Insert: {
           ballot_mode?: Database["public"]["Enums"]["ballot_mode"]
+          brand_color?: string | null
+          brand_logo_url?: string | null
           closed_at?: string | null
           closes_at?: string | null
           code: string
@@ -92,6 +96,8 @@ export type Database = {
         }
         Update: {
           ballot_mode?: Database["public"]["Enums"]["ballot_mode"]
+          brand_color?: string | null
+          brand_logo_url?: string | null
           closed_at?: string | null
           closes_at?: string | null
           code?: string
@@ -367,6 +373,8 @@ export type Database = {
         Args: { p_lobby_id: string; p_option_id: string }
         Returns: {
           ballot_mode: Database["public"]["Enums"]["ballot_mode"]
+          brand_color: string | null
+          brand_logo_url: string | null
           closed_at: string | null
           closes_at: string | null
           code: string
@@ -400,6 +408,8 @@ export type Database = {
         }
         Returns: {
           ballot_mode: Database["public"]["Enums"]["ballot_mode"]
+          brand_color: string | null
+          brand_logo_url: string | null
           closed_at: string | null
           closes_at: string | null
           code: string
@@ -433,6 +443,8 @@ export type Database = {
         }
         Returns: {
           ballot_mode: Database["public"]["Enums"]["ballot_mode"]
+          brand_color: string | null
+          brand_logo_url: string | null
           closed_at: string | null
           closes_at: string | null
           code: string
@@ -488,6 +500,8 @@ export type Database = {
         Args: { p_action: string; p_lobby_id: string }
         Returns: {
           ballot_mode: Database["public"]["Enums"]["ballot_mode"]
+          brand_color: string | null
+          brand_logo_url: string | null
           closed_at: string | null
           closes_at: string | null
           code: string
@@ -521,6 +535,8 @@ export type Database = {
         }
         Returns: {
           ballot_mode: Database["public"]["Enums"]["ballot_mode"]
+          brand_color: string | null
+          brand_logo_url: string | null
           closed_at: string | null
           closes_at: string | null
           code: string
@@ -545,6 +561,14 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      rpc_update_lobby_branding: {
+        Args: {
+          p_brand_color?: string
+          p_brand_logo_url?: string
+          p_lobby_id: string
+        }
+        Returns: Json
       }
       rpc_update_profile: {
         Args: {

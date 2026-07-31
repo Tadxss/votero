@@ -29,7 +29,7 @@ export function RadioCard<T extends string>({
         disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"
       } ${size === "lg" ? "p-4 text-base" : "p-4 text-sm"} ${
         selected
-          ? "border-brand-500 bg-brand-50 dark:bg-brand-900/20"
+          ? "border-[var(--lobby-accent,theme(colors.brand.500))] bg-brand-50 dark:bg-brand-900/20"
           : "border-neutral-300 hover:border-brand-200 dark:border-neutral-700"
       }`}
     >
@@ -46,7 +46,9 @@ export function RadioCard<T extends string>({
         className={`flex shrink-0 items-center justify-center border-2 font-bold text-white transition-colors ${
           type === "checkbox" ? "rounded-md" : "rounded-full"
         } ${size === "lg" ? "h-6 w-6 text-xs" : "h-5 w-5 text-[10px]"} ${
-          selected ? "border-brand-500 bg-brand-500" : "border-neutral-300 dark:border-neutral-600"
+          selected
+            ? "border-[var(--lobby-accent,theme(colors.brand.500))] bg-[var(--lobby-accent,theme(colors.brand.500))]"
+            : "border-neutral-300 dark:border-neutral-600"
         }`}
       >
         {selected && <Check size={size === "lg" ? 14 : 12} strokeWidth={3} />}

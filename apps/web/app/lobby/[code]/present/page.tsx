@@ -18,6 +18,7 @@ import { StatusPill } from "../../../_components/StatusPill";
 import { LiveDot } from "../../../_components/LiveDot";
 import { Spinner } from "../../../_components/Spinner";
 import { useDocumentTitle } from "../../../_components/useDocumentTitle";
+import { lobbyBrandingStyle } from "../../../_components/lobbyBranding";
 
 const CHART_VIEW_STORAGE_KEY = "votero:chart-view";
 
@@ -65,8 +66,19 @@ export default function PresentLobbyPage() {
   const isCreator = isSignedIn && user?.id === lobby.creatorId;
 
   return (
-    <main className="relative flex min-h-screen flex-col items-center justify-center gap-8 px-6 py-10">
+    <main
+      className="relative flex min-h-screen flex-col items-center justify-center gap-8 px-6 py-10"
+      style={lobbyBrandingStyle(lobby.brandColor)}
+    >
       <div className="flex flex-wrap animate-pop-in items-center justify-center gap-3">
+        {lobby.brandLogoUrl && (
+          // eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded logo, not a static asset Next can optimize
+          <img
+            src={lobby.brandLogoUrl}
+            alt=""
+            className="h-10 w-10 shrink-0 rounded-lg object-contain sm:h-14 sm:w-14"
+          />
+        )}
         <h1 className="font-display text-2xl font-bold text-[var(--foreground)] sm:text-4xl lg:text-5xl">
           {lobby.title}
         </h1>
@@ -96,7 +108,10 @@ export default function PresentLobbyPage() {
           <div className="h-3 w-full max-w-xs overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800">
             <div
               className="h-full rounded-full bg-accent-500 transition-all duration-500"
-              style={{ width: `${joinedPct}%` }}
+              style={{
+                width: `${joinedPct}%`,
+                ...(lobby.brandColor ? { backgroundColor: lobby.brandColor } : {}),
+              }}
             />
           </div>
         </div>
