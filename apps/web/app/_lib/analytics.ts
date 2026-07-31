@@ -9,7 +9,8 @@ type AnalyticsEvent =
   | "vote_cast"
   | "results_exported"
   | "lobby_deleted"
-  | "sign_in_completed";
+  | "sign_in_completed"
+  | "qr_poster_opened";
 
 export function trackEvent(
   name: AnalyticsEvent,

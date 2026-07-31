@@ -1,4 +1,5 @@
 import type { Lobby, QuestionTally, SurveyQuestion } from "@repo/types";
+import { loadImage } from "./loadImage";
 
 // Same fixed hue order as TallyBars'/TextResponseCloud's light-mode --series-* vars — a downloaded
 // file is a static artifact with no CSS variables to inherit, and light-mode colors are the safer
@@ -223,14 +224,28 @@ function layoutChips(
   return { chips, height: lineTop + lineHeight };
 }
 
-export function downloadResultsImage(
+interface RenderResultsOpts {
+  // Present only for the branded PDF report — downloadResultsImage calls this with no opts, so its
+  // output stays pixel-identical to before this existed (badge-cloud.spec.ts/free-text.spec.ts
+  // already assert on it).
+  logoImage?: HTMLImageElement;
+  accentColor?: string;
+}
+
+// Extracted so the branded PDF report (downloadBrandedReportPdf below) can reuse the exact same
+// drawing logic with a logo + accent color overlaid, instead of duplicating it.
+function renderResultsCanvas(
   lobby: Lobby,
   questions: SurveyQuestion[],
   tally: QuestionTally[],
-) {
+  opts: RenderResultsOpts = {},
+): HTMLCanvasElement | undefined {
+  const { logoImage, accentColor } = opts;
   const width = 900;
   const padding = 48;
+  const logoSize = 48;
   const titleHeight = 64;
+  const titleX = logoImage ? padding + logoSize + 16 : padding;
   const showQuestionHeadings = questions.length > 1;
   const questionHeaderHeight = showQuestionHeadings ? 40 : 12;
   const rowHeight = 52;
@@ -281,18 +296,28 @@ export function downloadResultsImage(
 
   let y = padding;
 
+  if (logoImage) {
+    ctx.drawImage(logoImage, padding, y, logoSize, logoSize);
+  }
+
   ctx.fillStyle = "#22132b"; // matches --foreground
   ctx.font = "bold 28px system-ui, sans-serif";
-  ctx.fillText(lobby.title, padding, y + 26);
+  ctx.fillText(lobby.title, titleX, y + 26);
 
   ctx.fillStyle = "#6b5b73"; // matches --foreground-muted
   ctx.font = "16px system-ui, sans-serif";
   ctx.fillText(
     `${lobby.status === "closed" ? "Final results" : "Live results"} · ${lobby.votesCount} ${lobby.votesCount === 1 ? "vote" : "votes"} cast`,
-    padding,
+    titleX,
     y + 50,
   );
   y += titleHeight;
+
+  if (accentColor) {
+    ctx.fillStyle = accentColor;
+    roundRect(ctx, padding, y - 12, width - padding * 2, 4, 2);
+    ctx.fill();
+  }
 
   const barX = padding + labelWidth;
   const barMaxWidth = width - padding - countWidth - barX;
@@ -324,7 +349,7 @@ export function downloadResultsImage(
         const isWinner = entry.optionId === winnerOptionId;
         let labelX = padding;
         if (isWinner) {
-          drawStar(ctx, padding + 6, barCenterY, 6, "#eda100");
+          drawStar(ctx, padding + 6, barCenterY, 6, accentColor ?? "#eda100");
           labelX = padding + 16;
         }
 
@@ -378,8 +403,63 @@ export function downloadResultsImage(
   ctx.fillStyle = "#a89aa0";
   ctx.fillText(`Voted via Votero · code ${lobby.code}`, padding, y - footerHeight / 2 + 5);
 
+  return canvas;
+}
+
+export function downloadResultsImage(
+  lobby: Lobby,
+  questions: SurveyQuestion[],
+  tally: QuestionTally[],
+) {
+  const canvas = renderResultsCanvas(lobby, questions, tally);
+  if (!canvas) return;
   canvas.toBlob((blob) => {
     if (!blob) return;
     triggerDownload(blob, `votero-${slugifyForFilename(lobby.title)}-${lobby.code}.png`);
   }, "image/png");
+}
+
+// Branded PDF version of the same report — reuses renderResultsCanvas with the creator's logo/
+// accent color overlaid (see docs/ARCHITECTURE.md's Build Order for the "why"), then slices the
+// (potentially tall, for multi-question surveys) canvas across as many A4 pages as needed.
+export async function downloadBrandedReportPdf(
+  lobby: Lobby,
+  questions: SurveyQuestion[],
+  tally: QuestionTally[],
+) {
+  let logoImage: HTMLImageElement | undefined;
+  if (lobby.brandLogoUrl) {
+    try {
+      logoImage = await loadImage(lobby.brandLogoUrl);
+    } catch {
+      // Proceed unbranded rather than blocking the whole report over a logo that failed to load.
+    }
+  }
+
+  const canvas = renderResultsCanvas(lobby, questions, tally, {
+    logoImage,
+    accentColor: lobby.brandColor ?? undefined,
+  });
+  if (!canvas) return;
+
+  const { jsPDF } = await import("jspdf");
+  const pageWidthMm = 210;
+  const pageHeightMm = 297;
+  const imgHeightMm = (canvas.height / canvas.width) * pageWidthMm;
+  const imgData = canvas.toDataURL("image/png");
+
+  const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+  let renderedHeightMm = 0;
+  let firstPage = true;
+  while (renderedHeightMm < imgHeightMm) {
+    if (!firstPage) pdf.addPage();
+    // jsPDF clips addImage to the current page bounds — a growing negative Y offset walks the tall
+    // source image upward one page-height at a time, the standard canvas-to-multipage-PDF slicing
+    // technique (no manual sub-canvas cropping needed).
+    pdf.addImage(imgData, "PNG", 0, -renderedHeightMm, pageWidthMm, imgHeightMm);
+    renderedHeightMm += pageHeightMm;
+    firstPage = false;
+  }
+
+  pdf.save(`votero-${slugifyForFilename(lobby.title)}-${lobby.code}-report.pdf`);
 }

@@ -17,6 +17,7 @@ import {
   Trash2,
   BarChart3,
   Palette,
+  QrCode,
 } from "lucide-react";
 import {
   useLobby,
@@ -40,7 +41,11 @@ import { Spinner } from "../../../_components/Spinner";
 import { useConfetti } from "../../../_components/useConfetti";
 import { ConfirmDialog } from "../../../_components/ConfirmDialog";
 import { Avatar } from "../../../_components/Avatar";
-import { downloadResultsCsv, downloadResultsImage } from "../../../_components/downloadResults";
+import {
+  downloadResultsCsv,
+  downloadResultsImage,
+  downloadBrandedReportPdf,
+} from "../../../_components/downloadResults";
 import { useDocumentTitle } from "../../../_components/useDocumentTitle";
 import { trackEvent } from "../../../_lib/analytics";
 
@@ -355,16 +360,32 @@ export default function ManageLobbyPage() {
               </div>
             )}
 
-            <Link
-              href={`/lobby/${code}/present`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="self-start"
-            >
-              <Button type="button" variant="secondary" className="inline-flex items-center gap-1.5">
-                <Monitor size={14} /> Present Mode
-              </Button>
-            </Link>
+            <div className="flex flex-wrap gap-2">
+              <Link
+                href={`/lobby/${code}/present`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="self-start"
+              >
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="inline-flex items-center gap-1.5"
+                >
+                  <Monitor size={14} /> Present Mode
+                </Button>
+              </Link>
+              <Link href={`/lobby/${code}/poster`} className="self-start">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="inline-flex items-center gap-1.5"
+                  onClick={() => trackEvent("qr_poster_opened")}
+                >
+                  <QrCode size={14} /> QR poster
+                </Button>
+              </Link>
+            </div>
 
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center justify-between text-sm font-medium text-[var(--foreground-muted)]">
@@ -481,6 +502,18 @@ export default function ManageLobbyPage() {
                       }}
                     >
                       <Download size={14} /> Image
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      className="inline-flex items-center gap-1.5 text-xs"
+                      onClick={() => {
+                        if (!results.data?.tally) return;
+                        downloadBrandedReportPdf(lobby, questions, results.data.tally);
+                        trackEvent("results_exported", { format: "pdf" });
+                      }}
+                    >
+                      <Download size={14} /> PDF report
                     </Button>
                   </div>
                 </div>
