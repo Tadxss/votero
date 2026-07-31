@@ -18,6 +18,9 @@ const STATUS_BY_MESSAGE: Record<string, number> = {
   RATE_LIMITED: 429,
   AT_LEAST_ONE_OPTION_REQUIRED: 400,
   MAX_SELECTIONS_EXCEEDED: 400,
+  AT_LEAST_TWO_RANKED_OPTIONS_REQUIRED: 400,
+  DUPLICATE_OPTION: 400,
+  INVALID_MAX_SELECTIONS: 400,
 };
 
 export function statusForRpcError(message: string): number {

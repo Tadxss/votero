@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ListChecks, Type } from "lucide-react";
+import { ListChecks, Type, ArrowDownUp } from "lucide-react";
 import { useCreateLobby, useEnsureSession, useAuthUser, containsProfanity } from "@repo/shared";
 import type { BallotMode, QuestionType, TallyVisibility } from "@repo/types";
 import { Button } from "../_components/Button";
@@ -66,21 +66,20 @@ export default function CreateLobbyPage() {
   const preparedQuestions = questions.map((q) => ({
     title: q.title.trim(),
     type: q.type,
-    options: q.type === "choice" ? q.options.map((o) => o.trim()).filter(Boolean) : [],
+    options: q.type !== "text" ? q.options.map((o) => o.trim()).filter(Boolean) : [],
     maxSelections: q.type === "choice" ? q.maxSelections : undefined,
   }));
   const canSubmit =
     ready &&
     title.trim().length > 0 &&
     preparedQuestions.length > 0 &&
-    preparedQuestions.every(
-      (q) =>
-        q.title.length > 0 &&
-        (q.type === "text" ||
-          (q.options.length >= 2 &&
-            (q.maxSelections ?? 1) >= 1 &&
-            (q.maxSelections ?? 1) <= q.options.length)),
-    ) &&
+    preparedQuestions.every((q) => {
+      if (q.title.length === 0) return false;
+      if (q.type === "text") return true;
+      if (q.options.length < 2) return false;
+      if (q.type === "ranked") return true;
+      return (q.maxSelections ?? 1) >= 1 && (q.maxSelections ?? 1) <= q.options.length;
+    }) &&
     voterCap > 0 &&
     voterCap <= 10000;
 
@@ -155,8 +154,12 @@ export default function CreateLobbyPage() {
         setFormError("Every question needs a title.");
         return;
       }
-      if (q.type === "choice" && q.options.length < 2) {
-        setFormError("Every choice question needs at least 2 options.");
+      if (q.type !== "text" && q.options.length < 2) {
+        setFormError(
+          q.type === "ranked"
+            ? "Every ranked question needs at least 2 options."
+            : "Every choice question needs at least 2 options.",
+        );
         return;
       }
       if (
@@ -168,7 +171,7 @@ export default function CreateLobbyPage() {
       }
       if (
         containsProfanity(q.title) ||
-        (q.type === "choice" && q.options.some((opt) => containsProfanity(opt)))
+        (q.type !== "text" && q.options.some((opt) => containsProfanity(opt)))
       ) {
         setFormError("Please remove inappropriate language from the questions or options.");
         return;
@@ -276,6 +279,17 @@ export default function CreateLobbyPage() {
                     </button>
                     <button
                       type="button"
+                      onClick={() => updateQuestionType(qIndex, "ranked")}
+                      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+                        question.type === "ranked"
+                          ? "bg-brand-700 text-white"
+                          : "bg-neutral-100 text-[var(--foreground-muted)] dark:bg-neutral-800"
+                      }`}
+                    >
+                      <ArrowDownUp size={14} /> Ranked
+                    </button>
+                    <button
+                      type="button"
                       onClick={() => updateQuestionType(qIndex, "text")}
                       className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
                         question.type === "text"
@@ -287,7 +301,7 @@ export default function CreateLobbyPage() {
                     </button>
                   </div>
 
-                  {question.type === "choice" && (
+                  {(question.type === "choice" || question.type === "ranked") && (
                     <div className="flex flex-col gap-2 pl-9">
                       {question.options.map((option, oIndex) => (
                         <div key={oIndex} className="flex items-center gap-2">
@@ -318,7 +332,7 @@ export default function CreateLobbyPage() {
                       >
                         + Add option
                       </Button>
-                      {question.options.length > 2 && (
+                      {question.type === "choice" && question.options.length > 2 && (
                         <label className="flex items-center gap-2 text-xs font-semibold text-[var(--foreground-muted)]">
                           Max selections
                           <input
@@ -333,6 +347,11 @@ export default function CreateLobbyPage() {
                             of {question.options.length} — 1 for a classic single-choice question
                           </span>
                         </label>
+                      )}
+                      {question.type === "ranked" && (
+                        <p className="text-xs text-[var(--foreground-muted)]">
+                          Voters will rank these options in order of preference.
+                        </p>
                       )}
                     </div>
                   )}

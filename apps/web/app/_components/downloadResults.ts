@@ -49,6 +49,17 @@ function csvField(value: string | number): string {
   return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 
+// A ranked question's PNG/bar rendering shows the final IRV round's standing only — round-by-round
+// detail is an on-screen-only view (RankedResults), same "final standing" simplification the CSV
+// export uses. Shaped like TallyEntry[] so it can reuse the exact same bar-drawing code as choice.
+function finalStandingTally(rounds: { round: number; counts: Record<string, number> }[]) {
+  const finalRound = rounds[rounds.length - 1];
+  if (!finalRound) return [];
+  return Object.entries(finalRound.counts)
+    .map(([optionId, count]) => ({ optionId, count }))
+    .sort((a, b) => b.count - a.count);
+}
+
 export function downloadResultsCsv(
   lobby: Lobby,
   questions: SurveyQuestion[],
@@ -71,6 +82,18 @@ export function downloadResultsCsv(
         const label = question?.options.find((o) => o.id === entry.optionId)?.label ?? "Unknown option";
         rows.push([q.questionTitle, label, entry.count]);
       }
+    } else if (q.type === "ranked") {
+      // Final standing only — round-by-round detail is a results-page/on-screen-only view, not
+      // meaningful in a flat CSV row.
+      const question = questions.find((qq) => qq.id === q.questionId);
+      const finalRound = q.rounds[q.rounds.length - 1];
+      const standing = finalRound
+        ? Object.entries(finalRound.counts).sort(([, a], [, b]) => b - a)
+        : [];
+      standing.forEach(([optionId, count], index) => {
+        const label = question?.options.find((o) => o.id === optionId)?.label ?? "Unknown option";
+        rows.push([q.questionTitle, `#${index + 1} ${label}`, count]);
+      });
     } else {
       for (const response of q.responses) {
         rows.push([q.questionTitle, response.text, response.count]);
@@ -223,6 +246,9 @@ export function downloadResultsImage(
     if (q.type === "choice") {
       return { contentHeight: q.tally.length * rowHeight };
     }
+    if (q.type === "ranked") {
+      return { contentHeight: finalStandingTally(q.rounds).length * rowHeight };
+    }
     const { chips, height } = layoutChips(
       measureCtx,
       q.responses,
@@ -283,13 +309,14 @@ export function downloadResultsImage(
     }
     y += questionHeaderHeight;
 
-    if (q.type === "choice") {
-      const maxCount = Math.max(1, ...q.tally.map((t) => t.count));
-      const winners = q.tally.filter((t) => t.count > 0 && t.count === maxCount);
+    if (q.type === "choice" || q.type === "ranked") {
+      const barTally = q.type === "choice" ? q.tally : finalStandingTally(q.rounds);
+      const maxCount = Math.max(1, ...barTally.map((t) => t.count));
+      const winners = barTally.filter((t) => t.count > 0 && t.count === maxCount);
       const winnerOptionId =
         lobby.status === "closed" && winners.length === 1 ? winners[0]?.optionId : null;
 
-      q.tally.forEach((entry, oIndex) => {
+      barTally.forEach((entry, oIndex) => {
         const label = question?.options.find((o) => o.id === entry.optionId)?.label ?? "Unknown option";
         const barWidth = maxCount > 0 ? (entry.count / maxCount) * barMaxWidth : 0;
         const barCenterY = y + rowHeight / 2;

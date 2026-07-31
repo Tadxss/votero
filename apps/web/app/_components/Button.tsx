@@ -9,8 +9,11 @@ const variantClasses: Record<Variant, string> = {
   // color (white / red-600) left on top of a disabled bg gave near-invisible contrast in light mode.
   // brand-700 (not the brighter brand-500) is the only shade in the palette that hits WCAG AA
   // 4.5:1 for white text (5.15:1) — brand-500 measures 3.21:1, confirmed by an axe scan.
+  // bg/hover read a --lobby-accent(-hover) CSS variable with the exact previous color as its
+  // fallback — unset everywhere except a branded lobby's vote/present pages (see
+  // docs's Branding-per-lobby plan), so every other call site is provably unaffected.
   primary:
-    "bg-brand-700 text-white shadow-md shadow-brand-700/25 hover:bg-brand-900 hover:shadow-lg hover:shadow-brand-700/30 disabled:bg-neutral-200 disabled:text-neutral-400 disabled:shadow-none dark:disabled:bg-neutral-700 dark:disabled:text-neutral-500",
+    "bg-[var(--lobby-accent,theme(colors.brand.700))] text-white shadow-md shadow-brand-700/25 hover:bg-[var(--lobby-accent-hover,theme(colors.brand.900))] hover:shadow-lg hover:shadow-brand-700/30 disabled:bg-neutral-200 disabled:text-neutral-400 disabled:shadow-none dark:disabled:bg-neutral-700 dark:disabled:text-neutral-500",
   secondary:
     "bg-[var(--surface)] text-[var(--foreground)] border-2 border-neutral-300 hover:border-brand-300 hover:text-brand-600 disabled:text-neutral-400 dark:border-neutral-700",
   danger:
