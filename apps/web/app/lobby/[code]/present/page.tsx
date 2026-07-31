@@ -81,7 +81,7 @@ export default function PresentLobbyPage() {
         )}
       </div>
 
-      <div className="grid w-full max-w-6xl grid-cols-1 items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
+      <div className="grid w-full max-w-6xl grid-cols-1 items-start gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
         <div className="flex flex-col items-center gap-4">
           <div className="w-full max-w-[280px] rounded-3xl bg-white p-6 shadow-2xl [&>svg]:h-auto [&>svg]:w-full">
             <QRCodeSVG value={voteUrl} size={280} title={`QR code to vote in ${lobby.title}`} />
@@ -107,7 +107,11 @@ export default function PresentLobbyPage() {
               Scan to get ready — voting opens soon
             </p>
           ) : results.data?.tally ? (
-            <div className="flex w-full min-w-0 flex-col gap-6">
+            // Capped + independently scrollable — a long survey used to grow this column tall
+            // enough to push the QR/header off-screen (that column was vertically centered into
+            // whatever height this one needed). Now the QR/header stay fixed and visible no
+            // matter how many questions there are; only this panel scrolls.
+            <div className="flex w-full min-w-0 max-h-[70vh] flex-col gap-6 overflow-y-auto pb-2 pr-1">
               {results.data.tally.some((q) => q.type === "choice") && (
                 <div className="flex justify-center">
                   <ChartViewToggle value={chartView} onChange={selectChartView} />
