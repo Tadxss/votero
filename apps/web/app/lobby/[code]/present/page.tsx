@@ -150,9 +150,9 @@ export default function PresentLobbyPage() {
                   <ChartViewToggle value={chartView} onChange={selectChartView} />
                 </div>
               )}
-              <div className="flex w-full flex-col items-center gap-3 text-center">
+              <div className="flex w-full flex-col gap-3">
                 {questions.length > 1 && (
-                  <h2 className="truncate text-lg font-semibold text-[var(--foreground-muted)]">
+                  <h2 className="truncate text-center text-lg font-semibold text-[var(--foreground-muted)]">
                     {currentTally.questionTitle}
                   </h2>
                 )}
