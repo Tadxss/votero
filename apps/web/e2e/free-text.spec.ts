@@ -55,8 +55,13 @@ test("mixed choice + free-text survey: grouping, manage/present display, CSV + i
   await creatorPage.reload();
   await creatorPage.waitForSelector("text=Results", { timeout: 15000 });
   await expect(creatorPage.getByText("Pizza or Lasagna?")).toBeVisible();
+  await expect(creatorPage.getByText("One word for tonight?")).toHaveCount(0);
+  await creatorPage.click('button:has-text("Next")');
   await expect(creatorPage.getByText("One word for tonight?")).toBeVisible();
   await expect(creatorPage.getByText("×2")).toBeVisible();
+  await expect(creatorPage.getByText("Pizza or Lasagna?")).toHaveCount(0);
+  await creatorPage.click('button:has-text("Previous")');
+  await expect(creatorPage.getByText("Pizza or Lasagna?")).toBeVisible();
 
   const [csvDownload] = await Promise.all([
     creatorPage.waitForEvent("download"),

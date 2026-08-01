@@ -14,6 +14,9 @@
     "test:load": "node --env-file=.env.local e2e/load/vote-burst.mjs"
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "@repo/shared": "workspace:*",
     "@repo/types": "workspace:*",
     "@sentry/nextjs": "^10.68.0",

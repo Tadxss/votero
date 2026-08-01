@@ -26,3 +26,4 @@ export * from "./hooks/useUpdateProfile";
 export * from "./hooks/useUploadAvatar";
 export * from "./hooks/useUploadLobbyLogo";
 export * from "./hooks/useUpdateLobbyBranding";
+export * from "./hooks/useUpdateLobbyQuestions";

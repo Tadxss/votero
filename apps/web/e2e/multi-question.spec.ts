@@ -45,10 +45,14 @@ test("multi-question survey: stepper, per-question tallies on manage + present",
   await expect(voterPage.getByText("Cats or Dogs?")).toBeVisible();
 
   await creatorPage.reload();
+  await creatorPage.waitForSelector("text=Results", { timeout: 15000 });
   await expect(creatorPage.getByText("Coffee or Tea?")).toBeVisible();
-  await expect(creatorPage.getByText("Cats or Dogs?")).toBeVisible();
   await expect(creatorPage.getByText("Coffee", { exact: true })).toBeVisible();
+  await expect(creatorPage.getByText("Cats or Dogs?")).toHaveCount(0);
+  await creatorPage.click('button:has-text("Next")');
+  await expect(creatorPage.getByText("Cats or Dogs?")).toBeVisible();
   await expect(creatorPage.getByText("Cats", { exact: true })).toBeVisible();
+  await expect(creatorPage.getByText("Coffee or Tea?")).toHaveCount(0);
 
   await creatorPage.goto(`/lobby/${code}/present`);
   await expect(creatorPage.getByText("Coffee or Tea?")).toBeVisible();
