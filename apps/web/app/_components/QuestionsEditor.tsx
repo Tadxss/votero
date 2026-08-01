@@ -125,7 +125,7 @@ function SortableOptionRow({
     <div
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      className="flex items-center gap-2"
+      className="flex flex-wrap items-center gap-2"
     >
       <button
         type="button"
@@ -134,7 +134,7 @@ function SortableOptionRow({
         {...listeners}
         disabled={disabled}
         aria-label={`Reorder option ${oIndex + 1} of question ${qIndex + 1}`}
-        className={dragHandleClasses}
+        className={`shrink-0 ${dragHandleClasses}`}
       >
         <GripVertical size={14} aria-hidden />
       </button>
@@ -145,10 +145,16 @@ function SortableOptionRow({
         placeholder={`Option ${oIndex + 1}`}
         maxLength={200}
         disabled={disabled}
-        className={`flex-1 ${inputClasses} py-2 text-sm`}
+        className={`min-w-0 flex-1 basis-32 ${inputClasses} py-2 text-sm`}
       />
       {canRemove && (
-        <Button type="button" variant="secondary" disabled={disabled} onClick={onRemove}>
+        <Button
+          type="button"
+          variant="secondary"
+          disabled={disabled}
+          onClick={onRemove}
+          className="shrink-0"
+        >
           Remove
         </Button>
       )}
@@ -196,7 +202,7 @@ function SortableQuestionCard({
       style={{ transform: CSS.Transform.toString(transform), transition }}
       className="flex flex-col gap-3 rounded-2xl border border-neutral-300 p-4 dark:border-neutral-800"
     >
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <button
           type="button"
           ref={setActivatorNodeRef}
@@ -204,7 +210,7 @@ function SortableQuestionCard({
           {...listeners}
           disabled={disabled}
           aria-label={`Reorder question ${qIndex + 1}`}
-          className={dragHandleClasses}
+          className={`shrink-0 ${dragHandleClasses}`}
         >
           <GripVertical size={16} aria-hidden />
         </button>
@@ -218,16 +224,22 @@ function SortableQuestionCard({
           placeholder="Best pizza topping?"
           maxLength={200}
           disabled={disabled}
-          className={`flex-1 ${inputClasses}`}
+          className={`min-w-0 flex-1 basis-40 ${inputClasses}`}
         />
         {canRemove && (
-          <Button type="button" variant="secondary" disabled={disabled} onClick={onRemove}>
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={disabled}
+            onClick={onRemove}
+            className="shrink-0"
+          >
             Remove
           </Button>
         )}
       </div>
 
-      <div className="flex gap-2 pl-9">
+      <div className="flex flex-wrap gap-2 pl-0 sm:pl-9">
         <button
           type="button"
           disabled={disabled}
@@ -267,7 +279,7 @@ function SortableQuestionCard({
       </div>
 
       {(question.type === "choice" || question.type === "ranked") && (
-        <div className="flex flex-col gap-2 pl-9">
+        <div className="flex flex-col gap-2 pl-0 sm:pl-9">
           <DndContext
             sensors={optionSensors}
             collisionDetection={closestCenter}
