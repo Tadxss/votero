@@ -76,10 +76,12 @@ export function RankedResults({
                   return (
                     <div
                       key={optionId}
-                      className={`flex items-center text-[var(--foreground)] ${large ? "gap-4 text-lg" : "gap-3 text-sm"}`}
+                      // Same mobile-stacking fix as TallyBars — a fixed-width label box otherwise
+                      // squeezes the bar down to a sliver on narrow viewports.
+                      className={`flex flex-col gap-1 text-[var(--foreground)] sm:flex-row sm:items-center ${large ? "sm:gap-4 text-lg" : "sm:gap-3 text-sm"}`}
                     >
                       <span
-                        className={`flex shrink-0 items-center gap-1.5 ${large ? "w-48" : "w-32"}`}
+                        className={`flex items-center gap-1.5 sm:shrink-0 ${large ? "sm:w-48" : "sm:w-32"}`}
                         title={labelByOption.get(optionId) ?? "Unknown option"}
                       >
                         <span className="min-w-0 flex-1 truncate">
@@ -93,27 +95,29 @@ export function RankedResults({
                           />
                         )}
                       </span>
-                      <div
-                        className={`flex-1 overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800 ${large ? "h-5" : "h-2.5"}`}
-                      >
+                      <div className={`flex flex-1 items-center ${large ? "gap-4" : "gap-3"}`}>
                         <div
-                          className="h-full rounded-full transition-all"
-                          style={{
-                            width: `${widthPct}%`,
-                            backgroundColor: `var(${SERIES_VARS[colorIndex]})`,
-                          }}
-                        />
+                          className={`flex-1 overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800 ${large ? "h-5" : "h-2.5"}`}
+                        >
+                          <div
+                            className="h-full rounded-full transition-all"
+                            style={{
+                              width: `${widthPct}%`,
+                              backgroundColor: `var(${SERIES_VARS[colorIndex]})`,
+                            }}
+                          />
+                        </div>
+                        <span
+                          className={`shrink-0 text-right tabular-nums text-[var(--foreground-muted)] ${large ? "w-16" : "w-10"}`}
+                        >
+                          {count}
+                          {total > 0 && (
+                            <span className="ml-1 text-xs">
+                              ({Math.round((count / total) * 100)}%)
+                            </span>
+                          )}
+                        </span>
                       </div>
-                      <span
-                        className={`shrink-0 text-right tabular-nums text-[var(--foreground-muted)] ${large ? "w-16" : "w-10"}`}
-                      >
-                        {count}
-                        {total > 0 && (
-                          <span className="ml-1 text-xs">
-                            ({Math.round((count / total) * 100)}%)
-                          </span>
-                        )}
-                      </span>
                     </div>
                   );
                 })}

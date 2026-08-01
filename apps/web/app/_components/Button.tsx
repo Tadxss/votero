@@ -3,6 +3,12 @@
 import type { ButtonHTMLAttributes } from "react";
 
 type Variant = "primary" | "secondary" | "danger";
+type Size = "sm" | "md";
+
+const sizeClasses: Record<Size, string> = {
+  sm: "px-3 py-1.5 text-xs",
+  md: "px-4 py-2.5 text-sm",
+};
 
 const variantClasses: Record<Variant, string> = {
   // disabled states set their own text color explicitly (not just a muted bg) — the base `text-*`
@@ -22,16 +28,17 @@ const variantClasses: Record<Variant, string> = {
 
 export function Button({
   variant = "primary",
+  size = "md",
   className = "",
   disabled,
   children,
   ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant }) {
+}: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant; size?: Size }) {
   return (
     <button
       {...props}
       disabled={disabled}
-      className={`rounded-full px-4 py-2.5 text-sm font-semibold transition-all active:scale-95 disabled:cursor-not-allowed disabled:active:scale-100 ${variantClasses[variant]} ${className}`}
+      className={`rounded-full font-semibold transition-all active:scale-95 disabled:cursor-not-allowed disabled:active:scale-100 ${sizeClasses[size]} ${variantClasses[variant]} ${className}`}
     >
       {children}
     </button>

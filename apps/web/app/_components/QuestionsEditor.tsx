@@ -151,6 +151,7 @@ function SortableOptionRow({
         <Button
           type="button"
           variant="secondary"
+          size="sm"
           disabled={disabled}
           onClick={onRemove}
           className="shrink-0"
@@ -230,6 +231,7 @@ function SortableQuestionCard({
           <Button
             type="button"
             variant="secondary"
+            size="sm"
             disabled={disabled}
             onClick={onRemove}
             className="shrink-0"
@@ -306,6 +308,7 @@ function SortableQuestionCard({
           <Button
             type="button"
             variant="secondary"
+            size="sm"
             className="self-start"
             disabled={disabled}
             onClick={onAddOption}
