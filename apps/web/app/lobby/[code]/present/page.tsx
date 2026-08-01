@@ -14,6 +14,7 @@ import {
 } from "@repo/shared";
 import { TallyChart } from "../../../_components/TallyChart";
 import { ChartViewToggle, type ChartView } from "../../../_components/ChartViewToggle";
+import { Button } from "../../../_components/Button";
 import { StatusPill } from "../../../_components/StatusPill";
 import { LiveDot } from "../../../_components/LiveDot";
 import { Spinner } from "../../../_components/Spinner";
@@ -49,6 +50,23 @@ export default function PresentLobbyPage() {
     window.localStorage.setItem(CHART_VIEW_STORAGE_KEY, next);
   }
 
+  const tally = results.data?.tally;
+  const [questionIndex, setQuestionIndex] = useState(0);
+  const hasMultipleQuestions = (tally?.length ?? 0) > 1;
+
+  // A presenter clicking through slides while talking is a natural fit for arrow-key navigation —
+  // cheap to add on the same code path as the Next/Previous buttons below.
+  useEffect(() => {
+    if (!hasMultipleQuestions || !tally) return;
+    const lastIndex = tally.length - 1;
+    function handleKeydown(e: KeyboardEvent) {
+      if (e.key === "ArrowRight") setQuestionIndex((i) => Math.min(i + 1, lastIndex));
+      if (e.key === "ArrowLeft") setQuestionIndex((i) => Math.max(i - 1, 0));
+    }
+    window.addEventListener("keydown", handleKeydown);
+    return () => window.removeEventListener("keydown", handleKeydown);
+  }, [hasMultipleQuestions, tally]);
+
   if (!ready || isLoading) return <Spinner />;
   if (error || !lobby) {
     return (
@@ -59,6 +77,7 @@ export default function PresentLobbyPage() {
     );
   }
 
+  const currentTally = tally?.[questionIndex];
   const joinedPct = Math.min(100, (lobby.joinedCount / lobby.voterCap) * 100);
   // Only shown to the operator (a real signed-in creator) — Present Mode is otherwise a public,
   // unauthenticated display (see the RLS fix noted above), and the destination page enforces the
@@ -121,39 +140,53 @@ export default function PresentLobbyPage() {
             <p className="text-center text-2xl text-[var(--foreground-muted)]">
               Scan to get ready — voting opens soon
             </p>
-          ) : results.data?.tally ? (
-            // Capped + independently scrollable — a long survey used to grow this column tall
-            // enough to push the QR/header off-screen (that column was vertically centered into
-            // whatever height this one needed). Now the QR/header stay fixed and visible no
-            // matter how many questions there are; only this panel scrolls.
-            <div className="flex w-full min-w-0 max-h-[70vh] flex-col gap-6 overflow-y-auto pb-2 pr-1">
-              {results.data.tally.some((q) => q.type === "choice") && (
+          ) : currentTally ? (
+            // One question at a time (Next/Previous below) — no scrolling needed, since a single
+            // question's natural height never grows tall enough to threaten pushing the QR/header
+            // off-screen the way a stacked multi-question list once did.
+            <div className="flex w-full min-w-0 flex-col items-center gap-6">
+              {currentTally.type === "choice" && (
                 <div className="flex justify-center">
                   <ChartViewToggle value={chartView} onChange={selectChartView} />
                 </div>
               )}
-              {results.data.tally.map((q) => {
-                const question = questions.find((qq) => qq.id === q.questionId);
-                return (
-                  <div
-                    key={q.questionId}
-                    className="flex flex-col gap-3 border-b border-neutral-200/60 pb-6 last:border-b-0 last:pb-0 dark:border-neutral-800"
+              <div className="flex w-full flex-col items-center gap-3 text-center">
+                {questions.length > 1 && (
+                  <h2 className="truncate text-lg font-semibold text-[var(--foreground-muted)]">
+                    {currentTally.questionTitle}
+                  </h2>
+                )}
+                <TallyChart
+                  question={questions.find((qq) => qq.id === currentTally.questionId)}
+                  q={currentTally}
+                  view={chartView}
+                  closed={lobby.status === "closed"}
+                  size="lg"
+                />
+              </div>
+              {hasMultipleQuestions && tally && (
+                <div className="flex items-center gap-4">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    disabled={questionIndex === 0}
+                    onClick={() => setQuestionIndex((i) => i - 1)}
                   >
-                    {questions.length > 1 && (
-                      <h2 className="truncate text-lg font-semibold text-[var(--foreground-muted)]">
-                        {q.questionTitle}
-                      </h2>
-                    )}
-                    <TallyChart
-                      question={question}
-                      q={q}
-                      view={chartView}
-                      closed={lobby.status === "closed"}
-                      size="lg"
-                    />
-                  </div>
-                );
-              })}
+                    ← Previous
+                  </Button>
+                  <p className="text-sm font-medium text-[var(--foreground-muted)]">
+                    Question {questionIndex + 1} of {tally.length}
+                  </p>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    disabled={questionIndex === tally.length - 1}
+                    onClick={() => setQuestionIndex((i) => i + 1)}
+                  >
+                    Next →
+                  </Button>
+                </div>
+              )}
             </div>
           ) : (
             results.data && (

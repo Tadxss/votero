@@ -79,5 +79,9 @@ test("mixed choice + free-text survey: grouping, manage/present display, CSV + i
 
   await creatorPage.goto(`/lobby/${code}/present`);
   await expect(creatorPage.getByText("Pizza or Lasagna?")).toBeVisible();
+  await expect(creatorPage.getByText("One word for tonight?")).toHaveCount(0);
+  await creatorPage.click('button:has-text("Next")');
   await expect(creatorPage.getByText("One word for tonight?")).toBeVisible();
+  await expect(creatorPage.getByText("×2")).toBeVisible();
+  await expect(creatorPage.getByText("Pizza or Lasagna?")).toHaveCount(0);
 });
