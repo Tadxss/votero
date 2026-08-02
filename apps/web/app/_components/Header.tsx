@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
 import { useAuthUser, useProfile, useSignOut } from "@repo/shared";
 import { Avatar } from "./Avatar";
+import { Logo } from "./Logo";
 import { ProfileModal } from "./ProfileModal";
 import { ThemeToggle } from "./ThemeToggle";
 
@@ -28,7 +29,11 @@ export function Header() {
 
   return (
     <header className="relative z-10 flex h-16 shrink-0 items-center justify-between px-4 sm:px-6">
-      <Link href="/" className="font-display text-lg font-bold text-[var(--foreground)]">
+      <Link
+        href="/"
+        className="flex items-center gap-2 font-display text-lg font-bold text-[var(--foreground)]"
+      >
+        <Logo className="h-7 w-7" />
         Votero
       </Link>
       <nav className="flex items-center gap-3 text-sm">

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
+import { qrImageSettings } from "../../../_components/qrLogo";
 import {
   Hourglass,
   Lock,
@@ -226,7 +227,13 @@ export default function ManageLobbyPage() {
             {lobby.status !== "closed" && voteUrl && (
               <div className="flex animate-pop-in flex-col items-center gap-3 rounded-3xl border-4 border-brand-500 bg-[var(--surface)] p-6 shadow-md">
                 <div className="rounded-2xl bg-white p-3">
-                  <QRCodeSVG value={voteUrl} size={180} title={`QR code to vote in ${lobby.title}`} />
+                  <QRCodeSVG
+                    value={voteUrl}
+                    size={180}
+                    level="H"
+                    imageSettings={qrImageSettings(lobby.brandLogoUrl, 180)}
+                    title={`QR code to vote in ${lobby.title}`}
+                  />
                 </div>
                 <p
                   className="w-full max-w-full truncate text-center text-sm text-[var(--foreground-muted)]"

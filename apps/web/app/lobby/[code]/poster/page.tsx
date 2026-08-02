@@ -14,6 +14,8 @@ import {
   downloadPosterPdf,
   type PosterPreset,
 } from "../../../_components/downloadPoster";
+import { qrImageSettings } from "../../../_components/qrLogo";
+import { loadImage } from "../../../_components/loadImage";
 import { trackEvent } from "../../../_lib/analytics";
 
 const PRESET_LABELS: Record<PosterPreset, string> = {
@@ -66,6 +68,15 @@ export default function PosterPage() {
     if (!qrCanvas || !lobby || !voteUrl) return;
     setDownloading(true);
     try {
+      // The hidden QRCodeCanvas draws its centered logo asynchronously (an internal <img> load,
+      // then a redraw) once imageSettings.src is remote — reading toDataURL() too early would
+      // race that and could export a QR with no logo baked in. Pre-warming the same URL through
+      // our own loader both confirms it's actually reachable and gives that redraw time to land
+      // (the two-frame wait covers the onload→redraw script gap after our fetch resolves).
+      if (lobby.brandLogoUrl) {
+        await loadImage(lobby.brandLogoUrl).catch(() => {});
+        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      }
       const qrDataUrl = qrCanvas.toDataURL("image/png");
       if (format === "png") {
         await downloadPosterPng(lobby, qrDataUrl, preset);
@@ -109,7 +120,13 @@ export default function PosterPage() {
         <div className="flex flex-col items-center gap-3 rounded-3xl border border-neutral-300 bg-[var(--surface)] p-8 dark:border-neutral-800">
           {voteUrl && (
             <div className="rounded-2xl bg-white p-4">
-              <QRCodeSVG value={voteUrl} size={200} title={`QR code to vote in ${lobby.title}`} />
+              <QRCodeSVG
+                value={voteUrl}
+                size={200}
+                level="H"
+                imageSettings={qrImageSettings(lobby.brandLogoUrl, 200)}
+                title={`QR code to vote in ${lobby.title}`}
+              />
             </div>
           )}
           <p className="rounded-full bg-brand-50 px-4 py-1 text-lg font-mono font-bold tracking-widest text-brand-700 dark:bg-brand-900/30 dark:text-brand-300">
@@ -122,7 +139,13 @@ export default function PosterPage() {
             still rasterizes correctly while visually hidden. */}
         {voteUrl && (
           <div className="hidden">
-            <QRCodeCanvas ref={qrCanvasRef} value={voteUrl} size={1200} />
+            <QRCodeCanvas
+              ref={qrCanvasRef}
+              value={voteUrl}
+              size={1200}
+              level="H"
+              imageSettings={qrImageSettings(lobby.brandLogoUrl, 1200)}
+            />
           </div>
         )}
 
