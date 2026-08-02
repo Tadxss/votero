@@ -18,6 +18,7 @@ import {
   BarChart3,
   Palette,
   QrCode,
+  ListChecks,
 } from "lucide-react";
 import {
   useLobby,
@@ -154,6 +155,11 @@ export default function ManageLobbyPage() {
     }
     prevStatus.current = lobby?.status;
   }, [lobby?.status, burst]);
+
+  const tally = results.data?.tally;
+  const [questionIndex, setQuestionIndex] = useState(0);
+  const currentTally = tally?.[questionIndex];
+  const hasMultipleQuestions = (tally?.length ?? 0) > 1;
 
   if (!ready || isLoading) return <Spinner />;
   if (error || !lobby) {
@@ -361,6 +367,17 @@ export default function ManageLobbyPage() {
             )}
 
             <div className="flex flex-wrap gap-2">
+              {isCreator && lobby.status === "draft" && (
+                <Link href={`/lobby/${code}/edit`} className="self-start">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    className="inline-flex items-center gap-1.5"
+                  >
+                    <ListChecks size={14} /> Edit questions
+                  </Button>
+                </Link>
+              )}
               <Link
                 href={`/lobby/${code}/present`}
                 target="_blank"
@@ -518,17 +535,15 @@ export default function ManageLobbyPage() {
                   </div>
                 </div>
               )}
-              {results.data.tally ? (
-                results.data.tally.map((q) => {
+              {currentTally ? (
+                (() => {
+                  const q = currentTally;
                   const question = questions.find((qq) => qq.id === q.questionId);
                   const ballotDetail = results.data?.ballotDetail?.find(
                     (b) => b.questionId === q.questionId,
                   );
                   return (
-                    <div
-                      key={q.questionId}
-                      className="flex flex-col gap-4 border-b border-neutral-100 pb-6 last:border-b-0 last:pb-0 dark:border-neutral-800"
-                    >
+                    <div className="flex flex-col gap-4">
                       {questions.length > 1 && (
                         <h2 className="text-sm font-semibold text-[var(--foreground)]">
                           {q.questionTitle}
@@ -620,9 +635,35 @@ export default function ManageLobbyPage() {
                           </ul>
                         </div>
                       )}
+
+                      {hasMultipleQuestions && tally && (
+                        <div className="flex items-center justify-center gap-4 border-t border-neutral-100 pt-4 dark:border-neutral-800">
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            className="text-xs"
+                            disabled={questionIndex === 0}
+                            onClick={() => setQuestionIndex((i) => i - 1)}
+                          >
+                            ← Previous
+                          </Button>
+                          <p className="text-sm font-medium text-[var(--foreground-muted)]">
+                            Question {questionIndex + 1} of {tally.length}
+                          </p>
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            className="text-xs"
+                            disabled={questionIndex === tally.length - 1}
+                            onClick={() => setQuestionIndex((i) => i + 1)}
+                          >
+                            Next →
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   );
-                })
+                })()
               ) : (
                 <p className="text-sm text-[var(--foreground-muted)]" aria-live="polite">
                   {results.data.progress.completedCount} of {results.data.progress.joined} have voted —

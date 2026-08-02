@@ -3,14 +3,19 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ListChecks, Type, ArrowDownUp } from "lucide-react";
 import { useCreateLobby, useEnsureSession, useAuthUser, containsProfanity } from "@repo/shared";
-import type { BallotMode, QuestionType, TallyVisibility } from "@repo/types";
+import type { BallotMode, TallyVisibility } from "@repo/types";
 import { Button } from "../_components/Button";
 import { RadioCard } from "../_components/RadioCard";
 import { inputClasses } from "../_components/styles";
 import { useDocumentTitle } from "../_components/useDocumentTitle";
 import { trackEvent } from "../_lib/analytics";
+import QuestionsEditor, {
+  type EditableQuestion,
+  makeQuestion,
+  toCreateLobbyQuestionInputs,
+  validateQuestions,
+} from "../_components/QuestionsEditor";
 
 function friendlyCreateError(message: string): string {
   if (message.includes("LOBBY_LIMIT_REACHED")) {
@@ -37,17 +42,6 @@ function friendlyCreateError(message: string): string {
   return "Something went wrong. Please try again.";
 }
 
-interface QuestionDraft {
-  title: string;
-  type: QuestionType;
-  options: string[];
-  maxSelections: number;
-}
-
-function makeQuestionDraft(): QuestionDraft {
-  return { title: "", type: "choice", options: ["", ""], maxSelections: 1 };
-}
-
 export default function CreateLobbyPage() {
   useDocumentTitle("Create a lobby");
   const router = useRouter();
@@ -56,82 +50,20 @@ export default function CreateLobbyPage() {
   const createLobby = useCreateLobby();
 
   const [title, setTitle] = useState("");
-  const [questions, setQuestions] = useState<QuestionDraft[]>([makeQuestionDraft()]);
+  const [questions, setQuestions] = useState<EditableQuestion[]>([makeQuestion()]);
   const [voterCap, setVoterCap] = useState(10);
   const [ballotMode, setBallotMode] = useState<BallotMode>("anonymous");
   const [tallyVisibility, setTallyVisibility] = useState<TallyVisibility>("hidden");
   const [closesAt, setClosesAt] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
 
-  const preparedQuestions = questions.map((q) => ({
-    title: q.title.trim(),
-    type: q.type,
-    options: q.type !== "text" ? q.options.map((o) => o.trim()).filter(Boolean) : [],
-    maxSelections: q.type === "choice" ? q.maxSelections : undefined,
-  }));
+  const preparedQuestions = toCreateLobbyQuestionInputs(questions);
   const canSubmit =
     ready &&
     title.trim().length > 0 &&
-    preparedQuestions.length > 0 &&
-    preparedQuestions.every((q) => {
-      if (q.title.length === 0) return false;
-      if (q.type === "text") return true;
-      if (q.options.length < 2) return false;
-      if (q.type === "ranked") return true;
-      return (q.maxSelections ?? 1) >= 1 && (q.maxSelections ?? 1) <= q.options.length;
-    }) &&
+    validateQuestions(questions) === null &&
     voterCap > 0 &&
     voterCap <= 10000;
-
-  function updateQuestionTitle(qIndex: number, value: string) {
-    setQuestions((prev) => prev.map((q, i) => (i === qIndex ? { ...q, title: value } : q)));
-  }
-
-  function updateQuestionType(qIndex: number, type: QuestionType) {
-    setQuestions((prev) => prev.map((q, i) => (i === qIndex ? { ...q, type } : q)));
-  }
-
-  function updateOption(qIndex: number, oIndex: number, value: string) {
-    setQuestions((prev) =>
-      prev.map((q, i) =>
-        i === qIndex ? { ...q, options: q.options.map((o, j) => (j === oIndex ? value : o)) } : q,
-      ),
-    );
-  }
-
-  function addOption(qIndex: number) {
-    setQuestions((prev) =>
-      prev.map((q, i) => (i === qIndex ? { ...q, options: [...q.options, ""] } : q)),
-    );
-  }
-
-  function removeOption(qIndex: number, oIndex: number) {
-    setQuestions((prev) =>
-      prev.map((q, i) => {
-        if (i !== qIndex) return q;
-        const options = q.options.filter((_, j) => j !== oIndex);
-        return { ...q, options, maxSelections: Math.min(q.maxSelections, options.length) };
-      }),
-    );
-  }
-
-  function updateMaxSelections(qIndex: number, value: number) {
-    setQuestions((prev) =>
-      prev.map((q, i) =>
-        i === qIndex
-          ? { ...q, maxSelections: Math.max(1, Math.min(value, q.options.length)) }
-          : q,
-      ),
-    );
-  }
-
-  function addQuestion() {
-    setQuestions((prev) => [...prev, makeQuestionDraft()]);
-  }
-
-  function removeQuestion(qIndex: number) {
-    setQuestions((prev) => prev.filter((_, i) => i !== qIndex));
-  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -145,37 +77,10 @@ export default function CreateLobbyPage() {
       setFormError("Please remove inappropriate language from the title.");
       return;
     }
-    if (preparedQuestions.length === 0) {
-      setFormError("Add at least one question.");
+    const questionsError = validateQuestions(questions);
+    if (questionsError) {
+      setFormError(questionsError);
       return;
-    }
-    for (const q of preparedQuestions) {
-      if (q.title.length === 0) {
-        setFormError("Every question needs a title.");
-        return;
-      }
-      if (q.type !== "text" && q.options.length < 2) {
-        setFormError(
-          q.type === "ranked"
-            ? "Every ranked question needs at least 2 options."
-            : "Every choice question needs at least 2 options.",
-        );
-        return;
-      }
-      if (
-        q.type === "choice" &&
-        ((q.maxSelections ?? 1) < 1 || (q.maxSelections ?? 1) > q.options.length)
-      ) {
-        setFormError("Max selections must be between 1 and the number of options.");
-        return;
-      }
-      if (
-        containsProfanity(q.title) ||
-        (q.type !== "text" && q.options.some((opt) => containsProfanity(opt)))
-      ) {
-        setFormError("Please remove inappropriate language from the questions or options.");
-        return;
-      }
     }
     if (voterCap <= 0) {
       setFormError("Voter cap must be at least 1.");
@@ -236,131 +141,11 @@ export default function CreateLobbyPage() {
               />
             </label>
 
-            <div className="flex flex-col gap-4">
-              {questions.map((question, qIndex) => (
-                <div
-                  key={qIndex}
-                  className="flex flex-col gap-3 rounded-2xl border border-neutral-300 p-4 dark:border-neutral-800"
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-100 text-xs font-bold text-brand-900 dark:bg-brand-900/40 dark:text-brand-300">
-                      Q{qIndex + 1}
-                    </span>
-                    <input
-                      type="text"
-                      value={question.title}
-                      onChange={(e) => updateQuestionTitle(qIndex, e.target.value)}
-                      placeholder="Best pizza topping?"
-                      maxLength={200}
-                      className={`flex-1 ${inputClasses}`}
-                    />
-                    {questions.length > 1 && (
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        onClick={() => removeQuestion(qIndex)}
-                      >
-                        Remove
-                      </Button>
-                    )}
-                  </div>
-
-                  <div className="flex gap-2 pl-9">
-                    <button
-                      type="button"
-                      onClick={() => updateQuestionType(qIndex, "choice")}
-                      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
-                        question.type === "choice"
-                          ? "bg-brand-700 text-white"
-                          : "bg-neutral-100 text-[var(--foreground-muted)] dark:bg-neutral-800"
-                      }`}
-                    >
-                      <ListChecks size={14} /> Choice
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => updateQuestionType(qIndex, "ranked")}
-                      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
-                        question.type === "ranked"
-                          ? "bg-brand-700 text-white"
-                          : "bg-neutral-100 text-[var(--foreground-muted)] dark:bg-neutral-800"
-                      }`}
-                    >
-                      <ArrowDownUp size={14} /> Ranked
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => updateQuestionType(qIndex, "text")}
-                      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
-                        question.type === "text"
-                          ? "bg-brand-700 text-white"
-                          : "bg-neutral-100 text-[var(--foreground-muted)] dark:bg-neutral-800"
-                      }`}
-                    >
-                      <Type size={14} /> Free text
-                    </button>
-                  </div>
-
-                  {(question.type === "choice" || question.type === "ranked") && (
-                    <div className="flex flex-col gap-2 pl-9">
-                      {question.options.map((option, oIndex) => (
-                        <div key={oIndex} className="flex items-center gap-2">
-                          <input
-                            type="text"
-                            value={option}
-                            onChange={(e) => updateOption(qIndex, oIndex, e.target.value)}
-                            placeholder={`Option ${oIndex + 1}`}
-                            maxLength={200}
-                            className={`flex-1 ${inputClasses} py-2 text-sm`}
-                          />
-                          {question.options.length > 2 && (
-                            <Button
-                              type="button"
-                              variant="secondary"
-                              onClick={() => removeOption(qIndex, oIndex)}
-                            >
-                              Remove
-                            </Button>
-                          )}
-                        </div>
-                      ))}
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        className="self-start"
-                        onClick={() => addOption(qIndex)}
-                      >
-                        + Add option
-                      </Button>
-                      {question.type === "choice" && question.options.length > 2 && (
-                        <label className="flex items-center gap-2 text-xs font-semibold text-[var(--foreground-muted)]">
-                          Max selections
-                          <input
-                            type="number"
-                            min={1}
-                            max={question.options.length}
-                            value={question.maxSelections}
-                            onChange={(e) => updateMaxSelections(qIndex, Number(e.target.value))}
-                            className={`${inputClasses} w-16 py-1 text-center text-sm`}
-                          />
-                          <span className="font-normal">
-                            of {question.options.length} — 1 for a classic single-choice question
-                          </span>
-                        </label>
-                      )}
-                      {question.type === "ranked" && (
-                        <p className="text-xs text-[var(--foreground-muted)]">
-                          Voters will rank these options in order of preference.
-                        </p>
-                      )}
-                    </div>
-                  )}
-                </div>
-              ))}
-              <Button type="button" variant="secondary" className="self-start" onClick={addQuestion}>
-                + Add question
-              </Button>
-            </div>
+            <QuestionsEditor
+              questions={questions}
+              onChange={setQuestions}
+              disabled={createLobby.isPending}
+            />
           </div>
 
           <div className="flex flex-col gap-6">

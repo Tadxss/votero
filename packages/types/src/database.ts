@@ -570,6 +570,13 @@ export type Database = {
         }
         Returns: Json
       }
+      rpc_update_lobby_questions: {
+        Args: {
+          p_lobby_id: string
+          p_questions: Json
+        }
+        Returns: Json
+      }
       rpc_update_profile: {
         Args: {
           p_avatar_url?: string

@@ -30,6 +30,109 @@ const PRINT_DIMENSIONS_MM: Record<"a4" | "tableTent", { width: number; height: n
 
 const PIXELS_PER_MM = 300 / 25.4; // 300dpi print quality
 
+function roundRect(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  radius: number,
+) {
+  const r = Math.max(0, Math.min(radius, height / 2, width / 2));
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + width, y, x + width, y + height, r);
+  ctx.arcTo(x + width, y + height, x, y + height, r);
+  ctx.arcTo(x, y + height, x, y, r);
+  ctx.arcTo(x, y, x + width, y, r);
+  ctx.closePath();
+}
+
+function hexToRgba(hex: string, alpha: number): string {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+// A soft-shadowed white card behind the QR — same "QR sits on a raised white card" language the
+// manage/present pages already use (rounded-3xl bg-white shadow-2xl), just drawn on canvas.
+function drawQrCard(
+  ctx: CanvasRenderingContext2D,
+  qrImage: HTMLImageElement,
+  x: number,
+  y: number,
+  size: number,
+  padding: number,
+) {
+  ctx.save();
+  ctx.shadowColor = "rgba(34, 19, 43, 0.18)";
+  ctx.shadowBlur = padding * 0.9;
+  ctx.shadowOffsetY = padding * 0.25;
+  ctx.fillStyle = "#ffffff";
+  roundRect(ctx, x - padding, y - padding, size + padding * 2, size + padding * 2, padding * 0.9);
+  ctx.fill();
+  ctx.restore();
+  ctx.drawImage(qrImage, x, y, size, size);
+}
+
+// The lobby code as a soft accent-tinted pill, matching the app's own `bg-brand-50 text-brand-700`
+// code-badge styling on the manage/present pages, rather than plain bold text. `x` is the pill's
+// center for "center" alignment (the portrait presets) or its left edge for "left" (the slide
+// preset, which is left-aligned throughout).
+function drawCodePill(
+  ctx: CanvasRenderingContext2D,
+  code: string,
+  accentColor: string,
+  x: number,
+  y: number,
+  fontSize: number,
+  align: "center" | "left" = "center",
+) {
+  ctx.font = `bold ${Math.round(fontSize)}px system-ui, sans-serif`;
+  const textWidth = ctx.measureText(code).width;
+  const padX = fontSize * 0.9;
+  const padY = fontSize * 0.5;
+  const pillWidth = textWidth + padX * 2;
+  const pillHeight = fontSize + padY * 2;
+  const pillLeft = align === "center" ? x - pillWidth / 2 : x;
+  const textCenterX = pillLeft + pillWidth / 2;
+
+  ctx.fillStyle = hexToRgba(accentColor, 0.12);
+  roundRect(ctx, pillLeft, y, pillWidth, pillHeight, pillHeight / 2);
+  ctx.fill();
+
+  const prevAlign = ctx.textAlign;
+  ctx.fillStyle = accentColor;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(code, textCenterX, y + pillHeight / 2);
+  ctx.textBaseline = "alphabetic";
+  ctx.textAlign = prevAlign;
+
+  return pillHeight;
+}
+
+function drawFooter(
+  ctx: CanvasRenderingContext2D,
+  centerX: number,
+  y: number,
+  width: number,
+  fontSize: number,
+) {
+  ctx.strokeStyle = "rgba(107, 91, 115, 0.2)"; // matches --foreground-muted at low alpha
+  ctx.lineWidth = Math.max(1, fontSize * 0.06);
+  ctx.beginPath();
+  ctx.moveTo(centerX - width / 2, y);
+  ctx.lineTo(centerX + width / 2, y);
+  ctx.stroke();
+
+  ctx.fillStyle = "#a89aa0";
+  ctx.font = `${Math.round(fontSize)}px system-ui, sans-serif`;
+  ctx.textAlign = "center";
+  ctx.fillText("Powered by Votero", centerX, y + fontSize * 1.8);
+}
+
 // Draws the shared "logo, title, QR, code, footer" layout centered within a box of the given
 // pixel size — reused as-is for the A4 Flyer, and drawn twice (once rotated 180°) for the Table
 // Tent so it reads right-side-up from both sides once printed and folded.
@@ -47,33 +150,47 @@ function drawPosterContent(
   ctx.fillRect(0, 0, width, height);
 
   const centerX = width / 2;
-  let y = height * 0.08;
+  let y = height * 0.1;
 
   if (logoImage) {
-    const logoSize = width * 0.14;
+    const logoSize = width * 0.13;
     ctx.drawImage(logoImage, centerX - logoSize / 2, y, logoSize, logoSize);
-    y += logoSize + height * 0.03;
+    y += logoSize + height * 0.035;
   }
 
   ctx.textAlign = "center";
   ctx.fillStyle = "#22132b"; // matches --foreground
-  ctx.font = `bold ${Math.round(width * 0.08)}px system-ui, sans-serif`;
-  y += width * 0.07;
-  ctx.fillText(lobby.title, centerX, y, width * 0.85);
+  const titleSize = Math.round(width * 0.075);
+  ctx.font = `bold ${titleSize}px system-ui, sans-serif`;
+  y += titleSize * 0.9;
+  ctx.fillText(lobby.title, centerX, y, width * 0.82);
 
-  const qrSize = width * 0.55;
-  y += height * 0.06;
-  ctx.drawImage(qrImage, centerX - qrSize / 2, y, qrSize, qrSize);
-  y += qrSize + height * 0.05;
+  // Thin accent underline beneath the title — the same "small brand touch, not a loud banner"
+  // idea as the PDF report's header rule.
+  y += height * 0.025;
+  ctx.strokeStyle = accentColor;
+  ctx.lineWidth = Math.max(2, width * 0.006);
+  ctx.beginPath();
+  ctx.moveTo(centerX - width * 0.08, y);
+  ctx.lineTo(centerX + width * 0.08, y);
+  ctx.stroke();
 
-  ctx.fillStyle = accentColor;
-  ctx.font = `bold ${Math.round(width * 0.09)}px system-ui, sans-serif`;
-  ctx.fillText(lobby.code, centerX, y);
-  y += height * 0.05;
+  const qrSize = width * 0.48;
+  const qrPadding = width * 0.035;
+  y += height * 0.06 + qrPadding;
+  drawQrCard(ctx, qrImage, centerX - qrSize / 2, y, qrSize, qrPadding);
+  y += qrSize + qrPadding + height * 0.055;
 
+  const codeFontSize = Math.round(width * 0.065);
+  const pillHeight = drawCodePill(ctx, lobby.code, accentColor, centerX, y, codeFontSize);
+  y += pillHeight + height * 0.04;
+
+  ctx.textAlign = "center";
   ctx.fillStyle = "#6b5b73"; // matches --foreground-muted
-  ctx.font = `${Math.round(width * 0.035)}px system-ui, sans-serif`;
+  ctx.font = `${Math.round(width * 0.03)}px system-ui, sans-serif`;
   ctx.fillText("Scan to vote", centerX, y);
+
+  drawFooter(ctx, centerX, height * 0.95, width * 0.5, width * 0.022);
 
   ctx.restore();
 }
@@ -93,34 +210,46 @@ function drawSlideContent(
   ctx.fillRect(0, 0, width, height);
 
   const margin = width * 0.06;
-  const qrSize = height * 0.7;
-  const qrX = width - qrSize - margin;
+  const qrSize = height * 0.6;
+  const qrPadding = height * 0.035;
+  const qrX = width - qrSize - margin - qrPadding;
   const qrY = (height - qrSize) / 2;
-  ctx.drawImage(qrImage, qrX, qrY, qrSize, qrSize);
+  drawQrCard(ctx, qrImage, qrX, qrY, qrSize, qrPadding);
 
   const textX = margin;
-  const textMaxWidth = qrX - textX - margin;
-  let y = height * 0.38;
+  const textMaxWidth = qrX - qrPadding - textX - margin;
+  let y = height * 0.36;
 
   if (logoImage) {
-    const logoSize = height * 0.16;
-    ctx.drawImage(logoImage, textX, y - logoSize - height * 0.04, logoSize, logoSize);
+    const logoSize = height * 0.15;
+    ctx.drawImage(logoImage, textX, y - logoSize - height * 0.045, logoSize, logoSize);
   }
 
   ctx.textAlign = "left";
   ctx.fillStyle = "#22132b";
-  ctx.font = `bold ${Math.round(height * 0.09)}px system-ui, sans-serif`;
+  ctx.font = `bold ${Math.round(height * 0.085)}px system-ui, sans-serif`;
   ctx.fillText(lobby.title, textX, y, textMaxWidth);
-  y += height * 0.14;
 
-  ctx.fillStyle = accentColor;
-  ctx.font = `bold ${Math.round(height * 0.12)}px system-ui, sans-serif`;
-  ctx.fillText(lobby.code, textX, y);
+  y += height * 0.035;
+  ctx.strokeStyle = accentColor;
+  ctx.lineWidth = Math.max(2, height * 0.008);
+  ctx.beginPath();
+  ctx.moveTo(textX, y);
+  ctx.lineTo(textX + height * 0.12, y);
+  ctx.stroke();
   y += height * 0.09;
 
+  const codeFontSize = Math.round(height * 0.1);
+  const pillHeight = drawCodePill(ctx, lobby.code, accentColor, textX, y, codeFontSize, "left");
+  y += pillHeight + height * 0.06;
+
   ctx.fillStyle = "#6b5b73";
-  ctx.font = `${Math.round(height * 0.045)}px system-ui, sans-serif`;
+  ctx.font = `${Math.round(height * 0.04)}px system-ui, sans-serif`;
   ctx.fillText("Scan to vote", textX, y);
+
+  ctx.fillStyle = "#a89aa0";
+  ctx.font = `${Math.round(height * 0.03)}px system-ui, sans-serif`;
+  ctx.fillText("Powered by Votero", textX, height * 0.93);
 }
 
 async function renderPosterCanvas(

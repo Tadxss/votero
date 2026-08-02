@@ -66,10 +66,14 @@ export function TallyBars({
         return (
           <div
             key={option.id}
-            className={`flex items-center text-[var(--foreground)] ${large ? "gap-4 text-xl" : "gap-3 text-sm"}`}
+            // Stacked on mobile (label on its own line, bar+count on the next) rather than one
+            // cramped row — a fixed-width label box (w-48/w-32) otherwise eats most of a narrow
+            // viewport, squeezing the bar's flex-1 share down to a sliver. Single row again from
+            // `sm:` up, where there's room for the label box beside the bar.
+            className={`flex flex-col gap-1.5 text-[var(--foreground)] sm:flex-row sm:items-center ${large ? "sm:gap-4 text-xl" : "sm:gap-3 text-sm"}`}
           >
             <span
-              className={`flex shrink-0 items-center gap-1.5 ${large ? "w-48" : "w-32"}`}
+              className={`flex items-center gap-1.5 sm:shrink-0 ${large ? "sm:w-48" : "sm:w-32"}`}
               title={option.label}
             >
               <span className="min-w-0 flex-1 truncate">{option.label}</span>
@@ -81,33 +85,35 @@ export function TallyBars({
                 />
               )}
             </span>
-            <div
-              className={`flex-1 overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800 ${large ? "h-6" : "h-3"}`}
-            >
+            <div className={`flex flex-1 items-center ${large ? "gap-4" : "gap-3"}`}>
               <div
-                className="h-full rounded-full transition-all"
-                style={{
-                  width: `${widthPct}%`,
-                  backgroundColor: `var(${SERIES_VARS[index % SERIES_VARS.length]})`,
-                }}
-              />
-            </div>
-            {showPercentage ? (
-              <span
-                className={`flex shrink-0 flex-col items-end leading-tight ${large ? "w-16" : "w-12"}`}
+                className={`flex-1 overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800 ${large ? "h-6" : "h-3"}`}
               >
-                <span className="tabular-nums text-[var(--foreground)]">{count}</span>
-                <span className="text-xs tabular-nums text-[var(--foreground-muted)]">
-                  {totalCount > 0 ? Math.round((count / totalCount) * 100) : 0}%
+                <div
+                  className="h-full rounded-full transition-all"
+                  style={{
+                    width: `${widthPct}%`,
+                    backgroundColor: `var(${SERIES_VARS[index % SERIES_VARS.length]})`,
+                  }}
+                />
+              </div>
+              {showPercentage ? (
+                <span
+                  className={`flex shrink-0 flex-col items-end leading-tight ${large ? "w-16" : "w-12"}`}
+                >
+                  <span className="tabular-nums text-[var(--foreground)]">{count}</span>
+                  <span className="text-xs tabular-nums text-[var(--foreground-muted)]">
+                    {totalCount > 0 ? Math.round((count / totalCount) * 100) : 0}%
+                  </span>
                 </span>
-              </span>
-            ) : (
-              <span
-                className={`shrink-0 text-right tabular-nums text-[var(--foreground-muted)] ${large ? "w-12" : "w-6"}`}
-              >
-                {count}
-              </span>
-            )}
+              ) : (
+                <span
+                  className={`shrink-0 text-right tabular-nums text-[var(--foreground-muted)] ${large ? "w-12" : "w-6"}`}
+                >
+                  {count}
+                </span>
+              )}
+            </div>
           </div>
         );
       })}
