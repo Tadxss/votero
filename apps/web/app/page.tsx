@@ -7,16 +7,19 @@ import { Vote, Lock, Zap, QrCode } from "lucide-react";
 import { Button } from "./_components/Button";
 import { JoinLobbyModal } from "./_components/JoinLobbyModal";
 import { TallyBars } from "./_components/TallyBars";
+import { qrImageSettings } from "./_components/qrLogo";
 
 // A believable glimpse of the real manage-page tally, not stock/decorative art — see the design
 // audit (home hero was the last "everything perfectly centered" AI-slop tell in the app).
 const DEMO_OPTIONS = [
-  { id: "a", lobbyId: "demo", questionId: "q1", label: "Pepperoni", position: 0 },
-  { id: "b", lobbyId: "demo", questionId: "q1", label: "Veggie", position: 1 },
+  { id: "a", lobbyId: "demo", questionId: "q1", label: "Tacos", position: 0 },
+  { id: "b", lobbyId: "demo", questionId: "q1", label: "Sushi", position: 1 },
+  { id: "c", lobbyId: "demo", questionId: "q1", label: "Salad", position: 2 },
 ];
 const DEMO_TALLY = [
-  { optionId: "a", count: 8 },
-  { optionId: "b", count: 3 },
+  { optionId: "a", count: 11 },
+  { optionId: "b", count: 7 },
+  { optionId: "c", count: 4 },
 ];
 
 export default function Home() {
@@ -72,16 +75,20 @@ export default function Home() {
           other — the text block stays left-aligned, this stays put as its visual counterweight. */}
       <div className="hidden lg:flex lg:justify-center">
         <div className="w-72 -rotate-2 rounded-3xl border border-neutral-300 bg-[var(--surface)] p-5 shadow-xl transition-transform hover:rotate-0 dark:border-neutral-800">
-          <p className="mb-3 text-sm font-semibold text-[var(--foreground)]">Team pizza night?</p>
+          <p className="mb-3 text-sm font-semibold text-[var(--foreground)]">
+            Where should we eat lunch?
+          </p>
           <div className="mb-4 flex justify-center rounded-2xl bg-white p-3">
             <QRCodeSVG
               value="https://votero.app/vote/DEMOABCD"
               size={104}
+              level="H"
+              imageSettings={qrImageSettings(null, 104)}
               title="Example QR code linking to a demo Votero lobby"
             />
           </div>
           <TallyBars options={DEMO_OPTIONS} tally={DEMO_TALLY} />
-          <p className="mt-4 text-xs text-[var(--foreground-muted)]">42 joined · live</p>
+          <p className="mt-4 text-xs text-[var(--foreground-muted)]">28 joined · live</p>
         </div>
       </div>
 
