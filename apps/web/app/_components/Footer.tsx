@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { LegalModal, type LegalModalType } from "./LegalModal";
+import { Logo } from "./Logo";
 
 export function Footer() {
   const pathname = usePathname();
@@ -15,7 +16,9 @@ export function Footer() {
   return (
     <>
       <footer className="relative z-10 flex items-center justify-center gap-4 px-4 py-6 text-xs text-[var(--foreground-muted)]">
-        <span>© {new Date().getFullYear()} Votero</span>
+        <span className="flex items-center gap-1.5">
+          <Logo className="h-3.5 w-3.5" />© {new Date().getFullYear()} Votero
+        </span>
         <button
           type="button"
           onClick={() => setOpenLegal("terms")}

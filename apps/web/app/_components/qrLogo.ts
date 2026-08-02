@@ -1,10 +1,12 @@
-// A simple monogram (no dedicated Votero brand-mark asset exists in the repo) — white rounded
-// square, brand-700 "V", inlined as a data: URI so no new static asset is needed and it works
-// identically wherever qrcode.react's `imageSettings.src` is read (SVG `<image>` or an offscreen
-// canvas draw).
-const DEFAULT_QR_LOGO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
-  <rect width="200" height="200" rx="40" fill="#ffffff"/>
-  <text x="100" y="148" font-family="system-ui, sans-serif" font-weight="800" font-size="140" fill="#D41F44" text-anchor="middle">V</text>
+// The app's own mark (same shapes as apps/web/public/logo.svg / app/icon.svg / Logo.tsx) —
+// inlined as a data: URI so it works identically wherever qrcode.react's `imageSettings.src` is
+// read (SVG `<image>` or an offscreen canvas draw), with no extra network request. The excavated
+// hole shows the QR's own white background around it, so no backdrop rect is needed here.
+const DEFAULT_QR_LOGO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <rect x="10" y="10" width="80" height="80" rx="24" fill="none" stroke="#D41F44" stroke-width="9"/>
+  <rect x="29" y="29" width="42" height="42" rx="13" fill="#D41F44"/>
+  <path d="M38 51 L46.5 60 L64 40" fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="83" cy="17" r="7.5" fill="#FFB627"/>
 </svg>`;
 
 export const DEFAULT_QR_LOGO = `data:image/svg+xml;utf8,${encodeURIComponent(DEFAULT_QR_LOGO_SVG)}`;
