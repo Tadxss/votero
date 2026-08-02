@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react";
+import { qrImageSettings } from "../../../_components/qrLogo";
 import { SearchX, BarChart3 } from "lucide-react";
 import {
   useLobby,
@@ -115,7 +116,13 @@ export default function PresentLobbyPage() {
       <div className="grid w-full max-w-6xl grid-cols-1 items-start gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
         <div className="flex flex-col items-center gap-4">
           <div className="w-full max-w-[280px] rounded-3xl bg-white p-6 shadow-2xl [&>svg]:h-auto [&>svg]:w-full">
-            <QRCodeSVG value={voteUrl} size={280} title={`QR code to vote in ${lobby.title}`} />
+            <QRCodeSVG
+              value={voteUrl}
+              size={280}
+              level="H"
+              imageSettings={qrImageSettings(lobby.brandLogoUrl, 280)}
+              title={`QR code to vote in ${lobby.title}`}
+            />
           </div>
           <p className="rounded-full bg-brand-50 px-6 py-2 font-mono text-2xl font-bold tracking-widest text-brand-700 dark:bg-brand-900/30 dark:text-brand-300">
             {lobby.code}
