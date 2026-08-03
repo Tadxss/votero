@@ -7,13 +7,14 @@ import { withSupabase } from "@supabase/server";
 //   rpc_get_ballot_detail, which self-checks `ballot_mode='open' AND creator_id=auth.uid()`.
 // - `ctx.supabaseAdmin` (service role) is the ONLY way to call rpc_get_tally, which has no
 //   internal auth check of its own — this function decides whether the caller is allowed to see
-//   the tally (live / closed / is-creator) *before* reaching for the admin client, not after.
+//   the tally (live / closed / is-creator, unless the caller passes isPublicView — see below)
+//   *before* reaching for the admin client, not after.
 // Since multi-question surveys: both RPCs return an array grouped per question
 // (`[{ questionId, questionTitle, tally|entries: [...] }, ...]`) instead of one flat array — this
 // function just forwards whatever shape the RPC returns, so no change needed here beyond this note.
 export default {
   fetch: withSupabase({ auth: "user" }, async (req, ctx) => {
-    const { lobbyId } = await req.json();
+    const { lobbyId, isPublicView } = await req.json();
     if (!lobbyId) {
       return Response.json({ error: "MISSING_LOBBY_ID" }, { status: 400 });
     }
@@ -51,8 +52,13 @@ export default {
       completedCount: completedCount ?? 0,
     };
 
+    // The creator-preview bypass only applies to a private dashboard (manage/stats) — a caller
+    // viewing a shared/projected or voter-facing page (present/vote) passes isPublicView so a
+    // signed-in creator on their OWN present/vote page doesn't get a sneak peek at a tally the
+    // rest of the room is deliberately being denied by "hidden until closed."
+    const creatorBypass = isCreator && !isPublicView;
     let tally = null;
-    if (lobby.tally_visibility === "live" || lobby.status === "closed" || isCreator) {
+    if (lobby.tally_visibility === "live" || lobby.status === "closed" || creatorBypass) {
       const { data, error } = await ctx.supabaseAdmin.rpc("rpc_get_tally", { p_lobby_id: lobbyId });
       if (error) {
         return Response.json({ error: error.message }, { status: 400 });
