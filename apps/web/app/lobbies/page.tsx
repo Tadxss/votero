@@ -39,7 +39,7 @@ function LobbyCard({ lobby, onDelete }: { lobby: Lobby; onDelete: (lobby: Lobby)
           <Link
             href={`/lobby/${lobby.code}/stats`}
             aria-label={`View stats for ${lobby.title}`}
-            className="rounded-full p-1.5 text-[var(--foreground-muted)] transition-colors hover:bg-neutral-100 hover:text-brand-600 dark:hover:bg-neutral-800"
+            className="rounded-full p-1.5 text-[var(--foreground-muted)] transition-colors hover:bg-neutral-100 hover:text-brand-600 dark:hover:bg-neutral-800 dark:hover:text-brand-300"
           >
             <BarChart3 size={16} />
           </Link>
@@ -113,7 +113,7 @@ export default function MyLobbiesPage() {
                   className={`rounded-full p-1.5 transition-colors ${
                     view === "table"
                       ? "bg-brand-700 text-white"
-                      : "text-[var(--foreground-muted)] hover:text-brand-600"
+                      : "text-[var(--foreground-muted)] hover:text-brand-600 dark:hover:text-brand-300"
                   }`}
                 >
                   <Table2 size={16} />
@@ -126,7 +126,7 @@ export default function MyLobbiesPage() {
                   className={`rounded-full p-1.5 transition-colors ${
                     view === "grid"
                       ? "bg-brand-700 text-white"
-                      : "text-[var(--foreground-muted)] hover:text-brand-600"
+                      : "text-[var(--foreground-muted)] hover:text-brand-600 dark:hover:text-brand-300"
                   }`}
                 >
                   <LayoutGrid size={16} />

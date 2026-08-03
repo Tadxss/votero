@@ -6,17 +6,17 @@
 export function Logo({ className = "h-7 w-7" }: { className?: string }) {
   return (
     <svg viewBox="0 0 100 100" className={className} role="img" aria-hidden="true">
-      <rect x="10" y="10" width="80" height="80" rx="24" fill="none" stroke="#D41F44" strokeWidth="9" />
-      <rect x="29" y="29" width="42" height="42" rx="13" fill="#D41F44" />
+      <rect x="10" y="10" width="80" height="80" rx="24" fill="none" stroke="#17325A" strokeWidth="9" />
+      <rect x="29" y="29" width="42" height="42" rx="13" fill="#17325A" />
       <path
         d="M38 51 L46.5 60 L64 40"
         fill="none"
-        stroke="#FFF9F6"
+        stroke="#F7F9FC"
         strokeWidth="8"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <circle cx="83" cy="17" r="7.5" fill="#FFB627" />
+      <circle cx="83" cy="17" r="7.5" fill="#16A394" />
     </svg>
   );
 }

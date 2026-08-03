@@ -14,23 +14,23 @@ module.exports = {
     extend: {
       colors: {
         brand: {
-          50: "#FFF1F3",
-          100: "#FFE1E6",
-          300: "#FF93A8",
-          500: "#FF4D6D",
-          600: "#F5335A",
-          700: "#D41F44",
-          900: "#7A0E27",
+          50: "#EEF2FA",
+          100: "#D7E1F4",
+          300: "#7DA2D6",
+          500: "#2F5F9E",
+          600: "#234A7D",
+          700: "#17325A",
+          900: "#0C1C33",
         },
         accent: {
-          400: "#FFC93C",
-          500: "#FFB627",
-          600: "#F59E0B",
+          400: "#4FD1C5",
+          500: "#16A394",
+          600: "#0E7C6E",
         },
       },
       fontFamily: {
         sans: ["var(--font-geist-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
-        display: ["var(--font-baloo)", "ui-sans-serif", "system-ui", "sans-serif"],
+        display: ["var(--font-sora)", "ui-sans-serif", "system-ui", "sans-serif"],
       },
       keyframes: {
         "pulse-dot": {

@@ -11,7 +11,7 @@ export function StatCard({
 }) {
   return (
     <div className="flex items-center gap-4 rounded-3xl border border-neutral-300 bg-[var(--surface)] p-5 dark:border-neutral-800">
-      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-brand-50 text-brand-500 dark:bg-brand-900/30">
+      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-brand-50 text-brand-500 dark:bg-brand-900/30 dark:text-brand-300">
         <Icon size={20} strokeWidth={1.75} />
       </span>
       <div className="flex flex-col">

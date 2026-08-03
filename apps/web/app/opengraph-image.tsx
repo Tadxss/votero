@@ -20,7 +20,7 @@ export default function OpengraphImage() {
           alignItems: "center",
           justifyContent: "center",
           gap: 32,
-          background: "#FFF9F6",
+          background: "#F7F9FC",
         }}
       >
         <div style={{ position: "relative", width: 168, height: 168, display: "flex" }}>
@@ -32,7 +32,7 @@ export default function OpengraphImage() {
               right: 0,
               bottom: 0,
               borderRadius: 42,
-              border: "15px solid #D41F44",
+              border: "15px solid #17325A",
               display: "flex",
             }}
           />
@@ -44,7 +44,7 @@ export default function OpengraphImage() {
               width: 72,
               height: 72,
               borderRadius: 22,
-              background: "#D41F44",
+              background: "#17325A",
               display: "flex",
             }}
           >
@@ -56,7 +56,7 @@ export default function OpengraphImage() {
                 width: 22,
                 height: 7,
                 borderRadius: 4,
-                background: "#FFF9F6",
+                background: "#F7F9FC",
                 transform: "rotate(48deg)",
                 display: "flex",
               }}
@@ -69,7 +69,7 @@ export default function OpengraphImage() {
                 width: 40,
                 height: 7,
                 borderRadius: 4,
-                background: "#FFF9F6",
+                background: "#F7F9FC",
                 transform: "rotate(-48deg)",
                 display: "flex",
               }}
@@ -83,18 +83,18 @@ export default function OpengraphImage() {
               width: 34,
               height: 34,
               borderRadius: "50%",
-              background: "#FFB627",
+              background: "#16A394",
               display: "flex",
             }}
           />
         </div>
         <div style={{ display: "flex", alignItems: "baseline" }}>
-          <div style={{ fontSize: 76, fontWeight: 800, color: "#22132B", display: "flex" }}>
+          <div style={{ fontSize: 76, fontWeight: 800, color: "#1a1d23", display: "flex" }}>
             Votero
           </div>
-          <div style={{ fontSize: 76, fontWeight: 800, color: "#FFB627", display: "flex" }}>.</div>
+          <div style={{ fontSize: 76, fontWeight: 800, color: "#16A394", display: "flex" }}>.</div>
         </div>
-        <div style={{ fontSize: 28, color: "#6B5B73", display: "flex" }}>
+        <div style={{ fontSize: 28, color: "#5b6472", display: "flex" }}>
           QR-code group voting
         </div>
       </div>

@@ -81,7 +81,9 @@ was to compute the actual contrast ratio for every shade already in the palette 
 darkest one that passed — `brand-700` at 5.15:1 — so the fix is "use the existing brand color one
 step darker," not a new, disconnected shade. The regression test that caught it stayed in the
 suite afterward, with the specific check re-enabled (not left disabled) once the real fix landed,
-so it can't silently regress again.
+so it can't silently regress again. (The palette was later re-hued from crimson to navy/teal for a
+more "professional/trustworthy" feel — the same darkest-passing-shade principle held: navy's
+`brand-700` clears white text at 12.80:1, an even wider margin.)
 
 ### 4. Load-testing found the real bottleneck — which wasn't the one that seemed obvious
 

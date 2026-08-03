@@ -198,7 +198,7 @@ export function JoinLobbyModal({ open, onClose }: { open: boolean; onClose: () =
               <button
                 type="button"
                 onClick={() => setMode("code")}
-                className="text-sm font-semibold text-brand-700 hover:underline"
+                className="text-sm font-semibold text-brand-700 hover:underline dark:text-brand-300"
               >
                 Use code instead
               </button>
@@ -230,7 +230,7 @@ export function JoinLobbyModal({ open, onClose }: { open: boolean; onClose: () =
                 <button
                   type="button"
                   onClick={() => setMode("scan")}
-                  className="text-sm font-semibold text-brand-700 hover:underline"
+                  className="text-sm font-semibold text-brand-700 hover:underline dark:text-brand-300"
                 >
                   Scan QR instead
                 </button>

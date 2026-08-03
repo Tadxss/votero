@@ -22,7 +22,7 @@ export function ChartViewToggle({
         className={`rounded-full p-1.5 transition-colors ${
           value === "bar"
             ? "bg-brand-700 text-white"
-            : "text-[var(--foreground-muted)] hover:text-brand-600"
+            : "text-[var(--foreground-muted)] hover:text-brand-600 dark:hover:text-brand-300"
         }`}
       >
         <BarChart3 size={16} />
@@ -35,7 +35,7 @@ export function ChartViewToggle({
         className={`rounded-full p-1.5 transition-colors ${
           value === "donut"
             ? "bg-brand-700 text-white"
-            : "text-[var(--foreground-muted)] hover:text-brand-600"
+            : "text-[var(--foreground-muted)] hover:text-brand-600 dark:hover:text-brand-300"
         }`}
       >
         <PieChart size={16} />

@@ -29,7 +29,7 @@ function TopLobbiesChart({ lobbies }: { lobbies: Lobby[] }) {
           href={`/lobby/${lobby.code}/stats`}
           className="group flex items-center gap-3 text-sm"
         >
-          <span className="w-32 shrink-0 truncate font-medium text-[var(--foreground)] group-hover:text-brand-600 sm:w-48">
+          <span className="w-32 shrink-0 truncate font-medium text-[var(--foreground)] group-hover:text-brand-600 dark:group-hover:text-brand-300 sm:w-48">
             {lobby.title}
           </span>
           <div className="h-3 flex-1 overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800">
@@ -130,7 +130,7 @@ export default function DashboardPage() {
 
             <Link
               href="/lobbies"
-              className="self-start text-sm font-semibold text-brand-700 hover:underline"
+              className="self-start text-sm font-semibold text-brand-700 hover:underline dark:text-brand-300"
             >
               View all lobbies →
             </Link>

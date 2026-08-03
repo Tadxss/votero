@@ -12,7 +12,7 @@ export function useConfetti() {
       spread: 70,
       startVelocity: 35,
       origin: { y: 0.7 },
-      colors: ["#FF4D6D", "#FFB627", "#FF93A8", "#F5335A"],
+      colors: ["#2F5F9E", "#16A394", "#7DA2D6", "#234A7D"],
     });
   }, []);
 

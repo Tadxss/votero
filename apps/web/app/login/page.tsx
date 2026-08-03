@@ -102,7 +102,7 @@ function LoginForm() {
                 <button
                   type="button"
                   onClick={() => setOpenLegal("terms")}
-                  className="font-medium hover:text-brand-600 hover:underline"
+                  className="font-medium hover:text-brand-600 hover:underline dark:hover:text-brand-300"
                 >
                   Terms
                 </button>{" "}
@@ -110,7 +110,7 @@ function LoginForm() {
                 <button
                   type="button"
                   onClick={() => setOpenLegal("privacy")}
-                  className="font-medium hover:text-brand-600 hover:underline"
+                  className="font-medium hover:text-brand-600 hover:underline dark:hover:text-brand-300"
                 >
                   Privacy Policy
                 </button>
@@ -151,7 +151,7 @@ function LoginForm() {
               <button
                 type="button"
                 onClick={() => setStep("email")}
-                className="text-sm font-medium text-[var(--foreground-muted)] hover:text-brand-600"
+                className="text-sm font-medium text-[var(--foreground-muted)] hover:text-brand-600 dark:hover:text-brand-300"
               >
                 Use a different email
               </button>

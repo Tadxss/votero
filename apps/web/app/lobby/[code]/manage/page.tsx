@@ -182,7 +182,7 @@ export default function ManageLobbyPage() {
       <div className="relative mx-auto flex max-w-5xl flex-col gap-6 px-4 sm:px-8">
         <Link
           href={isSignedIn ? "/lobbies" : "/"}
-          className="inline-flex w-fit items-center gap-1 text-sm font-medium text-[var(--foreground-muted)] transition-colors hover:text-brand-600"
+          className="inline-flex w-fit items-center gap-1 text-sm font-medium text-[var(--foreground-muted)] transition-colors hover:text-brand-600 dark:hover:text-brand-300"
         >
           ← {isSignedIn ? "My Lobbies" : "Home"}
         </Link>
@@ -203,7 +203,7 @@ export default function ManageLobbyPage() {
               (7 days after creation, regardless of whether voting is open or closed) — signing in
               now won&apos;t save this one, since it can&apos;t be transferred to an account after
               the fact.{" "}
-              <Link href="/login" className="font-semibold text-brand-700 hover:underline">
+              <Link href="/login" className="font-semibold text-brand-700 hover:underline dark:text-brand-300">
                 Sign in
               </Link>{" "}
               before creating your next lobby to keep that one permanently.

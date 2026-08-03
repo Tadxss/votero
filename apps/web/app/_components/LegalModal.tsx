@@ -60,7 +60,7 @@ export function LegalModal({ type, onClose }: { type: LegalModalType; onClose: (
             href={fullPageHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs font-medium text-[var(--foreground-muted)] transition-colors hover:text-brand-600 hover:underline"
+            className="text-xs font-medium text-[var(--foreground-muted)] transition-colors hover:text-brand-600 hover:underline dark:hover:text-brand-300"
           >
             Open full page ↗
           </a>

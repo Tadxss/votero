@@ -17,19 +17,20 @@ export function Footer() {
     <>
       <footer className="relative z-10 flex items-center justify-center gap-4 px-4 py-6 text-xs text-[var(--foreground-muted)]">
         <span className="flex items-center gap-1.5">
-          <Logo className="h-3.5 w-3.5" />© {new Date().getFullYear()} Votero
+          <Logo className="h-3.5 w-3.5" />© {new Date().getFullYear()}{" "}
+          <span className="font-display font-bold">Votero</span>
         </span>
         <button
           type="button"
           onClick={() => setOpenLegal("terms")}
-          className="transition-colors hover:text-brand-600"
+          className="transition-colors hover:text-brand-600 dark:hover:text-brand-300"
         >
           Terms
         </button>
         <button
           type="button"
           onClick={() => setOpenLegal("privacy")}
-          className="transition-colors hover:text-brand-600"
+          className="transition-colors hover:text-brand-600 dark:hover:text-brand-300"
         >
           Privacy
         </button>

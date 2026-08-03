@@ -76,7 +76,7 @@ export default function EditLobbyQuestionsPage() {
         <p className="max-w-xs text-sm text-[var(--foreground-muted)]">
           Only this lobby&apos;s creator can edit its questions.
         </p>
-        <Link href={`/lobby/${code}/manage`} className="font-semibold text-brand-700 hover:underline">
+        <Link href={`/lobby/${code}/manage`} className="font-semibold text-brand-700 hover:underline dark:text-brand-300">
           Back to manage
         </Link>
       </main>
@@ -89,7 +89,7 @@ export default function EditLobbyQuestionsPage() {
         <p className="max-w-xs text-sm text-[var(--foreground-muted)]">
           Questions can only be edited before voting opens.
         </p>
-        <Link href={`/lobby/${code}/manage`} className="font-semibold text-brand-700 hover:underline">
+        <Link href={`/lobby/${code}/manage`} className="font-semibold text-brand-700 hover:underline dark:text-brand-300">
           Back to manage
         </Link>
       </main>
@@ -116,7 +116,7 @@ export default function EditLobbyQuestionsPage() {
       <div className="relative mx-auto flex max-w-3xl flex-col gap-6 px-4 sm:px-8">
         <Link
           href={`/lobby/${code}/manage`}
-          className="inline-flex w-fit items-center gap-1 text-sm font-medium text-[var(--foreground-muted)] transition-colors hover:text-brand-600"
+          className="inline-flex w-fit items-center gap-1 text-sm font-medium text-[var(--foreground-muted)] transition-colors hover:text-brand-600 dark:hover:text-brand-300"
         >
           ← Manage lobby
         </Link>

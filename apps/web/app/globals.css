@@ -6,8 +6,8 @@
   --background: #fafafa;
   --surface: #ffffff;
   --input-bg: #f4f4f5;
-  --foreground: #22132b;
-  --foreground-muted: #5b5462;
+  --foreground: #1a1d23;
+  --foreground-muted: #5b6472;
 }
 
 /* `data-theme` (set by the inline bootstrap script in layout.tsx + ThemeToggle.tsx) is the single
@@ -15,11 +15,11 @@
    tailwind.config.cjs) — it's always present before first paint, seeded from system preference on
    a first visit and from localStorage after an explicit toggle. */
 :root[data-theme="dark"] {
-  --background: #1b1420;
-  --surface: #241a2c;
-  --input-bg: #2c2136;
-  --foreground: #fff3f8;
-  --foreground-muted: #c9b8d1;
+  --background: #14171c;
+  --surface: #1c2027;
+  --input-bg: #242933;
+  --foreground: #f5f7fa;
+  --foreground-muted: #a3adba;
 }
 
 html,

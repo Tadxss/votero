@@ -11,9 +11,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const svg = readFileSync(path.join(__dirname, "../public/logo.svg"), "utf-8");
 
 const targets = [
-  { file: "../app/apple-icon.png", size: 180, background: "#FFF9F6" },
-  { file: "../public/icon-192.png", size: 192, background: "#FFF9F6" },
-  { file: "../public/icon-512.png", size: 512, background: "#FFF9F6" },
+  { file: "../app/apple-icon.png", size: 180, background: "#F7F9FC" },
+  { file: "../public/icon-192.png", size: 192, background: "#F7F9FC" },
+  { file: "../public/icon-512.png", size: 512, background: "#F7F9FC" },
 ];
 
 const browser = await chromium.launch();

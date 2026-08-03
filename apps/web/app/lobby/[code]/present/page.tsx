@@ -106,7 +106,7 @@ export default function PresentLobbyPage() {
         {isCreator && (
           <Link
             href={`/lobby/${code}/stats`}
-            className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300 px-3 py-1 text-sm font-medium text-[var(--foreground-muted)] transition-colors hover:border-brand-300 hover:text-brand-600 dark:border-neutral-700"
+            className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300 px-3 py-1 text-sm font-medium text-[var(--foreground-muted)] transition-colors hover:border-brand-300 hover:text-brand-600 dark:border-neutral-700 dark:hover:text-brand-300"
           >
             <BarChart3 size={14} /> Detailed stats
           </Link>

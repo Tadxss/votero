@@ -64,7 +64,7 @@ export default function LobbyStatsPage() {
       <div className="relative mx-auto flex max-w-5xl flex-col gap-6 px-4 sm:px-8">
         <Link
           href={`/lobby/${code}/manage`}
-          className="inline-flex w-fit items-center gap-1 text-sm font-medium text-[var(--foreground-muted)] transition-colors hover:text-brand-600"
+          className="inline-flex w-fit items-center gap-1 text-sm font-medium text-[var(--foreground-muted)] transition-colors hover:text-brand-600 dark:hover:text-brand-300"
         >
           ← Manage lobby
         </Link>

@@ -82,8 +82,8 @@ test("unbranded lobby renders with the default accent color", async ({ browser }
   await expect(voterPage.locator('img[src*="lobby-logos"]')).toHaveCount(0);
   await voterPage.getByText("Pepperoni", { exact: true }).click();
   const submitButton = voterPage.locator('button[type="submit"]');
-  // brand-700 (#D41F44), the same fixed shade Button.tsx fell back to before this feature existed.
-  await expect(submitButton).toHaveCSS("background-color", "rgb(212, 31, 68)");
+  // brand-700 (#17325A), the same fixed shade Button.tsx fell back to before this feature existed.
+  await expect(submitButton).toHaveCSS("background-color", "rgb(23, 50, 90)");
 });
 
 test("a low-contrast brand color is auto-darkened server-side to stay WCAG-legible", async ({
