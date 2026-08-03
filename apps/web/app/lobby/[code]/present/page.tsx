@@ -106,7 +106,7 @@ export default function PresentLobbyPage() {
         {isCreator && (
           <Link
             href={`/lobby/${code}/stats`}
-            className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300 px-3 py-1 text-sm font-medium text-[var(--foreground-muted)] transition-colors hover:border-brand-300 hover:text-brand-600 dark:border-neutral-700"
+            className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300 px-3 py-1 text-sm font-medium text-[var(--foreground-muted)] transition-colors hover:border-brand-300 hover:text-brand-600 dark:border-neutral-700 dark:hover:text-brand-300"
           >
             <BarChart3 size={14} /> Detailed stats
           </Link>
@@ -172,21 +172,23 @@ export default function PresentLobbyPage() {
                 />
               </div>
               {hasMultipleQuestions && tally && (
-                <div className="flex items-center gap-4">
+                <div className="flex flex-wrap items-center justify-center gap-3">
                   <Button
                     type="button"
                     variant="secondary"
+                    className="shrink-0"
                     disabled={questionIndex === 0}
                     onClick={() => setQuestionIndex((i) => i - 1)}
                   >
                     ← Previous
                   </Button>
-                  <p className="text-sm font-medium text-[var(--foreground-muted)]">
+                  <p className="whitespace-nowrap text-sm font-medium text-[var(--foreground-muted)]">
                     Question {questionIndex + 1} of {tally.length}
                   </p>
                   <Button
                     type="button"
                     variant="secondary"
+                    className="shrink-0"
                     disabled={questionIndex === tally.length - 1}
                     onClick={() => setQuestionIndex((i) => i + 1)}
                   >

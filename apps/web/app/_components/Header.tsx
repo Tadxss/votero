@@ -11,7 +11,7 @@ import { ProfileModal } from "./ProfileModal";
 import { ThemeToggle } from "./ThemeToggle";
 
 const navLinkClasses =
-  "rounded-full border border-neutral-300 px-3 py-1 font-medium text-[var(--foreground-muted)] transition-colors hover:border-brand-300 hover:text-brand-600 dark:border-neutral-700";
+  "rounded-full border border-neutral-300 px-3 py-1 font-medium text-[var(--foreground-muted)] transition-colors hover:border-brand-300 hover:text-brand-600 dark:border-neutral-700 dark:hover:text-brand-300";
 
 export function Header() {
   const pathname = usePathname();
@@ -44,13 +44,13 @@ export function Header() {
             <div className="hidden items-center gap-3 sm:flex">
               <Link
                 href="/dashboard"
-                className="font-medium text-[var(--foreground-muted)] transition-colors hover:text-brand-600"
+                className="font-medium text-[var(--foreground-muted)] transition-colors hover:text-brand-600 dark:hover:text-brand-300"
               >
                 Dashboard
               </Link>
               <Link
                 href="/lobbies"
-                className="font-medium text-[var(--foreground-muted)] transition-colors hover:text-brand-600"
+                className="font-medium text-[var(--foreground-muted)] transition-colors hover:text-brand-600 dark:hover:text-brand-300"
               >
                 My Lobbies
               </Link>
@@ -62,7 +62,7 @@ export function Header() {
               </span>
               <button
                 onClick={() => setProfileModalOpen(true)}
-                className="font-medium text-[var(--foreground-muted)] transition-colors hover:text-brand-600"
+                className="font-medium text-[var(--foreground-muted)] transition-colors hover:text-brand-600 dark:hover:text-brand-300"
               >
                 Edit profile
               </button>

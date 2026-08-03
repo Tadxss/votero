@@ -182,7 +182,7 @@ export default function ManageLobbyPage() {
       <div className="relative mx-auto flex max-w-5xl flex-col gap-6 px-4 sm:px-8">
         <Link
           href={isSignedIn ? "/lobbies" : "/"}
-          className="inline-flex w-fit items-center gap-1 text-sm font-medium text-[var(--foreground-muted)] transition-colors hover:text-brand-600"
+          className="inline-flex w-fit items-center gap-1 text-sm font-medium text-[var(--foreground-muted)] transition-colors hover:text-brand-600 dark:hover:text-brand-300"
         >
           ← {isSignedIn ? "My Lobbies" : "Home"}
         </Link>
@@ -203,7 +203,7 @@ export default function ManageLobbyPage() {
               (7 days after creation, regardless of whether voting is open or closed) — signing in
               now won&apos;t save this one, since it can&apos;t be transferred to an account after
               the fact.{" "}
-              <Link href="/login" className="font-semibold text-brand-700 hover:underline">
+              <Link href="/login" className="font-semibold text-brand-700 hover:underline dark:text-brand-300">
                 Sign in
               </Link>{" "}
               before creating your next lobby to keep that one permanently.
@@ -225,7 +225,7 @@ export default function ManageLobbyPage() {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start lg:gap-8">
           <div className="flex flex-col gap-6">
             {lobby.status !== "closed" && voteUrl && (
-              <div className="flex animate-pop-in flex-col items-center gap-3 rounded-3xl border-4 border-brand-500 bg-[var(--surface)] p-6 shadow-md">
+              <div className="flex animate-pop-in flex-col items-center gap-3 rounded-3xl border-2 border-brand-500 bg-[var(--surface)] p-6 shadow-md">
                 <div className="rounded-2xl bg-white p-3">
                   <QRCodeSVG
                     value={voteUrl}
@@ -290,7 +290,7 @@ export default function ManageLobbyPage() {
             )}
 
             {lobby.status === "closed" && (
-              <div className="flex animate-pop-in flex-col items-center gap-2 rounded-3xl border-4 border-neutral-300 bg-[var(--surface)] p-6 text-center shadow-md dark:border-neutral-700">
+              <div className="flex animate-pop-in flex-col items-center gap-2 rounded-3xl border-2 border-neutral-300 bg-[var(--surface)] p-6 text-center shadow-md dark:border-neutral-800">
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-neutral-100 px-3 py-1 text-xs font-semibold text-[var(--foreground-muted)] dark:bg-neutral-800">
                   <Lock size={12} aria-hidden /> Voting closed
                 </span>
@@ -644,23 +644,23 @@ export default function ManageLobbyPage() {
                       )}
 
                       {hasMultipleQuestions && tally && (
-                        <div className="flex items-center justify-center gap-4 border-t border-neutral-100 pt-4 dark:border-neutral-800">
+                        <div className="flex flex-wrap items-center justify-center gap-3 border-t border-neutral-100 pt-4 dark:border-neutral-800">
                           <Button
                             type="button"
                             variant="secondary"
-                            className="text-xs"
+                            className="shrink-0 text-xs"
                             disabled={questionIndex === 0}
                             onClick={() => setQuestionIndex((i) => i - 1)}
                           >
                             ← Previous
                           </Button>
-                          <p className="text-sm font-medium text-[var(--foreground-muted)]">
+                          <p className="whitespace-nowrap text-sm font-medium text-[var(--foreground-muted)]">
                             Question {questionIndex + 1} of {tally.length}
                           </p>
                           <Button
                             type="button"
                             variant="secondary"
-                            className="text-xs"
+                            className="shrink-0 text-xs"
                             disabled={questionIndex === tally.length - 1}
                             onClick={() => setQuestionIndex((i) => i + 1)}
                           >

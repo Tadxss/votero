@@ -229,7 +229,7 @@ export default function CreateLobbyPage() {
 
             {!isSignedIn && (
               <p className="text-sm text-[var(--foreground-muted)]">
-                <Link href="/login" className="font-semibold text-brand-700 hover:underline">
+                <Link href="/login" className="font-semibold text-brand-700 hover:underline dark:text-brand-300">
                   Sign in
                 </Link>{" "}
                 to save this to your history — or just create it, no account needed.

@@ -1,5 +1,6 @@
 import type { Lobby, QuestionTally, SurveyQuestion } from "@repo/types";
 import { loadImage } from "./loadImage";
+import { ensureCanvasFontsLoaded } from "./loadCanvasFonts";
 
 // Same fixed hue order as TallyBars'/TextResponseCloud's light-mode --series-* vars — a downloaded
 // file is a static artifact with no CSS variables to inherit, and light-mode colors are the safer
@@ -196,7 +197,7 @@ function layoutChips(
 
   responses.forEach((r, index) => {
     const label = truncateForChip(r.text, previewChars) + (r.count > 1 ? ` ×${r.count}` : "");
-    measureCtx.font = `600 ${fontSize}px system-ui, sans-serif`;
+    measureCtx.font = `600 ${fontSize}px "Sora Canvas", system-ui, sans-serif`;
     const textWidth = measureCtx.measureText(label).width;
     const padX = fontSize * CHIP_PAD_X_RATIO;
     const padY = fontSize * CHIP_PAD_Y_RATIO;
@@ -234,12 +235,13 @@ interface RenderResultsOpts {
 
 // Extracted so the branded PDF report (downloadBrandedReportPdf below) can reuse the exact same
 // drawing logic with a logo + accent color overlaid, instead of duplicating it.
-function renderResultsCanvas(
+async function renderResultsCanvas(
   lobby: Lobby,
   questions: SurveyQuestion[],
   tally: QuestionTally[],
   opts: RenderResultsOpts = {},
-): HTMLCanvasElement | undefined {
+): Promise<HTMLCanvasElement | undefined> {
+  await ensureCanvasFontsLoaded();
   const { logoImage, accentColor } = opts;
   const width = 900;
   const padding = 48;
@@ -291,7 +293,7 @@ function renderResultsCanvas(
   if (!ctx) return;
   ctx.scale(scale, scale);
 
-  ctx.fillStyle = "#fff9f6"; // matches --background
+  ctx.fillStyle = "#f7f9fc"; // matches --background
   ctx.fillRect(0, 0, width, height);
 
   let y = padding;
@@ -300,12 +302,12 @@ function renderResultsCanvas(
     ctx.drawImage(logoImage, padding, y, logoSize, logoSize);
   }
 
-  ctx.fillStyle = "#22132b"; // matches --foreground
-  ctx.font = "bold 28px system-ui, sans-serif";
+  ctx.fillStyle = "#1a1d23"; // matches --foreground
+  ctx.font = `bold 28px "Sora Canvas", system-ui, sans-serif`;
   ctx.fillText(lobby.title, titleX, y + 26);
 
-  ctx.fillStyle = "#6b5b73"; // matches --foreground-muted
-  ctx.font = "16px system-ui, sans-serif";
+  ctx.fillStyle = "#5b6472"; // matches --foreground-muted
+  ctx.font = `16px "Sora Canvas", system-ui, sans-serif`;
   ctx.fillText(
     `${lobby.status === "closed" ? "Final results" : "Live results"} · ${lobby.votesCount} ${lobby.votesCount === 1 ? "vote" : "votes"} cast`,
     titleX,
@@ -327,8 +329,8 @@ function renderResultsCanvas(
     const content = questionContent[qIndex]!;
 
     if (showQuestionHeadings) {
-      ctx.font = "600 18px system-ui, sans-serif";
-      ctx.fillStyle = "#6b5b73";
+      ctx.font = `600 18px "Sora Canvas", system-ui, sans-serif`;
+      ctx.fillStyle = "#5b6472";
       ctx.textAlign = "left";
       ctx.fillText(q.questionTitle, padding, y + 24);
     }
@@ -353,12 +355,12 @@ function renderResultsCanvas(
           labelX = padding + 16;
         }
 
-        ctx.font = "500 16px system-ui, sans-serif";
-        ctx.fillStyle = "#22132b";
+        ctx.font = `500 16px "Sora Canvas", system-ui, sans-serif`;
+        ctx.fillStyle = "#1a1d23";
         ctx.textAlign = "left";
         ctx.fillText(label, labelX, barCenterY + 5, labelWidth - 12 - (labelX - padding));
 
-        ctx.fillStyle = "#ece3e0";
+        ctx.fillStyle = "#e5e8ed";
         roundRect(ctx, barX, barCenterY - 10, barMaxWidth, 20, 10);
         ctx.fill();
 
@@ -368,8 +370,8 @@ function renderResultsCanvas(
           ctx.fill();
         }
 
-        ctx.font = "500 15px system-ui, sans-serif";
-        ctx.fillStyle = "#6b5b73";
+        ctx.font = `500 15px "Sora Canvas", system-ui, sans-serif`;
+        ctx.fillStyle = "#5b6472";
         ctx.textAlign = "right";
         ctx.fillText(String(entry.count), width - padding, barCenterY + 5);
         ctx.textAlign = "left";
@@ -385,7 +387,7 @@ function renderResultsCanvas(
         roundRect(ctx, chipX, chipY, chip.width, chip.height, chip.height / 2);
         ctx.fill();
 
-        ctx.font = `600 ${chip.fontSize}px system-ui, sans-serif`;
+        ctx.font = `600 ${chip.fontSize}px "Sora Canvas", system-ui, sans-serif`;
         ctx.fillStyle = chip.color;
         ctx.textAlign = "left";
         ctx.textBaseline = "middle";
@@ -399,19 +401,19 @@ function renderResultsCanvas(
   });
 
   y += footerHeight;
-  ctx.font = "13px system-ui, sans-serif";
-  ctx.fillStyle = "#a89aa0";
+  ctx.font = `13px "Sora Canvas", system-ui, sans-serif`;
+  ctx.fillStyle = "#8b93a1";
   ctx.fillText(`Voted via Votero · code ${lobby.code}`, padding, y - footerHeight / 2 + 5);
 
   return canvas;
 }
 
-export function downloadResultsImage(
+export async function downloadResultsImage(
   lobby: Lobby,
   questions: SurveyQuestion[],
   tally: QuestionTally[],
 ) {
-  const canvas = renderResultsCanvas(lobby, questions, tally);
+  const canvas = await renderResultsCanvas(lobby, questions, tally);
   if (!canvas) return;
   canvas.toBlob((blob) => {
     if (!blob) return;
@@ -436,7 +438,7 @@ export async function downloadBrandedReportPdf(
     }
   }
 
-  const canvas = renderResultsCanvas(lobby, questions, tally, {
+  const canvas = await renderResultsCanvas(lobby, questions, tally, {
     logoImage,
     accentColor: lobby.brandColor ?? undefined,
   });

@@ -1,5 +1,6 @@
 import type { Lobby } from "@repo/types";
 import { loadImage } from "./loadImage";
+import { ensureCanvasFontsLoaded } from "./loadCanvasFonts";
 
 export type PosterPreset = "a4" | "tableTent" | "slide";
 
@@ -66,7 +67,7 @@ function drawQrCard(
   padding: number,
 ) {
   ctx.save();
-  ctx.shadowColor = "rgba(34, 19, 43, 0.18)";
+  ctx.shadowColor = "rgba(20, 23, 28, 0.18)";
   ctx.shadowBlur = padding * 0.9;
   ctx.shadowOffsetY = padding * 0.25;
   ctx.fillStyle = "#ffffff";
@@ -89,7 +90,7 @@ function drawCodePill(
   fontSize: number,
   align: "center" | "left" = "center",
 ) {
-  ctx.font = `bold ${Math.round(fontSize)}px system-ui, sans-serif`;
+  ctx.font = `bold ${Math.round(fontSize)}px "Sora Canvas", system-ui, sans-serif`;
   const textWidth = ctx.measureText(code).width;
   const padX = fontSize * 0.9;
   const padY = fontSize * 0.5;
@@ -120,15 +121,15 @@ function drawFooter(
   width: number,
   fontSize: number,
 ) {
-  ctx.strokeStyle = "rgba(107, 91, 115, 0.2)"; // matches --foreground-muted at low alpha
+  ctx.strokeStyle = "rgba(91, 100, 114, 0.2)"; // matches --foreground-muted at low alpha
   ctx.lineWidth = Math.max(1, fontSize * 0.06);
   ctx.beginPath();
   ctx.moveTo(centerX - width / 2, y);
   ctx.lineTo(centerX + width / 2, y);
   ctx.stroke();
 
-  ctx.fillStyle = "#a89aa0";
-  ctx.font = `${Math.round(fontSize)}px system-ui, sans-serif`;
+  ctx.fillStyle = "#8b93a1";
+  ctx.font = `600 ${Math.round(fontSize)}px "Sora Canvas", system-ui, sans-serif`;
   ctx.textAlign = "center";
   ctx.fillText("Powered by Votero", centerX, y + fontSize * 1.8);
 }
@@ -146,7 +147,7 @@ function drawPosterContent(
   height: number,
 ) {
   ctx.save();
-  ctx.fillStyle = "#fff9f6";
+  ctx.fillStyle = "#f7f9fc";
   ctx.fillRect(0, 0, width, height);
 
   const centerX = width / 2;
@@ -159,9 +160,9 @@ function drawPosterContent(
   }
 
   ctx.textAlign = "center";
-  ctx.fillStyle = "#22132b"; // matches --foreground
+  ctx.fillStyle = "#1a1d23"; // matches --foreground
   const titleSize = Math.round(width * 0.075);
-  ctx.font = `bold ${titleSize}px system-ui, sans-serif`;
+  ctx.font = `bold ${titleSize}px "Sora Canvas", system-ui, sans-serif`;
   y += titleSize * 0.9;
   ctx.fillText(lobby.title, centerX, y, width * 0.82);
 
@@ -186,8 +187,8 @@ function drawPosterContent(
   y += pillHeight + height * 0.04;
 
   ctx.textAlign = "center";
-  ctx.fillStyle = "#6b5b73"; // matches --foreground-muted
-  ctx.font = `${Math.round(width * 0.03)}px system-ui, sans-serif`;
+  ctx.fillStyle = "#5b6472"; // matches --foreground-muted
+  ctx.font = `600 ${Math.round(width * 0.03)}px "Sora Canvas", system-ui, sans-serif`;
   ctx.fillText("Scan to vote", centerX, y);
 
   drawFooter(ctx, centerX, height * 0.95, width * 0.5, width * 0.022);
@@ -206,7 +207,7 @@ function drawSlideContent(
   width: number,
   height: number,
 ) {
-  ctx.fillStyle = "#fff9f6";
+  ctx.fillStyle = "#f7f9fc";
   ctx.fillRect(0, 0, width, height);
 
   const margin = width * 0.06;
@@ -226,8 +227,8 @@ function drawSlideContent(
   }
 
   ctx.textAlign = "left";
-  ctx.fillStyle = "#22132b";
-  ctx.font = `bold ${Math.round(height * 0.085)}px system-ui, sans-serif`;
+  ctx.fillStyle = "#1a1d23";
+  ctx.font = `bold ${Math.round(height * 0.085)}px "Sora Canvas", system-ui, sans-serif`;
   ctx.fillText(lobby.title, textX, y, textMaxWidth);
 
   y += height * 0.035;
@@ -243,12 +244,12 @@ function drawSlideContent(
   const pillHeight = drawCodePill(ctx, lobby.code, accentColor, textX, y, codeFontSize, "left");
   y += pillHeight + height * 0.06;
 
-  ctx.fillStyle = "#6b5b73";
-  ctx.font = `${Math.round(height * 0.04)}px system-ui, sans-serif`;
+  ctx.fillStyle = "#5b6472";
+  ctx.font = `600 ${Math.round(height * 0.04)}px "Sora Canvas", system-ui, sans-serif`;
   ctx.fillText("Scan to vote", textX, y);
 
-  ctx.fillStyle = "#a89aa0";
-  ctx.font = `${Math.round(height * 0.03)}px system-ui, sans-serif`;
+  ctx.fillStyle = "#8b93a1";
+  ctx.font = `600 ${Math.round(height * 0.03)}px "Sora Canvas", system-ui, sans-serif`;
   ctx.fillText("Powered by Votero", textX, height * 0.93);
 }
 
@@ -257,6 +258,7 @@ async function renderPosterCanvas(
   qrDataUrl: string,
   preset: PosterPreset,
 ): Promise<HTMLCanvasElement> {
+  await ensureCanvasFontsLoaded();
   const qrImage = await loadImage(qrDataUrl);
   let logoImage: HTMLImageElement | undefined;
   if (lobby.brandLogoUrl) {
@@ -266,7 +268,7 @@ async function renderPosterCanvas(
       // Proceed unbranded rather than blocking the whole poster over a logo that failed to load.
     }
   }
-  const accentColor = lobby.brandColor ?? "#D41F44"; // brand-700, the app's own default accent
+  const accentColor = lobby.brandColor ?? "#17325A"; // brand-700, the app's own default accent
 
   const canvas = document.createElement("canvas");
 

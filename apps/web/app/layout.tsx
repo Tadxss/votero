@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Script from "next/script";
 import localFont from "next/font/local";
-import { Baloo_2 } from "next/font/google";
+import { Sora } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { Providers } from "./providers";
@@ -36,10 +36,10 @@ const geistMono = localFont({
   src: "./fonts/GeistMonoVF.woff",
   variable: "--font-geist-mono",
 });
-const baloo = Baloo_2({
+const sora = Sora({
   subsets: ["latin"],
   weight: ["600", "700", "800"],
-  variable: "--font-baloo",
+  variable: "--font-sora",
 });
 
 export const metadata: Metadata = {
@@ -64,7 +64,7 @@ export default function RootLayout({
         </Script>
       </head>
       <body
-        className={`flex min-h-screen flex-col ${geistSans.variable} ${geistMono.variable} ${baloo.variable} font-sans`}
+        className={`flex min-h-screen flex-col ${geistSans.variable} ${geistMono.variable} ${sora.variable} font-sans`}
       >
         <Providers>
           <Header />
