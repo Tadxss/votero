@@ -3,11 +3,11 @@
 @tailwind utilities;
 
 :root {
-  --background: #fff9f6;
+  --background: #fafafa;
   --surface: #ffffff;
-  --input-bg: #f7f3f1;
+  --input-bg: #f4f4f5;
   --foreground: #22132b;
-  --foreground-muted: #6b5b73;
+  --foreground-muted: #5b5462;
 }
 
 /* `data-theme` (set by the inline bootstrap script in layout.tsx + ThemeToggle.tsx) is the single

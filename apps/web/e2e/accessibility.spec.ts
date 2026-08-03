@@ -45,6 +45,10 @@ test("vote page has no serious/critical automated a11y violations", async ({ pag
 
   await page.goto(`/vote/${code}`);
   await page.waitForSelector('input[type="radio"]', { timeout: 15000 });
+  // The options list mounts with a 0.25s pop-in fade/scale animation (see tailwind.config.cjs) —
+  // scanning mid-animation catches a transient low-opacity contrast state that isn't what a user
+  // ever actually sees settled on screen.
+  await page.waitForTimeout(300);
   const results = await analyze(page);
   assertNoSeriousViolations(results.violations);
 });

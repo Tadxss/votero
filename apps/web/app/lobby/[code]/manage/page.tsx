@@ -225,7 +225,7 @@ export default function ManageLobbyPage() {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start lg:gap-8">
           <div className="flex flex-col gap-6">
             {lobby.status !== "closed" && voteUrl && (
-              <div className="flex animate-pop-in flex-col items-center gap-3 rounded-3xl border-4 border-brand-500 bg-[var(--surface)] p-6 shadow-md">
+              <div className="flex animate-pop-in flex-col items-center gap-3 rounded-3xl border-2 border-brand-500 bg-[var(--surface)] p-6 shadow-md">
                 <div className="rounded-2xl bg-white p-3">
                   <QRCodeSVG
                     value={voteUrl}
@@ -290,7 +290,7 @@ export default function ManageLobbyPage() {
             )}
 
             {lobby.status === "closed" && (
-              <div className="flex animate-pop-in flex-col items-center gap-2 rounded-3xl border-4 border-neutral-300 bg-[var(--surface)] p-6 text-center shadow-md dark:border-neutral-700">
+              <div className="flex animate-pop-in flex-col items-center gap-2 rounded-3xl border-2 border-neutral-300 bg-[var(--surface)] p-6 text-center shadow-md dark:border-neutral-800">
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-neutral-100 px-3 py-1 text-xs font-semibold text-[var(--foreground-muted)] dark:bg-neutral-800">
                   <Lock size={12} aria-hidden /> Voting closed
                 </span>
