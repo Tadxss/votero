@@ -17,7 +17,11 @@ import { StatusPill } from "../../../_components/StatusPill";
 import { Spinner } from "../../../_components/Spinner";
 import { TallyChart } from "../../../_components/TallyChart";
 import { ChartViewToggle, type ChartView } from "../../../_components/ChartViewToggle";
-import { downloadResultsCsv, downloadResultsImage } from "../../../_components/downloadResults";
+import {
+  downloadResultsCsv,
+  downloadResultsImage,
+  downloadBrandedReportPdf,
+} from "../../../_components/downloadResults";
 import { useDocumentTitle } from "../../../_components/useDocumentTitle";
 import { trackEvent } from "../../../_lib/analytics";
 
@@ -124,6 +128,18 @@ export default function LobbyStatsPage() {
                       }}
                     >
                       <Download size={14} /> Image
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      className="inline-flex items-center gap-1.5 text-xs"
+                      onClick={() => {
+                        if (!results.data?.tally) return;
+                        downloadBrandedReportPdf(lobby, questions, results.data.tally);
+                        trackEvent("results_exported", { format: "pdf" });
+                      }}
+                    >
+                      <Download size={14} /> PDF report
                     </Button>
                   </div>
                 </div>

@@ -644,23 +644,23 @@ export default function ManageLobbyPage() {
                       )}
 
                       {hasMultipleQuestions && tally && (
-                        <div className="flex items-center justify-center gap-4 border-t border-neutral-100 pt-4 dark:border-neutral-800">
+                        <div className="flex flex-wrap items-center justify-center gap-3 border-t border-neutral-100 pt-4 dark:border-neutral-800">
                           <Button
                             type="button"
                             variant="secondary"
-                            className="text-xs"
+                            className="shrink-0 text-xs"
                             disabled={questionIndex === 0}
                             onClick={() => setQuestionIndex((i) => i - 1)}
                           >
                             ← Previous
                           </Button>
-                          <p className="text-sm font-medium text-[var(--foreground-muted)]">
+                          <p className="whitespace-nowrap text-sm font-medium text-[var(--foreground-muted)]">
                             Question {questionIndex + 1} of {tally.length}
                           </p>
                           <Button
                             type="button"
                             variant="secondary"
-                            className="text-xs"
+                            className="shrink-0 text-xs"
                             disabled={questionIndex === tally.length - 1}
                             onClick={() => setQuestionIndex((i) => i + 1)}
                           >

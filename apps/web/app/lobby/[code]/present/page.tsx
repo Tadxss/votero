@@ -172,21 +172,23 @@ export default function PresentLobbyPage() {
                 />
               </div>
               {hasMultipleQuestions && tally && (
-                <div className="flex items-center gap-4">
+                <div className="flex flex-wrap items-center justify-center gap-3">
                   <Button
                     type="button"
                     variant="secondary"
+                    className="shrink-0"
                     disabled={questionIndex === 0}
                     onClick={() => setQuestionIndex((i) => i - 1)}
                   >
                     ← Previous
                   </Button>
-                  <p className="text-sm font-medium text-[var(--foreground-muted)]">
+                  <p className="whitespace-nowrap text-sm font-medium text-[var(--foreground-muted)]">
                     Question {questionIndex + 1} of {tally.length}
                   </p>
                   <Button
                     type="button"
                     variant="secondary"
+                    className="shrink-0"
                     disabled={questionIndex === tally.length - 1}
                     onClick={() => setQuestionIndex((i) => i + 1)}
                   >
