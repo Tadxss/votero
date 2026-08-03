@@ -64,7 +64,10 @@ export default function VotePage() {
   const castVoteMulti = useCastVoteMulti();
   const castVoteRanked = useCastVoteRanked();
   const submitTextResponse = useSubmitTextResponse();
-  const results = useLobbyResults(lobby?.id);
+  // Voter-facing page — a signed-in creator voting in their own lobby shouldn't get a "hidden
+  // until closed" tally sneak peek other voters are deliberately being denied (see
+  // lobby-results/index.ts).
+  const results = useLobbyResults(lobby?.id, { isPublicView: true });
   const { burst } = useConfetti();
 
   useLobbyRealtime({ lobbyId: lobby?.id, code, tallyVisibility: lobby?.tallyVisibility });

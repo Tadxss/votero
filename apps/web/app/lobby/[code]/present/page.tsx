@@ -32,7 +32,10 @@ export default function PresentLobbyPage() {
   const lobby = data?.lobby;
   const questions = data?.questions ?? [];
   useDocumentTitle(lobby ? `${lobby.title} · Present` : "Present");
-  const results = useLobbyResults(lobby?.id);
+  // Present Mode is a shared/projected display, not a private organizer dashboard — a signed-in
+  // creator viewing their own Present Mode shouldn't get a "hidden until closed" tally sneak peek
+  // the rest of the room is deliberately being denied (see lobby-results/index.ts).
+  const results = useLobbyResults(lobby?.id, { isPublicView: true });
 
   useLobbyRealtime({ lobbyId: lobby?.id, code, tallyVisibility: lobby?.tallyVisibility });
 

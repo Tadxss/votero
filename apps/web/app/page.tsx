@@ -12,14 +12,16 @@ import { qrImageSettings } from "./_components/qrLogo";
 // A believable glimpse of the real manage-page tally, not stock/decorative art — see the design
 // audit (home hero was the last "everything perfectly centered" AI-slop tell in the app).
 const DEMO_OPTIONS = [
-  { id: "a", lobbyId: "demo", questionId: "q1", label: "Tacos", position: 0 },
-  { id: "b", lobbyId: "demo", questionId: "q1", label: "Sushi", position: 1 },
-  { id: "c", lobbyId: "demo", questionId: "q1", label: "Salad", position: 2 },
+  { id: "a", lobbyId: "demo", questionId: "q1", label: "TikTok", position: 0 },
+  { id: "b", lobbyId: "demo", questionId: "q1", label: "Instagram", position: 1 },
+  { id: "c", lobbyId: "demo", questionId: "q1", label: "YouTube", position: 2 },
+  { id: "d", lobbyId: "demo", questionId: "q1", label: "Twitter/X", position: 3 },
 ];
 const DEMO_TALLY = [
-  { optionId: "a", count: 11 },
-  { optionId: "b", count: 7 },
-  { optionId: "c", count: 4 },
+  { optionId: "a", count: 15 },
+  { optionId: "b", count: 10 },
+  { optionId: "c", count: 6 },
+  { optionId: "d", count: 3 },
 ];
 
 export default function Home() {
@@ -76,7 +78,7 @@ export default function Home() {
       <div className="hidden lg:flex lg:justify-center">
         <div className="w-72 -rotate-2 rounded-3xl border border-neutral-300 bg-[var(--surface)] p-5 shadow-xl transition-transform hover:rotate-0 dark:border-neutral-800">
           <p className="mb-3 text-sm font-semibold text-[var(--foreground)]">
-            Where should we eat lunch?
+            What&apos;s your most used social media app?
           </p>
           <div className="mb-4 flex justify-center rounded-2xl bg-white p-3">
             <QRCodeSVG
@@ -88,7 +90,7 @@ export default function Home() {
             />
           </div>
           <TallyBars options={DEMO_OPTIONS} tally={DEMO_TALLY} />
-          <p className="mt-4 text-xs text-[var(--foreground-muted)]">28 joined · live</p>
+          <p className="mt-4 text-xs text-[var(--foreground-muted)]">40 joined · live</p>
         </div>
       </div>
 
