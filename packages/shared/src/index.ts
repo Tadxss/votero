@@ -27,3 +27,6 @@ export * from "./hooks/useUploadAvatar";
 export * from "./hooks/useUploadLobbyLogo";
 export * from "./hooks/useUpdateLobbyBranding";
 export * from "./hooks/useUpdateLobbyQuestions";
+export * from "./hooks/useApiKeys";
+export * from "./hooks/useCreateApiKey";
+export * from "./hooks/useRevokeApiKey";

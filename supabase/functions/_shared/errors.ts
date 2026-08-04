@@ -21,6 +21,9 @@ const STATUS_BY_MESSAGE: Record<string, number> = {
   AT_LEAST_TWO_RANKED_OPTIONS_REQUIRED: 400,
   DUPLICATE_OPTION: 400,
   INVALID_MAX_SELECTIONS: 400,
+  INVALID_API_KEY: 401,
+  MISSING_CODE: 400,
+  KEY_NOT_FOUND: 404,
 };
 
 export function statusForRpcError(message: string): number {

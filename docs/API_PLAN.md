@@ -1,4 +1,16 @@
-# Public API — implementation plan (not built yet)
+# Public API — implementation plan
+
+> **Built** — see `docs/ARCHITECTURE.md` Build Order step 64 for what actually shipped, and
+> `docs/API.md` for the human-facing usage doc. The endpoint list below was trimmed from 3 to 2
+> real endpoints (create lobby, read results) plus a minimal `/me` auth-test endpoint — `GET
+> /api/v1/lobbies/{code}` (reading back the lobby+questions themselves, not results) was dropped as
+> unnecessary: a caller that just created the lobby already has that response, and there's no other
+> realistic caller who has a code but no results-question in mind. Everything else below (schema,
+> auth design, rate-limiting approach) matches what was built. An integration target (Zapier,
+> HubSpot, or otherwise) was deliberately **not** decided or built — this plan and its
+> implementation are API-only; where to point it is a separate, later decision.
+
+This file is left below as the original planning document, kept for historical context.
 
 Sketched during the ranked-choice voting session, deliberately deferred so it can be reviewed and
 edited on its own before anyone commits to building it. This file is the durable version of that

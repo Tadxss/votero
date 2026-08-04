@@ -49,6 +49,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      api_keys: {
+        Row: {
+          created_at: string
+          id: string
+          key_hash: string
+          key_prefix: string
+          last_used_at: string | null
+          name: string
+          revoked_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          key_hash: string
+          key_prefix: string
+          last_used_at?: string | null
+          name: string
+          revoked_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          key_hash?: string
+          key_prefix?: string
+          last_used_at?: string | null
+          name?: string
+          revoked_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       lobbies: {
         Row: {
           ballot_mode: Database["public"]["Enums"]["ballot_mode"]
@@ -369,6 +402,10 @@ export type Database = {
         Args: { q: Database["public"]["Tables"]["questions"]["Row"] }
         Returns: Json
       }
+      relative_luminance: {
+        Args: { b: number; g: number; r: number }
+        Returns: number
+      }
       rpc_cast_vote: {
         Args: { p_lobby_id: string; p_option_id: string }
         Returns: {
@@ -479,6 +516,7 @@ export type Database = {
         Args: { p_lobby_id: string }
         Returns: number
       }
+      rpc_create_api_key: { Args: { p_name: string }; Returns: Json }
       rpc_create_lobby: {
         Args: {
           p_ballot_mode: Database["public"]["Enums"]["ballot_mode"]
@@ -496,6 +534,7 @@ export type Database = {
         Args: { p_code: string; p_display_name?: string }
         Returns: Json
       }
+      rpc_revoke_api_key: { Args: { p_id: string }; Returns: undefined }
       rpc_set_lobby_status: {
         Args: { p_action: string; p_lobby_id: string }
         Returns: {
@@ -564,17 +603,14 @@ export type Database = {
       }
       rpc_update_lobby_branding: {
         Args: {
-          p_brand_color?: string
-          p_brand_logo_url?: string
+          p_brand_color: string
+          p_brand_logo_url: string
           p_lobby_id: string
         }
         Returns: Json
       }
       rpc_update_lobby_questions: {
-        Args: {
-          p_lobby_id: string
-          p_questions: Json
-        }
+        Args: { p_lobby_id: string; p_questions: Json }
         Returns: Json
       }
       rpc_update_profile: {
@@ -585,6 +621,11 @@ export type Database = {
           p_username: string
         }
         Returns: Json
+      }
+      srgb_to_linear: { Args: { c: number }; Returns: number }
+      validate_lobby_questions: {
+        Args: { p_questions: Json }
+        Returns: undefined
       }
     }
     Enums: {
@@ -731,3 +772,4 @@ export const Constants = {
     },
   },
 } as const
+

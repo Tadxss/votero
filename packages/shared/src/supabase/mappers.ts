@@ -1,4 +1,4 @@
-import type { Lobby, LobbyOption, Profile, SurveyQuestion, Tables } from "@repo/types";
+import type { ApiKey, Lobby, LobbyOption, Profile, SurveyQuestion, Tables } from "@repo/types";
 
 // Direct PostgREST reads (`.from("lobbies").select("*")`) come back with raw Postgres column
 // names (snake_case, typed via the generated `Tables<...>` row types), unlike the RPCs
@@ -68,5 +68,23 @@ export function mapProfileRow(row: ProfileRow): Profile {
     lastName: row.last_name,
     avatarUrl: row.avatar_url,
     createdAt: row.created_at,
+  };
+}
+
+// Row shape here is deliberately narrower than the full ApiKeyRow — the select in useApiKeys
+// never asks for key_hash, so there's nothing to map into ApiKey (which doesn't carry it either).
+export function mapApiKeyRow(
+  row: Pick<
+    Tables<"api_keys">,
+    "id" | "name" | "key_prefix" | "created_at" | "last_used_at" | "revoked_at"
+  >,
+): ApiKey {
+  return {
+    id: row.id,
+    name: row.name,
+    keyPrefix: row.key_prefix,
+    createdAt: row.created_at,
+    lastUsedAt: row.last_used_at,
+    revokedAt: row.revoked_at,
   };
 }

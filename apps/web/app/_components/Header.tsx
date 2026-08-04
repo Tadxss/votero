@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
 import { useAuthUser, useProfile, useSignOut } from "@repo/shared";
+import { ApiKeysModal } from "./ApiKeysModal";
 import { Avatar } from "./Avatar";
 import { Logo } from "./Logo";
 import { ProfileModal } from "./ProfileModal";
@@ -19,6 +20,7 @@ export function Header() {
   const { data: profile } = useProfile(isSignedIn ? user?.id : undefined);
   const signOut = useSignOut();
   const [isProfileModalOpen, setProfileModalOpen] = useState(false);
+  const [isApiKeysModalOpen, setApiKeysModalOpen] = useState(false);
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Present Mode is meant to be projected on a screen at an event — the site nav would just be
@@ -65,6 +67,12 @@ export function Header() {
                 className="font-medium text-[var(--foreground-muted)] transition-colors hover:text-brand-600 dark:hover:text-brand-300"
               >
                 Edit profile
+              </button>
+              <button
+                onClick={() => setApiKeysModalOpen(true)}
+                className="font-medium text-[var(--foreground-muted)] transition-colors hover:text-brand-600 dark:hover:text-brand-300"
+              >
+                API keys
               </button>
               <button onClick={() => signOut.mutate()} className={navLinkClasses}>
                 Sign out
@@ -125,6 +133,16 @@ export function Header() {
                     <button
                       type="button"
                       onClick={() => {
+                        setApiKeysModalOpen(true);
+                        setMobileMenuOpen(false);
+                      }}
+                      className="rounded-xl px-3 py-2 text-left font-medium text-[var(--foreground)] transition-colors hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                    >
+                      API keys
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
                         signOut.mutate();
                         setMobileMenuOpen(false);
                       }}
@@ -145,6 +163,11 @@ export function Header() {
         <ThemeToggle />
       </nav>
       <ProfileModal open={isProfileModalOpen} onClose={() => setProfileModalOpen(false)} />
+      <ApiKeysModal
+        open={isApiKeysModalOpen}
+        onClose={() => setApiKeysModalOpen(false)}
+        userId={isSignedIn ? user?.id : undefined}
+      />
     </header>
   );
 }

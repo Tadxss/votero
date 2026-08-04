@@ -208,3 +208,22 @@ export interface LobbyResults {
 export type SetLobbyStatusInput =
   | { lobbyId: string; action: "open" }
   | { lobbyId: string; action: "close" };
+
+// Public API v1 key management (docs/API.md) — never carries key_hash; the raw key itself only
+// ever appears once, in CreateApiKeyResult, right after rpc_create_api_key generates it.
+export interface ApiKey {
+  id: string;
+  name: string;
+  keyPrefix: string;
+  createdAt: string;
+  lastUsedAt: string | null;
+  revokedAt: string | null;
+}
+
+export interface CreateApiKeyResult {
+  id: string;
+  name: string;
+  keyPrefix: string;
+  createdAt: string;
+  key: string; // shown once — never retrievable again after this response
+}
