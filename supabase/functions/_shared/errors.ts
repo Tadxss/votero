@@ -24,6 +24,7 @@ const STATUS_BY_MESSAGE: Record<string, number> = {
   INVALID_API_KEY: 401,
   MISSING_CODE: 400,
   KEY_NOT_FOUND: 404,
+  AUTH_UNAVAILABLE: 503,
 };
 
 export function statusForRpcError(message: string): number {
