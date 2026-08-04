@@ -3,6 +3,7 @@ import Script from "next/script";
 import localFont from "next/font/local";
 import { Sora } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { Providers } from "./providers";
 import { Header } from "./_components/Header";
@@ -75,6 +76,7 @@ export default function RootLayout({
           <Footer />
         </Providers>
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
