@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LegalModal, type LegalModalType } from "./LegalModal";
 import { Logo } from "./Logo";
@@ -34,6 +35,9 @@ export function Footer() {
         >
           Privacy
         </button>
+        <Link href="/developers" className="transition-colors hover:text-brand-600 dark:hover:text-brand-300">
+          API
+        </Link>
       </footer>
       <LegalModal type={openLegal} onClose={() => setOpenLegal(null)} />
     </>

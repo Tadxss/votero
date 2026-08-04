@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Link from "next/link";
 import { useApiKeys, useCreateApiKey, useRevokeApiKey } from "@repo/shared";
 import { Button } from "./Button";
 import { inputClasses } from "./styles";
@@ -82,15 +83,21 @@ export function ApiKeysModal({
           API keys
         </h2>
         <p className="mt-1 text-sm text-[var(--foreground-muted)]">
-          Create and manage keys for the Votero public API. See{" "}
-          <code className="rounded bg-neutral-100 px-1 py-0.5 text-xs dark:bg-neutral-800">docs/API.md</code>{" "}
-          for endpoints and examples.
+          Create and manage keys for the Votero public API.{" "}
+          <Link href="/developers" className="font-medium text-brand-600 hover:underline dark:text-brand-300">
+            View API documentation
+          </Link>{" "}
+          for endpoints and sample requests.
         </p>
 
         {revealedKey ? (
           <div className="mt-4 rounded-2xl border-2 border-brand-300 bg-brand-50 p-4 dark:border-brand-700 dark:bg-brand-950">
             <p className="text-sm font-semibold text-[var(--foreground)]">
-              Copy this key now — you won&apos;t be able to see it again.
+              Copy this key now and store it somewhere safe.
+            </p>
+            <p className="mt-0.5 text-xs text-[var(--foreground-muted)]">
+              You won&apos;t be able to view it again — closing this dialog or navigating away
+              loses it for good.
             </p>
             <code className="mt-2 block break-all rounded-xl bg-[var(--surface)] px-3 py-2 text-xs">
               {revealedKey}

@@ -31,6 +31,12 @@ test("login page has no serious/critical automated a11y violations", async ({ pa
   assertNoSeriousViolations(results.violations);
 });
 
+test("developers page has no serious/critical automated a11y violations", async ({ page }) => {
+  await page.goto("/developers");
+  const results = await analyze(page);
+  assertNoSeriousViolations(results.violations);
+});
+
 test("vote page has no serious/critical automated a11y violations", async ({ page }) => {
   await page.goto("/create");
   await page.fill('input[placeholder="Team survey"]', "A11y Scan Lobby");
