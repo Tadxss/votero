@@ -47,11 +47,26 @@ paths:
               schema:
                 $ref: "#/components/schemas/CreateLobbyResult"
         "400":
-          $ref: "#/components/responses/BadRequest"
+          description: >
+            Validation error. In addition to field-constraint violations, can be one of
+            AT_LEAST_ONE_QUESTION_REQUIRED, AT_LEAST_TWO_OPTIONS_REQUIRED (choice/ranked with <2
+            options), INVALID_MAX_SELECTIONS, INAPPROPRIATE_CONTENT (profanity filter),
+            CLOSES_AT_MUST_BE_FUTURE, or LOBBY_LIMIT_REACHED (10-lobby account cap) — see
+            docs/API.md's Errors table for the full list.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "429":
-          $ref: "#/components/responses/RateLimited"
+          description: >
+            Too many requests — either this endpoint's own 20/hour bucket, or the stricter
+            underlying 5-lobbies-per-10-minutes account limit (see docs/API.md's Rate limits).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
   /api-v1-lobby-results:
     get:
       summary: Read a lobby's progress, tally, and (if applicable) ballot detail
@@ -122,23 +137,36 @@ components:
       properties:
         title:
           type: string
+          minLength: 1
+          maxLength: 200
         type:
           type: string
           enum: [choice, text, ranked]
+          description: >
+            choice: pick one, or up to N (see maxSelections). text: free-response, no options.
+            ranked: rank every option in order (instant-runoff tallying).
         options:
           type: array
+          minItems: 2
           items:
             type: string
-          description: Required (min 2) for type choice/ranked; unused for text.
+            minLength: 1
+            maxLength: 200
+          description: Required (min 2) for type choice/ranked; ignored for text.
         maxSelections:
           type: integer
-          description: Choice-only. 1..options.length. Omit for classic single-select.
+          minimum: 1
+          description: >
+            choice-only, 1..options.length. Omit for classic single-select; set above 1 for
+            "choose up to N." Not applicable to ranked — every option is always ranked.
     CreateLobbyInput:
       type: object
       required: [title, questions, voterCap, ballotMode, tallyVisibility]
       properties:
         title:
           type: string
+          minLength: 1
+          maxLength: 200
         questions:
           type: array
           minItems: 1
@@ -146,12 +174,21 @@ components:
             $ref: "#/components/schemas/CreateLobbyQuestionInput"
         voterCap:
           type: integer
+          minimum: 1
+          maximum: 10000
         ballotMode:
           type: string
           enum: [anonymous, open]
+          description: >
+            anonymous: nobody, including you, can see who voted for what — only aggregate
+            tallies. open: you can see each voter's individual ballot via ballotDetail on the
+            results endpoint.
         tallyVisibility:
           type: string
           enum: [live, hidden]
+          description: >
+            live: results visible while the lobby is open. hidden: results only visible once
+            the lobby closes.
         closesAt:
           type: string
           format: date-time

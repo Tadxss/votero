@@ -37,7 +37,10 @@ Each endpoint has its own bucket, separate from the web app's own limits:
 | `POST /api-v1-create-lobby` | 20 requests / hour / key |
 | `GET /api-v1-lobby-results` | 60 requests / hour / key |
 
-Exceeding a limit returns `429` with `{"error": "RATE_LIMITED"}`.
+Exceeding a limit returns `429` with `{"error": "RATE_LIMITED"}`. Lobby creation also has a second,
+stricter limit underneath the API's own bucket: your account can create at most **5 lobbies per 10
+minutes** (the same limit the web app's creation form is subject to) — whichever limit is hit first
+returns `RATE_LIMITED`.
 
 ## Endpoints
 
@@ -75,14 +78,40 @@ curl -X POST https://<project-ref>.supabase.co/functions/v1/api-v1-create-lobby 
 
 Body fields:
 
-| Field | Type | Notes |
-|---|---|---|
-| `title` | string | required |
-| `questions` | array | at least 1. Each: `{ title, type: "choice"\|"text"\|"ranked", options?, maxSelections? }`. `options` required (min 2) for `choice`/`ranked`; `maxSelections` optional, choice-only, for "choose up to N." |
-| `voterCap` | number | required |
-| `ballotMode` | `"anonymous"` \| `"open"` | required |
-| `tallyVisibility` | `"live"` \| `"hidden"` | required — `hidden` means results only show once the lobby closes |
-| `closesAt` | ISO timestamp | optional — schedules an auto-close |
+| Field | Type | Required | Notes |
+|---|---|---|---|
+| `title` | string | yes | 1–200 characters |
+| `questions` | array | yes | at least 1 — see question object fields below |
+| `voterCap` | number | yes | 1–10,000 — max participants who can join |
+| `ballotMode` | `"anonymous"` \| `"open"` | yes | `"anonymous"`: nobody — including you — can see who voted for what, only aggregate tallies. `"open"`: you can see each voter's individual ballot via `ballotDetail` on the results endpoint. |
+| `tallyVisibility` | `"live"` \| `"hidden"` | yes | `"live"`: results visible while the lobby is open. `"hidden"`: results only visible once the lobby closes. |
+| `closesAt` | ISO timestamp | no | schedules an auto-close; must be in the future |
+
+Question object fields:
+
+| Field | Type | Required | Notes |
+|---|---|---|---|
+| `title` | string | yes | 1–200 characters |
+| `type` | `"choice"` \| `"text"` \| `"ranked"` | yes | `"choice"`: pick one, or up to N (see `maxSelections`). `"text"`: free-response, no options. `"ranked"`: rank every option in order (instant-runoff tallying). |
+| `options` | string[] | for `choice`/`ranked` | at least 2, each 1–200 characters. Ignored for `text` questions. |
+| `maxSelections` | number | no | `choice` only, `1..options.length`. Omit for classic single-select; set above 1 for "choose up to N." Not applicable to `ranked` — every option is always ranked. |
+
+Example: a 3-question survey combining all 3 types — one ranked-choice question, one multi-select
+("choose up to N") question, and one free-text question:
+
+```json
+{
+  "title": "Team offsite planning",
+  "questions": [
+    { "title": "Rank these venues", "type": "ranked", "options": ["Beach house", "Mountain cabin", "City loft"] },
+    { "title": "Which activities interest you?", "type": "choice", "options": ["Hiking", "Cooking class", "Board games", "Spa"], "maxSelections": 2 },
+    { "title": "Anything else we should plan for?", "type": "text" }
+  ],
+  "voterCap": 25,
+  "ballotMode": "open",
+  "tallyVisibility": "hidden"
+}
+```
 
 Response: the same `CreateLobbyResult` shape the web app uses (`lobby` + `questions`, including the
 generated `code` voters use to join at `votero.app/vote/<code>`).
@@ -120,15 +149,24 @@ the web app's Present Mode and vote page follow. `ballotDetail` is only populate
 ## Errors
 
 All errors are `{"error": "SOME_CODE"}` with a matching HTTP status — the same vocabulary the web
-app's own network calls use (`supabase/functions/_shared/errors.ts`). Common ones:
+app's own network calls use (`supabase/functions/_shared/errors.ts`).
 
-| Code | Status | Meaning |
-|---|---|---|
-| `INVALID_API_KEY` | 401 | missing, unrecognized, or revoked key |
-| `RATE_LIMITED` | 429 | too many requests in the current window |
-| `MISSING_CODE` | 400 | `code` query param missing on `api-v1-lobby-results` |
-| `LOBBY_NOT_FOUND` | 404 | no lobby with that code owned by this key's account |
-| `AT_LEAST_ONE_QUESTION_REQUIRED`, `AT_LEAST_TWO_OPTIONS_REQUIRED`, etc. | 400 | same validation errors the create-lobby form surfaces |
+| Code | Status | Applies to | Meaning |
+|---|---|---|---|
+| `INVALID_API_KEY` | 401 | all endpoints | missing, unrecognized, or revoked key |
+| `RATE_LIMITED` | 429 | create-lobby, lobby-results | too many requests in the current window (see Rate limits) |
+| `MISSING_CODE` | 400 | lobby-results | `code` query param missing |
+| `LOBBY_NOT_FOUND` | 404 | lobby-results | no lobby with that code owned by this key's account |
+| `AT_LEAST_ONE_QUESTION_REQUIRED` | 400 | create-lobby | `questions` array is empty |
+| `AT_LEAST_TWO_OPTIONS_REQUIRED` | 400 | create-lobby | a `choice` or `ranked` question has fewer than 2 options |
+| `INVALID_MAX_SELECTIONS` | 400 | create-lobby | `maxSelections` is below 1 or above the question's option count |
+| `INAPPROPRIATE_CONTENT` | 400 | create-lobby | the lobby title, a question title, or an option label failed the profanity filter |
+| `CLOSES_AT_MUST_BE_FUTURE` | 400 | create-lobby | `closesAt` is not in the future |
+| `LOBBY_LIMIT_REACHED` | 400 | create-lobby | your account already has 10 lobbies (the same cap the web app enforces) |
+
+Field-length/range violations (e.g. `voterCap` outside 1–10,000, a title over 200 characters)
+return a `400` with a raw database error message rather than one of the codes above — validate
+against the limits in the field tables above to avoid hitting these.
 
 ## What's not in v1
 

@@ -16,7 +16,15 @@ export function ApiDocsCodeBlock({ code }: { code: string }) {
 
   return (
     <div className="relative rounded-2xl border border-neutral-300 bg-[var(--input-bg)] dark:border-neutral-800">
-      <pre className="overflow-x-auto p-4 pr-20 text-xs leading-relaxed text-[var(--foreground)]">
+      {/* tabIndex so keyboard users can actually scroll this horizontally when it overflows —
+          axe's scrollable-region-focusable rule (a scrollable element with no focusable way to
+          scroll it isn't reachable without a mouse/trackpad). jsx-a11y flags tabIndex on a <pre>
+          as "non-interactive," but that's exactly the point here — it's the standard fix. */}
+      <pre
+        // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+        tabIndex={0}
+        className="overflow-x-auto p-4 pr-20 text-xs leading-relaxed text-[var(--foreground)]"
+      >
         <code>{code}</code>
       </pre>
       <Button
