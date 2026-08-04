@@ -473,3 +473,23 @@ enabled = true
 verify_jwt = true
 import_map = "./functions/submit-text-response/deno.json"
 entrypoint = "./functions/submit-text-response/index.ts"
+
+# Public API v1 — bearer API-key auth (see supabase/functions/_shared/apiAuth.ts), not a Supabase
+# session JWT, so the gateway's own JWT verification must be off; each function resolves auth itself.
+[functions.api-v1-me]
+enabled = true
+verify_jwt = false
+import_map = "./functions/api-v1-me/deno.json"
+entrypoint = "./functions/api-v1-me/index.ts"
+
+[functions.api-v1-create-lobby]
+enabled = true
+verify_jwt = false
+import_map = "./functions/api-v1-create-lobby/deno.json"
+entrypoint = "./functions/api-v1-create-lobby/index.ts"
+
+[functions.api-v1-lobby-results]
+enabled = true
+verify_jwt = false
+import_map = "./functions/api-v1-lobby-results/deno.json"
+entrypoint = "./functions/api-v1-lobby-results/index.ts"
