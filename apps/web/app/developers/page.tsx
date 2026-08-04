@@ -371,6 +371,7 @@ export default function DevelopersPage() {
                   <tbody>
                     {[
                       ["INVALID_API_KEY", "401", "All endpoints", "missing, unrecognized, or revoked key"],
+                      ["AUTH_UNAVAILABLE", "503", "create-lobby, lobby-results", "your key is valid, but minting a session for your account failed transiently — retry"],
                       ["RATE_LIMITED", "429", "create-lobby, lobby-results", "too many requests in the current window (see Rate limits)"],
                       ["MISSING_CODE", "400", "lobby-results", "code query param missing"],
                       ["LOBBY_NOT_FOUND", "404", "lobby-results", "no lobby with that code owned by this key's account"],

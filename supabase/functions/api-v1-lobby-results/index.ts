@@ -11,7 +11,10 @@ import { statusForRpcError } from "../_shared/errors.ts";
 Deno.serve(async (req) => {
   const resolved = await resolveApiKey(req);
   if (resolved instanceof Response) return resolved;
-  const { userId, asUser } = resolved;
+  const { userId } = resolved;
+
+  const asUser = await resolved.getAsUser();
+  if (asUser instanceof Response) return asUser;
 
   const { error: rateLimitError } = await asUser.rpc("rpc_check_rate_limit", {
     p_action: "api_get_results",

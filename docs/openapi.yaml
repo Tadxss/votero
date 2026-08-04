@@ -67,6 +67,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+        "503":
+          $ref: "#/components/responses/AuthUnavailable"
   /api-v1-lobby-results:
     get:
       summary: Read a lobby's progress, tally, and (if applicable) ballot detail
@@ -99,6 +101,8 @@ paths:
                 $ref: "#/components/schemas/Error"
         "429":
           $ref: "#/components/responses/RateLimited"
+        "503":
+          $ref: "#/components/responses/AuthUnavailable"
 components:
   securitySchemes:
     ApiKeyAuth:
@@ -120,6 +124,14 @@ components:
             $ref: "#/components/schemas/Error"
     RateLimited:
       description: Too many requests in the current window
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    AuthUnavailable:
+      description: >
+        The API key itself is valid, but minting a session for the account failed transiently
+        (AUTH_UNAVAILABLE) — retry.
       content:
         application/json:
           schema:
