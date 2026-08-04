@@ -84,7 +84,12 @@ export function ApiKeysModal({
         </h2>
         <p className="mt-1 text-sm text-[var(--foreground-muted)]">
           Create and manage keys for the Votero public API.{" "}
-          <Link href="/developers" className="font-medium text-brand-600 hover:underline dark:text-brand-300">
+          <Link
+            href="/developers"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-brand-600 hover:underline dark:text-brand-300"
+          >
             View API documentation
           </Link>{" "}
           for endpoints and sample requests.

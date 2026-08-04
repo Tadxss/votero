@@ -35,7 +35,12 @@ export function Footer() {
         >
           Privacy
         </button>
-        <Link href="/developers" className="transition-colors hover:text-brand-600 dark:hover:text-brand-300">
+        <Link
+          href="/developers"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="transition-colors hover:text-brand-600 dark:hover:text-brand-300"
+        >
           API
         </Link>
       </footer>
