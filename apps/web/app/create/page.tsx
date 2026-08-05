@@ -50,7 +50,9 @@ export default function CreateLobbyPage() {
   const createLobby = useCreateLobby();
 
   const [title, setTitle] = useState("");
-  const [questions, setQuestions] = useState<EditableQuestion[]>([makeQuestion()]);
+  const [questions, setQuestions] = useState<EditableQuestion[]>(() => [
+    makeQuestion("initial-question"),
+  ]);
   const [voterCap, setVoterCap] = useState(10);
   const [ballotMode, setBallotMode] = useState<BallotMode>("anonymous");
   const [tallyVisibility, setTallyVisibility] = useState<TallyVisibility>("hidden");
