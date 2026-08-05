@@ -36,16 +36,22 @@ export interface EditableQuestion {
   maxSelections: number;
 }
 
-export function makeOption(): EditableOption {
-  return { id: crypto.randomUUID(), label: "" };
+export function makeOption(id: string = crypto.randomUUID()): EditableOption {
+  return { id, label: "" };
 }
 
-export function makeQuestion(): EditableQuestion {
+// Accepts an optional deterministic `id`: the one caller that renders on the very first
+// server-rendered paint (create/page.tsx's initial blank question) must not use crypto.randomUUID()
+// there, since that runs independently on the server and again on the client during hydration and
+// can never produce matching output — causing a real, previously-observed React hydration mismatch
+// on every /create page load. Calls made after mount (e.g. "+ Add question"/"+ Add option", which
+// never appear in server-rendered HTML) keep using a random id, where unpredictability is fine.
+export function makeQuestion(id: string = crypto.randomUUID()): EditableQuestion {
   return {
-    id: crypto.randomUUID(),
+    id,
     title: "",
     type: "choice",
-    options: [makeOption(), makeOption()],
+    options: [makeOption(`${id}-o1`), makeOption(`${id}-o2`)],
     maxSelections: 1,
   };
 }
@@ -283,6 +289,7 @@ function SortableQuestionCard({
       {(question.type === "choice" || question.type === "ranked") && (
         <div className="flex flex-col gap-2 pl-0 sm:pl-9">
           <DndContext
+            id={`options-dnd-${question.id}`}
             sensors={optionSensors}
             collisionDetection={closestCenter}
             onDragEnd={onReorderOptions}
@@ -427,6 +434,7 @@ export default function QuestionsEditor({ questions, onChange, disabled }: Quest
   return (
     <div className="flex flex-col gap-4">
       <DndContext
+        id="questions-dnd"
         sensors={questionSensors}
         collisionDetection={closestCenter}
         onDragEnd={handleQuestionDragEnd}
