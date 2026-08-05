@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Menu } from "lucide-react";
 import { useAuthUser, useProfile, useSignOut } from "@repo/shared";
 import { ApiKeysModal } from "./ApiKeysModal";
@@ -16,6 +16,7 @@ const navLinkClasses =
 
 export function Header() {
   const pathname = usePathname();
+  const router = useRouter();
   const { user, isSignedIn, loading } = useAuthUser();
   const { data: profile } = useProfile(isSignedIn ? user?.id : undefined);
   const signOut = useSignOut();
@@ -74,7 +75,10 @@ export function Header() {
               >
                 API keys
               </button>
-              <button onClick={() => signOut.mutate()} className={navLinkClasses}>
+              <button
+                onClick={() => signOut.mutate(undefined, { onSuccess: () => router.push("/") })}
+                className={navLinkClasses}
+              >
                 Sign out
               </button>
             </div>
@@ -143,7 +147,7 @@ export function Header() {
                     <button
                       type="button"
                       onClick={() => {
-                        signOut.mutate();
+                        signOut.mutate(undefined, { onSuccess: () => router.push("/") });
                         setMobileMenuOpen(false);
                       }}
                       className="rounded-xl px-3 py-2 text-left font-medium text-red-600 transition-colors hover:bg-red-50 dark:hover:bg-red-950"
