@@ -97,7 +97,11 @@ export default function LobbyStatsPage() {
               <StatCard icon={VoteIcon} label="Votes cast" value={lobby.votesCount} />
             </div>
 
-            {results.data?.tally ? (
+            {results.isLoading ? (
+              <div className="flex justify-center rounded-3xl border border-neutral-300 bg-[var(--surface)] p-10 dark:border-neutral-800">
+                <Spinner />
+              </div>
+            ) : results.data?.tally ? (
               <div className="flex flex-col gap-6 rounded-3xl border border-neutral-300 bg-[var(--surface)] p-5 dark:border-neutral-800">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <h2 className="text-sm font-semibold text-[var(--foreground)]">Results</h2>
