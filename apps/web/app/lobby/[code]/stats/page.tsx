@@ -51,7 +51,17 @@ export default function LobbyStatsPage() {
 
   if (!ready || isLoading || authLoading) return <Spinner />;
   if (error || !lobby) {
-    return <main className="p-10 text-sm text-red-600">Lobby not found.</main>;
+    return (
+      <main className="flex flex-col items-start gap-2 p-10 text-sm">
+        <p className="text-red-600">Lobby not found.</p>
+        <Link
+          href="/"
+          className="font-medium text-[var(--foreground-muted)] transition-colors hover:text-brand-600 dark:hover:text-brand-300"
+        >
+          ← Back to home
+        </Link>
+      </main>
+    );
   }
 
   // Deliberately stricter than the manage page: detailed stats are only for a real signed-in

@@ -41,11 +41,27 @@ function friendlyVoteError(message: string): string {
   return "Something went wrong. Please try again.";
 }
 
-function EmptyState({ icon: Icon, message }: { icon: LucideIcon; message: string }) {
+function EmptyState({
+  icon: Icon,
+  message,
+  showHomeLink,
+}: {
+  icon: LucideIcon;
+  message: string;
+  showHomeLink?: boolean;
+}) {
   return (
     <main className="flex h-[calc(100vh-4rem)] flex-col items-center justify-center gap-3 px-4 text-center">
       <Icon size={40} strokeWidth={1.5} className="text-[var(--foreground-muted)]" />
       <p className="text-sm text-[var(--foreground-muted)]">{message}</p>
+      {showHomeLink && (
+        <Link
+          href="/"
+          className="text-sm font-medium text-[var(--foreground-muted)] transition-colors hover:text-brand-600 dark:hover:text-brand-300"
+        >
+          ← Back to home
+        </Link>
+      )}
     </main>
   );
 }
@@ -106,7 +122,7 @@ export default function VotePage() {
 
   if (!ready || isLoading) return <Spinner />;
   if (error || !lobby) {
-    return <EmptyState icon={SearchX} message="Lobby not found." />;
+    return <EmptyState icon={SearchX} message="Lobby not found." showHomeLink />;
   }
 
   if (lobby.status === "draft") {
