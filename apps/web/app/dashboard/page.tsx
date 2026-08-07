@@ -64,9 +64,11 @@ export default function DashboardPage() {
       <div className="relative mx-auto flex max-w-6xl flex-col gap-6 px-4 sm:px-8">
         <div className="flex items-start justify-between gap-3">
           <h1 className="font-display text-3xl font-bold text-[var(--foreground)]">Dashboard</h1>
-          <Link href="/create">
-            <Button className="whitespace-nowrap">+ New lobby</Button>
-          </Link>
+          {isSignedIn && totalLobbies > 0 && (
+            <Link href="/create">
+              <Button className="whitespace-nowrap">+ New lobby</Button>
+            </Link>
+          )}
         </div>
 
         {authLoading ? (
