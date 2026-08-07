@@ -21,12 +21,17 @@ export function useLobby(code: string | undefined, options?: { enabled?: boolean
     queryKey: ["lobby", code],
     enabled: Boolean(code) && (options?.enabled ?? true),
     queryFn: async () => {
+      // maybeSingle(), not single(): an unrecognized/expired code is an expected outcome (a scanned
+      // QR code gone stale, a typo), not a server-side error — single() makes PostgREST respond 406
+      // for zero rows, which just adds console/Sentry noise for something the UI already handles
+      // cleanly via its own "lobby not found" empty state.
       const { data: lobby, error: lobbyError } = await supabase
         .from("lobbies")
         .select("*")
         .eq("code", code as string)
-        .single();
+        .maybeSingle();
       if (lobbyError) throw lobbyError;
+      if (!lobby) throw new Error("LOBBY_NOT_FOUND");
       const mappedLobby = mapLobbyRow(lobby);
 
       const { data: questionRows, error: questionsError } = await supabase
