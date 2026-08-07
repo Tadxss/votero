@@ -1,6 +1,7 @@
 import type { Lobby } from "@repo/types";
 import { loadImage } from "./loadImage";
 import { ensureCanvasFontsLoaded } from "./loadCanvasFonts";
+import { CANVAS_BACKGROUND, CANVAS_CAPTION, CANVAS_FOREGROUND, CANVAS_FOREGROUND_MUTED } from "./canvasColors";
 
 export type PosterPreset = "a4" | "tableTent" | "slide";
 
@@ -121,14 +122,14 @@ function drawFooter(
   width: number,
   fontSize: number,
 ) {
-  ctx.strokeStyle = "rgba(91, 100, 114, 0.2)"; // matches --foreground-muted at low alpha
+  ctx.strokeStyle = "rgba(91, 100, 114, 0.2)"; // CANVAS_FOREGROUND_MUTED at low alpha
   ctx.lineWidth = Math.max(1, fontSize * 0.06);
   ctx.beginPath();
   ctx.moveTo(centerX - width / 2, y);
   ctx.lineTo(centerX + width / 2, y);
   ctx.stroke();
 
-  ctx.fillStyle = "#8b93a1";
+  ctx.fillStyle = CANVAS_CAPTION;
   ctx.font = `600 ${Math.round(fontSize)}px "Sora Canvas", system-ui, sans-serif`;
   ctx.textAlign = "center";
   ctx.fillText("Powered by Votero", centerX, y + fontSize * 1.8);
@@ -147,7 +148,7 @@ function drawPosterContent(
   height: number,
 ) {
   ctx.save();
-  ctx.fillStyle = "#f7f9fc";
+  ctx.fillStyle = CANVAS_BACKGROUND;
   ctx.fillRect(0, 0, width, height);
 
   const centerX = width / 2;
@@ -160,7 +161,7 @@ function drawPosterContent(
   }
 
   ctx.textAlign = "center";
-  ctx.fillStyle = "#1a1d23"; // matches --foreground
+  ctx.fillStyle = CANVAS_FOREGROUND;
   const titleSize = Math.round(width * 0.075);
   ctx.font = `bold ${titleSize}px "Sora Canvas", system-ui, sans-serif`;
   y += titleSize * 0.9;
@@ -187,7 +188,7 @@ function drawPosterContent(
   y += pillHeight + height * 0.04;
 
   ctx.textAlign = "center";
-  ctx.fillStyle = "#5b6472"; // matches --foreground-muted
+  ctx.fillStyle = CANVAS_FOREGROUND_MUTED;
   ctx.font = `600 ${Math.round(width * 0.03)}px "Sora Canvas", system-ui, sans-serif`;
   ctx.fillText("Scan to vote", centerX, y);
 
@@ -207,7 +208,7 @@ function drawSlideContent(
   width: number,
   height: number,
 ) {
-  ctx.fillStyle = "#f7f9fc";
+  ctx.fillStyle = CANVAS_BACKGROUND;
   ctx.fillRect(0, 0, width, height);
 
   const margin = width * 0.06;
@@ -227,7 +228,7 @@ function drawSlideContent(
   }
 
   ctx.textAlign = "left";
-  ctx.fillStyle = "#1a1d23";
+  ctx.fillStyle = CANVAS_FOREGROUND;
   ctx.font = `bold ${Math.round(height * 0.085)}px "Sora Canvas", system-ui, sans-serif`;
   ctx.fillText(lobby.title, textX, y, textMaxWidth);
 
@@ -244,11 +245,11 @@ function drawSlideContent(
   const pillHeight = drawCodePill(ctx, lobby.code, accentColor, textX, y, codeFontSize, "left");
   y += pillHeight + height * 0.06;
 
-  ctx.fillStyle = "#5b6472";
+  ctx.fillStyle = CANVAS_FOREGROUND_MUTED;
   ctx.font = `600 ${Math.round(height * 0.04)}px "Sora Canvas", system-ui, sans-serif`;
   ctx.fillText("Scan to vote", textX, y);
 
-  ctx.fillStyle = "#8b93a1";
+  ctx.fillStyle = CANVAS_CAPTION;
   ctx.font = `600 ${Math.round(height * 0.03)}px "Sora Canvas", system-ui, sans-serif`;
   ctx.fillText("Powered by Votero", textX, height * 0.93);
 }
